@@ -2,6 +2,9 @@
 
 namespace Gravity_Forms\Gravity_Tools\Apps;
 
+use Gravity_Forms\Gravity_Tools\Providers\Config_Collection_Service_Provider;
+use Gravity_Forms\Gravity_Tools\Config\App_Config;
+
 trait Registers_Apps {
 
 	//----------------------------------------
@@ -16,10 +19,10 @@ trait Registers_Apps {
 	 * @param array $args
 	 */
 	public function register_app( $args ) {
-		$config = new GF_App_Config( $this->container->get( GF_Config_Service_Provider::DATA_PARSER ) );
+		$config = new App_Config( $this->container->get( Config_Collection_Service_Provider::DATA_PARSER ) );
 		$config->set_data( $args );
 
-		$this->container->get( GF_Config_Service_Provider::CONFIG_COLLECTION )->add_config( $config );
+		$this->container->get( Config_Collection_Service_Provider::CONFIG_COLLECTION )->add_config( $config );
 
 		$should_display = is_callable( $args['enqueue'] ) ? call_user_func( $args['enqueue'] ) : $args['enqueue'];
 
@@ -63,9 +66,23 @@ trait Registers_Apps {
 	 * @param string $root
 	 */
 	protected function add_root_element( $root ) {
-		add_action( 'admin_footer', function() use ( $root ) {
-			echo '<div data-js="' . $root . '"></div>';
+		$self = $this;
+		add_action( 'admin_footer', function() use ( $root, $self ) {
+			echo $self->get_root_markup( $root );
 		}, 10, 0 );
+	}
+
+	/**
+	 * The markup for the root element of the app.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $root
+	 *
+	 * @return string
+	 */
+	protected function get_root_markup( $root ) {
+		return '<div data-js="' . $root . '"></div>';
 	}
 
 }
