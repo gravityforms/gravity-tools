@@ -67,7 +67,7 @@ trait Registers_Apps {
 	 */
 	protected function add_root_element( $root ) {
 		$self = $this;
-		add_action( 'admin_footer', function() use ( $root, $self ) {
+		add_action( $this->get_inject_action(), function() use ( $root, $self ) {
 			echo $self->get_root_markup( $root );
 		}, 10, 0 );
 	}
@@ -83,6 +83,17 @@ trait Registers_Apps {
 	 */
 	protected function get_root_markup( $root ) {
 		return '<div data-js="' . $root . '"></div>';
+	}
+
+	/**
+	 * Get the action name for injecting app root.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string
+	 */
+	protected function get_inject_action() {
+		return 'admin_footer';
 	}
 
 }
