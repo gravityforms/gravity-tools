@@ -21,6 +21,22 @@ class Config_Collection_Service_Provider extends Service_Provider {
 	const CONFIG_COLLECTION = 'config_collection';
 	const DATA_PARSER       = 'data_parser';
 
+	protected $rest_namespace;
+
+	/**
+	 * The $rest_namespace will be used in order to define the API endpoint for
+	 * retrieving mock/config data.
+	 *
+	 * @since 1.0
+	 *
+	 * @param string $rest_namespace
+	 *
+	 * @return void
+	 */
+	public function __construct( $rest_namespace = 'gravityforms/v2' ) {
+		$this->rest_namespace = $rest_namespace;
+	}
+
 	/**
 	 * Register services to the container.
 	 *
@@ -67,7 +83,7 @@ class Config_Collection_Service_Provider extends Service_Provider {
 		}, 0 );
 
 		add_action( 'rest_api_init', function () use ( $container, $self ) {
-			register_rest_route( 'gravityforms/v2', '/tests/mock-data', array(
+			register_rest_route( $this->rest_namespace, '/tests/mock-data', array(
 				'methods'             => 'GET',
 				'callback'            => array( $self, 'config_mocks_endpoint' ),
 				'permission_callback' => function () {
@@ -86,8 +102,7 @@ class Config_Collection_Service_Provider extends Service_Provider {
 	 */
 	public function config_mocks_endpoint() {
 		define( 'GFORMS_DOING_MOCK', true );
-		$container = \GFForms::get_service_container();
-		$data      = $container->get( self::CONFIG_COLLECTION )->handle( false );
+		$data      = $this->container->get( self::CONFIG_COLLECTION )->handle( false );
 
 		return $data;
 	}
