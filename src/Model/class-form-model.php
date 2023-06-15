@@ -16,6 +16,38 @@ class Form_Model {
 	}
 
 	/**
+	 * Gets the entry table name, including the site's database prefix
+	 *
+	 * @since 1.0
+	 *
+	 * @global $wpdb
+	 *
+	 * @return string The entry table name
+	 */
+	public function get_entry_table_name() {
+		global $wpdb;
+
+		return $wpdb->prefix . 'gf_entry';
+	}
+
+	/**
+	 * Returns the current database version.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string
+	 */
+	public function get_database_version() {
+		static $db_version = array();
+		$blog_id = get_current_blog_id();
+		if ( empty( $db_version[ $blog_id ] ) ) {
+			$db_version[ $blog_id ] = get_option( 'gf_db_version' );
+		}
+
+		return $db_version[ $blog_id ];
+	}
+
+	/**
 	 * Gets the total, active, inactive, and trashed form counts.
 	 *
 	 * @since  1.0
@@ -28,7 +60,7 @@ class Form_Model {
 		global $wpdb;
 		$form_table_name = $this->get_form_table_name();
 
-		if ( ! GFCommon::table_exists( $form_table_name ) ) {
+		if ( ! $this->common->table_exists( $form_table_name ) ) {
 			return array(
 				'total'    => 0,
 				'active'   => 0,

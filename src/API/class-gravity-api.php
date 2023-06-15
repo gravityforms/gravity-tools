@@ -313,23 +313,10 @@ class Gravity_Api {
 		$theme_author     = $theme->get( 'Author' );
 		$theme_author_uri = $theme->get( 'AuthorURI' );
 
-		$form_counts    = $this->model->get_form_count();
-		$active_count   = $form_counts['active'];
-		$inactive_count = $form_counts['inactive'];
-		$fc             = abs( $active_count ) + abs( $inactive_count );
-		$entry_count    = $this->model->get_entry_count_all_forms( 'active' );
-		$meta_counts    = $this->model->get_entry_meta_counts();
 		$im             = is_multisite();
 		$lang           = get_locale();
 
 		$post = array(
-			'of'      => 'gravityforms',
-			'key'     => $this->get_key(),
-			'v'       => self::$version,
-			'wp'      => get_bloginfo( 'version' ),
-			'php'     => phpversion(),
-			'mysql'   => $this->common->get_db_version(),
-			'version' => '2',
 			'plugins' => $plugins,
 			'tn'      => $theme_name,
 			'tu'      => $theme_uri,
@@ -337,13 +324,6 @@ class Gravity_Api {
 			'ta'      => $theme_author,
 			'tau'     => $theme_author_uri,
 			'im'      => $im,
-			'fc'      => $fc,
-			'ec'      => $entry_count,
-			'emc'     => $this->common->get_emails_sent(),
-			'api'     => $this->common->get_api_calls(),
-			'emeta'   => $meta_counts['meta'],
-			'ed'      => $meta_counts['details'],
-			'en'      => $meta_counts['notes'],
 			'lang'    => $lang,
 		);
 

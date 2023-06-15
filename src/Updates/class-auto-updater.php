@@ -5,6 +5,10 @@ namespace Gravity_Forms\Gravity_Tools\Updates;
 use Gravity_Forms\Gravity_Tools\License\License_API_Connector;
 use Gravity_Forms\Gravity_Tools\Utils\Common;
 
+if ( ! defined( 'RG_CURRENT_PAGE' ) ) {
+	define( 'RG_CURRENT_PAGE', '' );
+}
+
 class Auto_Updater {
 
 	protected $_version;
