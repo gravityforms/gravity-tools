@@ -3,6 +3,7 @@
 namespace Gravity_Forms\Gravity_Tools\License;
 
 use Gravity_Forms\Gravity_Tools\License\License_API_Response;
+use Gravity_Forms\Gravity_Tools\Utils\Common;
 
 /**
  * Class License_API_Response_Factory
@@ -18,14 +19,20 @@ class License_API_Response_Factory {
 	private $transient_strategy;
 
 	/**
+	 * @var Common
+	 */
+	protected $common;
+
+	/**
 	 * License_API_Response_Factory constructor
 	 *
 	 * @since 2.5.11
 	 *
 	 * @param $transient_strategy
 	 */
-	public function __construct( $transient_strategy ) {
+	public function __construct( $transient_strategy, $common ) {
 		$this->transient_strategy = $transient_strategy;
+		$this->common = $common;
 	}
 
 	/**
@@ -41,7 +48,7 @@ class License_API_Response_Factory {
 		$data     = $args[0];
 		$validate = isset( $args[1] ) ? $args[1] : true;
 
-		return new License_API_Response( $data, $validate, $this->transient_strategy );
+		return new License_API_Response( $data, $validate, $this->transient_strategy, $this->common );
 	}
 
 }

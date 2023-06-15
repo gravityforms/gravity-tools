@@ -3,6 +3,7 @@
 namespace Gravity_Forms\Gravity_Tools\License;
 
 use Gravity_Forms\Gravity_Tools\Data\Transient_Strategy;
+use Gravity_Forms\Gravity_Tools\Utils\Common;
 
 /**
  * Class License_API_Response
@@ -21,6 +22,11 @@ class License_API_Response extends API_Response {
 	private $transient_strategy;
 
 	/**
+	 * @var Common
+	 */
+	protected $common;
+
+	/**
 	 * License_API_Response constructor.
 	 *
 	 * @since 2.5.11
@@ -29,8 +35,9 @@ class License_API_Response extends API_Response {
 	 * @param bool $validate Whether to validate the data passed.
 	 * @param Transient_Strategy $transient_strategy The Transient Strategy used to store things in transients.
 	 */
-	public function __construct( $data, $validate, Transient_Strategy $transient_strategy ) {
+	public function __construct( $data, $validate, Transient_Strategy $transient_strategy, $common ) {
 		$this->transient_strategy = $transient_strategy;
+		$this->common = $common;
 
 		// Data is a wp_error, parse it to get the correct code and message.
 		if ( is_wp_error( $data ) ) {
@@ -51,8 +58,8 @@ class License_API_Response extends API_Response {
 
 			$error_data = $data->get_error_data();
 
-			if ( rgar( $error_data, 'license' ) ) {
-				$error_data = rgar( $error_data, 'license' );
+			if ( $this->common->rgar( $error_data, 'license' ) ) {
+				$error_data = $this->common->rgar( $error_data, 'license' );
 			}
 
 			$this->add_data_item( $error_data );
