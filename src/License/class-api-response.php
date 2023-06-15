@@ -45,6 +45,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Set the status for the response.
 	 *
+	 * @since 1.0
+	 *
 	 * @param $status
 	 */
 	protected function set_status( $status ) {
@@ -53,6 +55,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Add data item.
+	 *
+	 * @since 1.0
 	 *
 	 * @param $item
 	 */
@@ -63,6 +67,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Add an error message.
 	 *
+	 * @since 1.0
+	 *
 	 * @param $error_message
 	 */
 	protected function add_error( $error_message ) {
@@ -71,6 +77,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Add a meta item to the response.
+	 *
+	 * @since 1.0
 	 *
 	 * @param $key
 	 * @param $value
@@ -82,6 +90,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Get the data for this response
 	 *
+	 * @since 1.0
+	 *
 	 * @return array
 	 */
 	public function get_data() {
@@ -90,6 +100,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Get any errors on this response.
+	 *
+	 * @since 1.0
 	 *
 	 * @return array
 	 */
@@ -100,6 +112,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Get the response status.
 	 *
+	 * @since 1.0
+	 *
 	 * @return array
 	 */
 	public function get_status() {
@@ -108,6 +122,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Get the response meta.
+	 *
+	 * @since 1.0
 	 *
 	 * @return array
 	 */
@@ -118,6 +134,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Determine if the response has any errors.
 	 *
+	 * @since 1.0
+	 *
 	 * @return bool
 	 */
 	public function has_errors() {
@@ -126,6 +144,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Get a specific piece of the data.
+	 *
+	 * @since 1.0
 	 *
 	 * @param $name
 	 * @param int $index
@@ -144,6 +164,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	 * Standardization of the class when serialized and unserialized. Useful for standardizing how it
 	 * is stored in the Database.
 	 *
+	 * @since 1.0
+	 *
 	 * @return string
 	 */
 	public function serialize() {
@@ -153,7 +175,7 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Prepares the object for serializing.
 	 *
-	 * @since 2.6.2
+	 * @since 1.0
 	 *
 	 * @return array
 	 */
@@ -169,6 +191,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Hydrate the Response data when unserializing.
 	 *
+	 * @since 1.0
+	 *
 	 * @param string $serialized
 	 */
 	public function unserialize( $serialized ) {
@@ -178,7 +202,7 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 	/**
 	 * Hydrates the object when unserializing.
 	 *
-	 * @since 2.6.2
+	 * @since 1.0
 	 *
 	 * @param array $data The unserialized data.
 	 *
@@ -193,6 +217,8 @@ abstract class API_Response implements \JsonSerializable, \Serializable {
 
 	/**
 	 * Process data for JSON Encoding.
+	 *
+	 * @since 1.0
 	 *
 	 * @return array
 	 */

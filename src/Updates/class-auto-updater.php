@@ -36,6 +36,13 @@ class Auto_Updater {
 		$this->license_connector = $license_connector;
 	}
 
+	/**
+	 * Initialize various hooks and filters.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function init() {
 		if ( is_admin() ) {
 			add_action( 'install_plugins_pre_plugin-information', array( $this, 'display_changelog' ), 9 );
@@ -57,7 +64,17 @@ class Auto_Updater {
 		add_filter( 'mwp_premium_perform_update', array( $this, 'premium_update' ) );
 	}
 
-	//Integration with ManageWP
+	/**
+	 * Premium update push for ManageWP.
+	 *
+	 * @since 1.0
+	 *
+	 * @filter mwp_premium_update_notification 10 1
+	 *
+	 * @param $premium_update
+	 *
+	 * @return mixed
+	 */
 	public function premium_update_push( $premium_update ) {
 
 		if ( ! function_exists( 'get_plugin_data' ) ) {
@@ -76,7 +93,17 @@ class Auto_Updater {
 		return $premium_update;
 	}
 
-	//Integration with ManageWP
+	/**
+	 * Integrate with ManageWP
+	 *
+	 * @since 1.0
+	 *
+	 * @filter mwp_premium_perform_update 10 1
+	 *
+	 * @param $premium_update
+	 *
+	 * @return mixed
+	 */
 	public function premium_update( $premium_update ) {
 
 		if ( ! function_exists( 'get_plugin_data' ) ) {
@@ -96,10 +123,28 @@ class Auto_Updater {
 		return $premium_update;
 	}
 
+
+	/**
+	 * Flush the currently-stored version info.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function flush_version_info() {
 		$this->set_version_info( $this->_slug, false );
 	}
 
+	/**
+	 * Set version info in a transient.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $plugin_slug
+	 * @param $version_info
+	 *
+	 * @return void]
+	 */
 	private function set_version_info( $plugin_slug, $version_info ) {
 		if ( function_exists( 'set_site_transient' ) ) {
 			set_site_transient( $plugin_slug . '_version', $version_info, 60 * 60 * 12 );
@@ -108,6 +153,18 @@ class Auto_Updater {
 		}
 	}
 
+	/**
+	 * Check for updates.
+	 *
+	 * @since 1.0
+	 *
+	 * @filter transient_update_plugins      10 1
+	 * @filter site_transient_update_plugins 10 1
+	 *
+	 * @param $option
+	 *
+	 * @return mixed
+	 */
 	public function check_update( $option ) {
 
 		if ( empty( $option ) ) {
@@ -147,8 +204,13 @@ class Auto_Updater {
 
 	}
 
-
-	// Displays current version details on plugins page and updates page
+	/**
+	 * Display the changelog.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function display_changelog() {
 		if ( $_REQUEST['plugin'] != $this->_slug ) {
 			return;
@@ -163,6 +225,8 @@ class Auto_Updater {
 	 * Get changelog with admin-ajax.php in GFForms::maybe_display_update_notification().
 	 *
 	 * @since 2.4.15
+	 *
+	 * @return void
 	 */
 	public function ajax_display_changelog() {
 		check_admin_referer();
@@ -170,6 +234,13 @@ class Auto_Updater {
 		$this->display_changelog();
 	}
 
+	/**
+	 * Get the changelog content.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string
+	 */
 	private function get_changelog() {
 		$key                = $this->get_key();
 		$body               = "key={$key}";
@@ -217,6 +288,15 @@ class Auto_Updater {
 		return $this->common->get_key();
 	}
 
+	/**
+	 * Get the update info.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $updates
+	 *
+	 * @return mixed
+	 */
 	public function get_update_info( $updates ) {
 
 		$force_check  = rgget( 'force-check' ) == 1;
@@ -272,6 +352,13 @@ class Auto_Updater {
 
 	}
 
+	/**
+	 * Display updates if necessary.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function display_updates() {
 
 		?>

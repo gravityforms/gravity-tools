@@ -17,6 +17,13 @@ class Common {
 		$this->support_url         = $support_url;
 	}
 
+	/**
+	 * Get the support URL
+	 *
+	 * @since 1.0
+	 *
+	 * @return string
+	 */
 	public function get_support_url() {
 		return $this->support_url;
 	}
@@ -49,6 +56,13 @@ class Common {
 		return $raw_response;
 	}
 
+	/**
+	 * Get the stored license key.
+	 *
+	 * @since 1.0
+	 *
+	 * @return mixed
+	 */
 	public function get_key() {
 		return get_option( 'rg_gforms_key' );
 	}
@@ -56,7 +70,7 @@ class Common {
 	/**
 	 * Returns the raw value from a SELECT version() db query.
 	 *
-	 * @since 2.7.1
+	 * @since 1.0
 	 *
 	 * @return string The version number or the version number and system type.
 	 */
@@ -71,6 +85,13 @@ class Common {
 		return $value;
 	}
 
+	/**
+	 * Get the total emails sent.
+	 *
+	 * @since 1.0
+	 *
+	 * @return int
+	 */
 	public static function get_emails_sent() {
 		$count = get_option( 'gform_email_count' );
 
@@ -81,6 +102,13 @@ class Common {
 		return $count;
 	}
 
+	/**
+	 * Get the number of API calls.
+	 *
+	 * @since 1.0
+	 *
+	 * @return int
+	 */
 	public static function get_api_calls() {
 		$count = get_option( 'gform_api_count' );
 
@@ -157,6 +185,8 @@ class Common {
 	/**
 	 * Helper function for getting values from query strings or arrays
 	 *
+	 * @since 1.0
+	 *
 	 * @param string $name  The key
 	 * @param array  $array The array to search through.  If null, checks query strings.  Defaults to null.
 	 *
@@ -181,6 +211,8 @@ class Common {
 
 	/**
 	 * Helper function to obtain POST values.
+	 *
+	 * @since 1.0
 	 *
 	 * @param string $name            The key
 	 * @param bool   $do_stripslashes Optional. Performs stripslashes_deep.  Defaults to true.

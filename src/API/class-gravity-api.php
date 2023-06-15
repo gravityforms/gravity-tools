@@ -12,9 +12,7 @@ if ( ! defined( 'GRAVITY_API_URL' ) ) {
  * Client-side API wrapper for interacting with the Gravity APIs.
  *
  * @package    Gravity Tools
- * @subpackage Gravity_Api
  * @since      1.0
- * @access     public
  */
 class Gravity_Api {
 
@@ -28,6 +26,14 @@ class Gravity_Api {
 	 */
 	protected $model;
 
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $common
+	 * @param $model
+	 */
 	public function __construct( $common, $model ) {
 		$this->common = $common;
 		$this->model = $model;
@@ -266,6 +272,13 @@ class Gravity_Api {
 		return $decoded;
 	}
 
+	/**
+	 * Get the parameters to use in a remote request.
+	 *
+	 * @since 1.0
+	 *
+	 * @return array
+	 */
 	public function get_remote_post_params() {
 		global $wpdb;
 
@@ -334,6 +347,15 @@ class Gravity_Api {
 			'lang'    => $lang,
 		);
 
+		/**
+		 * Allows the remote post parameters to be filtered to add more data.
+		 *
+		 * @since 1.0
+		 *
+		 * @param array $post The current data array.
+		 *
+		 * @return array
+		 */
 		return apply_filters( 'gravity_api_remote_post_params', $post );;
 	}
 
@@ -361,6 +383,15 @@ class Gravity_Api {
 		$this->common->post_to_manager( 'version.php', $nocache, $options );
 	}
 
+	/**
+	 * Send an email to Hubspot to add to the list.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $email
+	 *
+	 * @return mixed
+	 */
 	public function send_email_to_hubspot( $email ) {
 		$body = array(
 			'email' => $email,
@@ -379,13 +410,21 @@ class Gravity_Api {
 	// # HELPERS
 
 	/**
-	 * @return false|mixed|void
+	 * Get the stored license key.
+	 *
+	 * @since 1.0
+	 *
+	 * @return mixed
 	 */
 	public function get_key() {
 		return $this->common->get_key();
 	}
 
 	/**
+	 * Get the site auth header.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $site_key
 	 * @param $site_secret
 	 *
@@ -400,6 +439,10 @@ class Gravity_Api {
 	}
 
 	/**
+	 * Get the license info header.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $site_secret
 	 *
 	 * @return string[]
@@ -411,6 +454,10 @@ class Gravity_Api {
 	}
 
 	/**
+	 * Get the license auth header.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $license_key_md5
 	 *
 	 * @return string[]
@@ -427,8 +474,6 @@ class Gravity_Api {
 	 * Prepare response body.
 	 *
 	 * @since 1.0
-	 * @since 1.0     Support a WP_Error being returned.
-	 * @since 1.0     Allow results to be returned as array with second param.
 	 *
 	 * @param WP_Error|WP_REST_Response $raw_response The API response.
 	 * @param bool                      $as_array     Whether to return the response as an array or object.
@@ -467,6 +512,8 @@ class Gravity_Api {
 	 * Purge the site credentials.
 	 *
 	 * @since 1.0
+	 *
+	 * @return void
 	 */
 	public function purge_site_credentials() {
 
@@ -516,6 +563,10 @@ class Gravity_Api {
 	}
 
 	/**
+	 * Get the site key.
+	 *
+	 * @since 1.0
+	 *
 	 * @return false|mixed|void
 	 */
 	public function get_site_key() {
@@ -534,6 +585,10 @@ class Gravity_Api {
 	}
 
 	/**
+	 * Get the site secret.
+	 *
+	 * @since 1.0
+	 *
 	 * @return false|mixed|void
 	 */
 	public function get_site_secret() {
@@ -549,6 +604,10 @@ class Gravity_Api {
 	}
 
 	/**
+	 * Get the gravity URL.
+	 *
+	 * @since 1.0
+	 *
 	 * @return string
 	 */
 	public function get_gravity_api_url() {

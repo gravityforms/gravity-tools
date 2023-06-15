@@ -48,7 +48,7 @@ class App_Config extends Config {
 	/**
 	 * Set the data for this app config.
 	 *
-	 * @since 2.7.1
+	 * @since 1.0
 	 *
 	 * @param $data
 	 */
@@ -75,6 +75,8 @@ class App_Config extends Config {
 
 	/**
 	 * Config data.
+	 *
+	 * @since 1.0
 	 *
 	 * @return array[]
 	 */

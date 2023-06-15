@@ -10,7 +10,7 @@ use Gravity_Forms\Gravity_Tools\Utils\Common;
  *
  * Concrete response factory used to return a License API Response
  *
- * @since 2.5.11
+ * @since 1.0
  *
  * @package Gravity_Forms\Gravity_Tools\License
  */
@@ -26,7 +26,7 @@ class License_API_Response_Factory {
 	/**
 	 * License_API_Response_Factory constructor
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @param $transient_strategy
 	 */
@@ -38,7 +38,7 @@ class License_API_Response_Factory {
 	/**
 	 * Create a new License API Response from the given data.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @param mixed ...$args
 	 *

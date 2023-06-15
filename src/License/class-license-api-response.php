@@ -10,7 +10,7 @@ use Gravity_Forms\Gravity_Tools\Utils\Common;
  *
  * Concrete Response class for the GF License API.
  *
- * @since 2.5.11
+ * @since 1.0
  *
  * @package Gravity_Forms\Gravity_Forms\License
  */
@@ -29,7 +29,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * License_API_Response constructor.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @param mixed $data The data from the API connector.
 	 * @param bool $validate Whether to validate the data passed.
@@ -96,7 +96,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get the stored error for this site license.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return \WP_Error|false
 	 */
@@ -107,7 +107,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Whether this license key is valid.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -126,7 +126,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get the error message for the response, either the first one by default, or at a specific index.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @param int $index The array index to use if mulitple errors exist.
 	 *
@@ -143,7 +143,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get the human-readable display status for the response.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return string|void
 	 */
@@ -168,7 +168,7 @@ class License_API_Response extends API_Response {
 	 * Licenses can be valid and usable, technically-invalid but still usable, or invalid and unusable.
 	 * This will return the correct usability value for this license key.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return string
 	 */
@@ -191,7 +191,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Whether this response has any errors stored as a transient.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -202,7 +202,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get a properly-formatted link to the Upgrade page for this license key.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return string
 	 */
@@ -216,7 +216,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get the CTA information for this license key, if applicable.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return mixed
 	 */
@@ -252,7 +252,7 @@ class License_API_Response extends API_Response {
 	 * Some statuses are invalid, but get treated as usable. This determines if they should be displayed as
 	 * though they are valid.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -274,7 +274,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Whether the license key can be used.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -285,7 +285,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Determine if the contained License Key has an expiration date.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -296,7 +296,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Get the text for the renewal message.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return string
 	 */
@@ -318,7 +318,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Returns the license renewal or expiry date or the doesn't expire message.
 	 *
-	 * @since 2.6.2
+	 * @since 1.0
 	 *
 	 * @return string|void
 	 */
@@ -338,7 +338,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Whether the license has max seats exceeded.
 	 *
-	 * @since 2.5.11
+	 * @since 1.0
 	 *
 	 * @return bool
 	 */
@@ -353,7 +353,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Prepares the object for serializing.
 	 *
-	 * @since 2.6.2
+	 * @since 1.0
 	 *
 	 * @return array
 	 */
@@ -370,7 +370,7 @@ class License_API_Response extends API_Response {
 	/**
 	 * Hydrates the object when unserializing.
 	 *
-	 * @since 2.6.2
+	 * @since 1.0
 	 *
 	 * @param array $data The unserialized data.
 	 *

@@ -23,6 +23,11 @@ class Cache {
 	 */
 	protected $common;
 
+	/**
+	 * Constructor
+	 *
+	 * @param Common $common
+	 */
 	public function __construct( $common ) {
 		$this->common = $common;
 	}
@@ -32,6 +37,17 @@ class Cache {
 	private static $_transient_prefix = 'GFCache_';
 	private static $_cache            = array();
 
+	/**
+	 * Get a value from cache.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 * @param $found
+	 * @param $is_persistent
+	 *
+	 * @return false|mixed|string|null
+	 */
 	public function get( $key, &$found = null, $is_persistent = true ) {
 		global $blog_id;
 		if ( is_multisite() ) {
@@ -67,6 +83,18 @@ class Cache {
 
 	}
 
+	/**
+	 * Set a value in the cache.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 * @param $data
+	 * @param $is_persistent
+	 * @param $expiration_seconds
+	 *
+	 * @return bool
+	 */
 	public function set( $key, $data, $is_persistent = false, $expiration_seconds = 0 ) {
 		global $blog_id;
 		$success = true;
@@ -84,6 +112,15 @@ class Cache {
 		return $success;
 	}
 
+	/**
+	 * Delete a value from cache.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 *
+	 * @return bool
+	 */
 	public function delete( $key ) {
 		global $blog_id;
 		$success = true;
@@ -106,6 +143,15 @@ class Cache {
 		return $success;
 	}
 
+	/**
+	 * FLush the cache.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $flush_persistent
+	 *
+	 * @return bool
+	 */
 	public function flush( $flush_persistent = false ) {
 		global $wpdb;
 
@@ -142,6 +188,15 @@ class Cache {
 		return $success;
 	}
 
+	/**
+	 * Delete a transient by its key.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 *
+	 * @return false
+	 */
 	private function delete_transient( $key ) {
 		if ( ! function_exists( 'wp_hash' ) ) {
 			return false;
@@ -156,6 +211,17 @@ class Cache {
 		return $success;
 	}
 
+	/**
+	 * Set a transient by its key.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 * @param $data
+	 * @param $expiration
+	 *
+	 * @return false
+	 */
 	private function set_transient( $key, $data, $expiration ) {
 		if ( ! function_exists( 'wp_hash' ) ) {
 			return false;
@@ -170,6 +236,15 @@ class Cache {
 		return $success;
 	}
 
+	/**
+	 * Get a transient by its key.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $key
+	 *
+	 * @return false
+	 */
 	private function get_transient( $key ) {
 		if ( ! function_exists( 'wp_hash' ) ) {
 			return false;

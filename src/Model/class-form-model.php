@@ -18,9 +18,7 @@ class Form_Model {
 	/**
 	 * Gets the total, active, inactive, and trashed form counts.
 	 *
-	 * @since  Unknown
-	 * @access public
-	 * @global $wpdb
+	 * @since  1.0
 	 *
 	 * @uses GFFormsModel::get_form_table_name()
 	 *
@@ -60,9 +58,7 @@ class Form_Model {
 	/**
 	 * Gets the form table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
-	 * @global $wpdb
+	 * @since  1.0
 	 *
 	 * @return string The form table name.
 	 */
@@ -78,6 +74,8 @@ class Form_Model {
 
 	/**
 	 * Returns the entry count for all forms.
+	 *
+	 * @since 1.0
 	 *
 	 * @param string $status
 	 *
@@ -103,6 +101,13 @@ class Form_Model {
 		return $wpdb->get_var( $sql );
 	}
 
+	/**
+	 * Get entry meta counts.
+	 *
+	 * @since 1.0
+	 *
+	 * @return array
+	 */
 	public function get_entry_meta_counts() {
 		global $wpdb;
 
@@ -127,7 +132,16 @@ class Form_Model {
 
 	}
 
-	public static function get_lead_count_all_forms( $status = 'active' ) {
+	/**
+	 * Get lead counts for all forms.
+	 *
+	 * @since 1.0
+	 *
+	 * @param $status
+	 *
+	 * @return mixed
+	 */
+	public function get_lead_count_all_forms( $status = 'active' ) {
 		global $wpdb;
 
 		$lead_table_name   = $this->get_lead_table_name();
@@ -148,8 +162,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entries) table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) table name.
@@ -163,8 +177,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entry) meta table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) meta table name.
@@ -178,8 +192,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entry) notes table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+	 *
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) notes table name.
@@ -193,8 +207,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entry) details table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+	 *
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) details table name.
@@ -208,8 +222,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entry) details long table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+	 *
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) details long table name.
@@ -223,8 +237,8 @@ class Form_Model {
 	/**
 	 * Gets the lead (entry) view table name, including the site's database prefix.
 	 *
-	 * @since  Unknown
-	 * @access public
+	 * @since  1.0
+	 *
 	 * @global $wpdb
 	 *
 	 * @return string The lead (entry) view table name.

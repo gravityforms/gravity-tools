@@ -36,7 +36,7 @@ class Asset_Processor {
 	/**
 	 * Constructor
 	 *
-	 * @since 2.6
+	 * @since 1.0
 	 *
 	 * @param array  $map
 	 * @param string $asset_path
@@ -55,7 +55,7 @@ class Asset_Processor {
 	/**
 	 * Perform processing actions on assets.
 	 *
-	 * @since 2.6
+	 * @since 1.0
 	 *
 	 * @return void
 	 */
@@ -68,7 +68,7 @@ class Asset_Processor {
 	 * Process the ver values for all of the registered scripts in order to append a
 	 * file hash (if it exists) or the filemtime (if required).
 	 *
-	 * @since 2.6
+	 * @since 1.0
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class Asset_Processor {
 	 * Process the ver values for all of the registered scripts in order to append a
 	 * file hash (if it exists) or the filemtime (if required).
 	 *
-	 * @since 2.6
+	 * @since 1.0
 	 *
 	 * @return void
 	 */

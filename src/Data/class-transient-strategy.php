@@ -5,6 +5,10 @@ namespace Gravity_Forms\Gravity_Tools\Data;
 class Transient_Strategy {
 
 	/**
+	 * Get transient value.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $key
 	 *
 	 * @return mixed
@@ -14,6 +18,10 @@ class Transient_Strategy {
 	}
 
 	/**
+	 * Set transient value.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $key
 	 * @param $value
 	 * @param $timeout
@@ -25,6 +33,10 @@ class Transient_Strategy {
 	}
 
 	/**
+	 * Delete transient value.
+	 *
+	 * @since 1.0
+	 *
 	 * @param $key
 	 *
 	 * @return bool
