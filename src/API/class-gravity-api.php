@@ -3,6 +3,7 @@ namespace Gravity_Forms\Gravity_Tools\API;
 
 use Gravity_Forms\Gravity_Tools\Model\Form_Model;
 use Gravity_Forms\Gravity_Tools\Utils\Common;
+use WP_Error;
 
 if ( ! defined( 'GRAVITY_API_URL' ) ) {
 	define( 'GRAVITY_API_URL', 'https://gravityapi.com/wp-json/gravityapi/v1' );
