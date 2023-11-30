@@ -14,6 +14,7 @@ class Auto_Updater {
 	protected $_version;
 	protected $_slug;
 	protected $_title;
+	protected $_update_icon;
 	protected $_full_path;
 	protected $_path;
 	protected $_url;
@@ -29,13 +30,14 @@ class Auto_Updater {
 	protected $license_connector;
 
 
-	public function __construct( $slug, $version, $title, $full_path, $path, $url, $common, $license_connector ) {
+	public function __construct( $slug, $version, $title, $full_path, $path, $url, $update_icon, $common, $license_connector ) {
 		$this->_slug             = $slug;
 		$this->_version          = $version;
 		$this->_title            = $title;
 		$this->_full_path        = $full_path;
 		$this->_path             = $path;
 		$this->_url              = $url;
+		$this->_update_icon      = $update_icon;
 		$this->common            = $common;
 		$this->license_connector = $license_connector;
 	}
@@ -191,6 +193,9 @@ class Auto_Updater {
 			'plugin'      => $this->_path,
 			'url'         => $this->_url,
 			'slug'        => $this->_slug,
+			'icons' => array(
+				'2x' => $this->_update_icon,
+			),
 			'package'     => is_string( $version_info['url'] ) ? str_replace( '{KEY}', $key, $version_info['url'] ) : '',
 			'new_version' => $version_info['version'],
 			'id'          => '0',
