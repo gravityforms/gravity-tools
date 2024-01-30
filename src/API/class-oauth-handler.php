@@ -14,6 +14,8 @@ abstract class Oauth_Handler {
 
 	protected $payload_refresh_token_name = 'refresh_token';
 
+	protected $namespace = '';
+
 	/**
 	 * @var Oauth_Data_Handler $data
 	 */
@@ -23,7 +25,7 @@ abstract class Oauth_Handler {
 		$this->data = $data;
 	}
 
-	public function handle_response( $namespace = 'config' ) {
+	public function handle_response() {
 		if ( ! $this->is_response() ) {
 			return;
 		}
@@ -39,16 +41,16 @@ abstract class Oauth_Handler {
 		}
 
 		if ( isset( $payload[ $this->payload_access_token_name ] ) ) {
-			$this->store_access_token( $payload[ $this->payload_access_token_name ], $namespace );
+			$this->store_access_token( $payload[ $this->payload_access_token_name ] );
 		}
 
 		if ( isset( $payload[ $this->payload_refresh_token_name ] ) ) {
-			$this->store_refresh_token( $payload[ $this->payload_refresh_token_name ], $namespace );
+			$this->store_refresh_token( $payload[ $this->payload_refresh_token_name ] );
 		}
 	}
 
-	public function get_access_token( $namespace = 'config' ) {
-		$token = $this->data->get( 'access_token', $namespace );
+	public function get_access_token() {
+		$token = $this->data->get( 'access_token', $this->namespace );
 
 		if ( $this->is_valid_token( $token ) ) {
 			return $token;
@@ -61,20 +63,20 @@ abstract class Oauth_Handler {
 		return $this->refresh_expired_token();
 	}
 
-	public function get_refresh_token( $namespace = 'config' ) {
-		return $this->data->get( 'refresh_token', $namespace );
+	public function get_refresh_token() {
+		return $this->data->get( 'refresh_token', $this->namespace );
 	}
 
 	protected function refresh_expired_token() {
 		return null;
 	}
 
-	protected function store_access_token( $token, $namespace = 'config' ) {
-		$this->data->save( 'access_token', $token, $namespace );
+	protected function store_access_token( $token ) {
+		$this->data->save( 'access_token', $token, $this->namespace );
 	}
 
-	protected function store_refresh_token( $refresh_token, $namespace = 'config' ) {
-		$this->data->save( 'refresh_token', $refresh_token, $namespace );
+	protected function store_refresh_token( $refresh_token ) {
+		$this->data->save( 'refresh_token', $refresh_token, $this->namespace );
 	}
 
 	protected function is_response() {
