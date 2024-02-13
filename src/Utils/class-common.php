@@ -86,6 +86,23 @@ class Common {
 	}
 
 	/**
+	 * Return current database management system.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string either MySQL or MariaDB
+	 */
+	public static function get_dbms_type() {
+		static $type;
+
+		if ( empty( $type ) ) {
+			$type = strpos( strtolower( self::get_dbms_version() ), 'mariadb' ) ? 'MariaDB' : 'MySQL';
+		}
+
+		return $type;
+	}
+
+	/**
 	 * Get the total emails sent.
 	 *
 	 * @since 1.0
