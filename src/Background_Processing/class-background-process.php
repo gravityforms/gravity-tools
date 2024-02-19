@@ -682,7 +682,7 @@ abstract class Background_Process extends WP_Async_Request {
 			return;
 		}
 
-		$events = $this->cache->get( $this->cache::KEY_CRON_EVENTS );
+		$events = $this->cache->get( Cache::KEY_CRON_EVENTS );
 		if ( ! is_array( $events ) ) {
 			$events = array();
 		}
@@ -694,7 +694,7 @@ abstract class Background_Process extends WP_Async_Request {
 			array_splice( $events[ $hook ], 3 );
 		}
 
-		$this->cache->set( $this->cache::KEY_CRON_EVENTS, $events, true );
+		$this->cache->set( Cache::KEY_CRON_EVENTS, $events, true );
 	}
 
 	/**
