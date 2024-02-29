@@ -24,26 +24,50 @@ abstract class Logger {
 	}
 
 	public function log( $message, $priority ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log( $message, $priority );
 	}
 
 	public function log_info( $message ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log_info( $message );
 	}
 
 	public function log_debug( $message ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log_debug( $message );
 	}
 
 	public function log_warning( $message ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log_warning( $message );
 	}
 
 	public function log_error( $message ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log_error( $message );
 	}
 
 	public function log_fatal( $message ) {
+		if ( ! $this->should_log() ) {
+			return;
+		}
+
 		return $this->provider->log_fatal( $message );
 	}
 
