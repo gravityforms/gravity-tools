@@ -18,4 +18,6 @@ interface Logging_Provider {
 
 	function write_line_to_log( $line );
 
+	function get_lines();
+
 }

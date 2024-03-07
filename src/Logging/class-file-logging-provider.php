@@ -2,6 +2,8 @@
 
 namespace Gravity_Forms\Gravity_Tools\Logging;
 
+use Gravity_Forms\Gravity_Tools\Logging\Parsers\File_Log_Parser;
+
 /**
  * File Logging Provider
  *
@@ -37,6 +39,11 @@ class File_Logging_Provider implements Logging_Provider {
 	);
 
 	/**
+	 * @var File_Log_Parser
+	 */
+	private $line_parser;
+
+	/**
 	 * Constructor
 	 *
 	 * @since 1.0
@@ -45,7 +52,7 @@ class File_Logging_Provider implements Logging_Provider {
 	 * @param $priority
 	 * @param $offset
 	 */
-	public function __construct( $filepath, $priority, $offset = 0 ) {
+	public function __construct( $filepath, $priority, $offset = 0, File_Log_Parser $line_parser ) {
 		if ( $priority == self::OFF ) {
 			return;
 		}
@@ -54,6 +61,7 @@ class File_Logging_Provider implements Logging_Provider {
 		$this->log_file      = $filepath;
 		$this->message_queue = array();
 		$this->priority      = $priority;
+		$this->line_parser   = $line_parser;
 
 		if ( file_exists( $this->log_file ) ) {
 			if ( ! is_writable( $this->log_file ) ) {
@@ -189,6 +197,12 @@ class File_Logging_Provider implements Logging_Provider {
 		}
 	}
 
+	public function get_lines() {
+		$contents = file_get_contents( $this->get_log_file_path() );
+
+		return $this->line_parser->parse_log( $contents );
+	}
+
 	/**
 	 * Get the timeline tet for a given log type.
 	 *
@@ -224,6 +238,6 @@ class File_Logging_Provider implements Logging_Provider {
 	 * @return string
 	 */
 	private function get_formatted_timeline_for_type( $type, $time ) {
-		return sprintf( '%s %s', $time, $this->timestamp_map[ $type ] );
+		return sprintf( '[**] %s %s', $time, $this->timestamp_map[ $type ] );
 	}
 }
