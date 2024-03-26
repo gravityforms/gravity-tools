@@ -16,6 +16,8 @@ interface Logging_Provider {
 
 	function log( $line, $priority );
 
+	function delete_log();
+
 	function write_line_to_log( $line );
 
 	function get_lines();

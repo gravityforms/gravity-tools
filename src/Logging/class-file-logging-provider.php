@@ -180,6 +180,10 @@ class File_Logging_Provider implements Logging_Provider {
 		}
 	}
 
+	public function delete_log() {
+		return;
+	}
+
 	/**
 	 * Write a line to the log.
 	 *

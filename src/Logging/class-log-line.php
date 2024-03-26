@@ -8,12 +8,15 @@ class Log_Line {
 
 	protected $priority;
 
-	protected $message;
+	protected $line;
 
-	public function __construct( $timestamp, $priority, $message ) {
+	protected $id;
+
+	public function __construct( $timestamp, $priority, $line, $id ) {
 		$this->timestamp = $timestamp;
 		$this->priority  = $priority;
-		$this->message   = $message;
+		$this->line      = $line;
+		$this->id        = $id;
 	}
 
 	public function timestamp() {
@@ -24,8 +27,12 @@ class Log_Line {
 		return $this->priority;
 	}
 
-	public function message() {
-		return $this->message;
+	public function line() {
+		return $this->line;
+	}
+
+	public function id() {
+		return $this->id;
 	}
 
 }

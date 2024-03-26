@@ -24,7 +24,7 @@ abstract class Logger {
 	}
 
 	public function log( $message, $priority ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( $priority ) ) {
 			return;
 		}
 
@@ -32,7 +32,7 @@ abstract class Logger {
 	}
 
 	public function log_info( $message ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( 'info' ) ) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ abstract class Logger {
 	}
 
 	public function log_debug( $message ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( 'debug' ) ) {
 			return;
 		}
 
@@ -48,7 +48,7 @@ abstract class Logger {
 	}
 
 	public function log_warning( $message ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( 'warning' ) ) {
 			return;
 		}
 
@@ -56,7 +56,7 @@ abstract class Logger {
 	}
 
 	public function log_error( $message ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( 'error' ) ) {
 			return;
 		}
 
@@ -64,7 +64,7 @@ abstract class Logger {
 	}
 
 	public function log_fatal( $message ) {
-		if ( ! $this->should_log() ) {
+		if ( ! $this->should_log( 'fatal' ) ) {
 			return;
 		}
 
