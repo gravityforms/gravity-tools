@@ -33,6 +33,8 @@ class Asset_Processor {
 	 */
 	private $css_match_pattern;
 
+	private $constant_name;
+
 	/**
 	 * Constructor
 	 *
@@ -43,13 +45,14 @@ class Asset_Processor {
 	 *
 	 * @return void
 	 */
-	public function __construct( $js_map, $css_map, $js_asset_path, $css_asset_path, $js_match_pattern, $css_match_pattern ) {
+	public function __construct( $js_map, $css_map, $js_asset_path, $css_asset_path, $js_match_pattern, $css_match_pattern, $constant_name ) {
 		$this->js_map            = $js_map;
 		$this->js_asset_path     = $js_asset_path;
 		$this->js_match_pattern  = $js_match_pattern;
 		$this->css_map           = $css_map;
 		$this->css_asset_path    = $css_asset_path;
 		$this->css_match_pattern = $css_match_pattern;
+		$this->constant_name     = $constant_name;
 	}
 
 	/**
@@ -93,7 +96,7 @@ class Asset_Processor {
 			}
 
 			// The hash is either the value from our map, or the filemtime for dev.
-			$hash = defined( 'GF_DEV_TIME_AS_VER' ) && GF_DEV_TIME_AS_VER ?
+			$hash = defined( $this->constant_name ) && constant( $this->constant_name ) ?
 				filemtime( $path ) :
 				$this->js_map[ $basename ]['version'];
 
@@ -134,7 +137,7 @@ class Asset_Processor {
 			}
 
 			// The hash is either the value from our map, or the filemtime for dev.
-			$hash = defined( 'GF_DEV_TIME_AS_VER' ) && GF_DEV_TIME_AS_VER ?
+			$hash = defined( $this->constant_name ) && constant( $this->constant_name ) ?
 				filemtime( $path ) :
 				$this->css_map[ $basename ]['version'];
 
