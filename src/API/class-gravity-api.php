@@ -151,9 +151,10 @@ class Gravity_Api {
 	public function check_license( $key ) {
 		$params = array(
 			'site_url'     => get_option( 'home' ),
-			'is_multisite' => is_multisite(),
-			'product_code' => 'gravitysmtp'
+			'is_multisite' => is_multisite()
 		);
+
+	    // TODO: Add filter to inject 'product_code'='GSMTP' here.
 
 		$resource = 'licenses/' . $key . '/check?' . build_query( $params );
 		$result   = $this->request( $resource, null );
