@@ -154,6 +154,13 @@ class Gravity_Api {
 			'is_multisite' => is_multisite(),
 		);
 
+		/**
+		 * Allow the params passed to check_license to be modified before sending.
+		 *
+		 * @since 1.0
+		 */
+		$params = apply_filters( 'gravity_api_check_license_params', $params );
+
 		$resource = 'licenses/' . $key . '/check?' . build_query( $params );
 		$result   = $this->request( $resource, null );
 		$result   = $this->prepare_response_body( $result, true );
