@@ -152,6 +152,7 @@ class Gravity_Api {
 		$params = array(
 			'site_url'     => get_option( 'home' ),
 			'is_multisite' => is_multisite(),
+			'product_code' => 'gravitysmtp'
 		);
 
 		$resource = 'licenses/' . $key . '/check?' . build_query( $params );
