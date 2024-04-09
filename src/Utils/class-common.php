@@ -11,10 +11,12 @@ class Common {
 
 	protected $gravity_manager_url;
 	protected $support_url;
+	protected $key;
 
-	public function __construct( $gravity_manager_url, $support_url ) {
+	public function __construct( $gravity_manager_url, $support_url, $key ) {
 		$this->gravity_manager_url = $gravity_manager_url;
 		$this->support_url         = $support_url;
+		$this->key = $key;
 	}
 
 	/**
@@ -64,7 +66,7 @@ class Common {
 	 * @return mixed
 	 */
 	public function get_key() {
-		return get_option( 'rg_gforms_key' );
+		return $this->key;
 	}
 
 	/**
