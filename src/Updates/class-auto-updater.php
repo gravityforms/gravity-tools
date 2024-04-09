@@ -177,11 +177,6 @@ class Auto_Updater {
 			return $option;
 		}
 
-		// Only run our check once per day.
-		if ( ( (int) time() - (int) $option->last_checked ) <= DAY_IN_SECONDS ) {
-			return $option;
-		}
-
 		$key = $this->get_key();
 
 		$version_info = $this->get_version_info( $this->_slug );
