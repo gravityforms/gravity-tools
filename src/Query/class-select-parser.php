@@ -13,6 +13,10 @@ class Select_Parser {
 	public function process( $columns ) {
 		$sql_array = array();
 
+		if ( empty( $columns ) ) {
+			$columns = array( '*' );
+		}
+
 		foreach( $columns as $column ) {
 			if ( is_array( $column ) ) {
 				$column = implode( '.', $column );

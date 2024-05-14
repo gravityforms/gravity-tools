@@ -64,6 +64,12 @@ class SelectParserTest extends TestCase {
 				),
 				'SELECT id, date_modified, second.message',
 			),
+
+			// Empty
+			array(
+				array(),
+				'SELECT *',
+			),
 		);
 	}
 
