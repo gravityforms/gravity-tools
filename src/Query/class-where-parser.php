@@ -19,13 +19,13 @@ class Where_Parser {
 		$this->custom_handlers = $custom_handlers;
 	}
 
-	public function process( $filters, $trailing_union = false, $union = 'AND', $passed_key = null ) {
+	public function process( $filters, $trailing_union = false, $union = 'AND', $passed_key = null, $raw_columns = false ) {
 		$sql_array = array();
 
 		foreach ( $filters as $key => $value ) {
 
 			if ( is_array( $value ) ) {
-				$sql_array[] = $this->process( $value, false, 'OR', $key );
+				$sql_array[] = $this->process( $value, false, 'OR', $key, $raw_columns );
 				continue;
 			}
 
@@ -38,8 +38,9 @@ class Where_Parser {
 				continue;
 			}
 
-			if ( in_array( $key, $this->queryable ) ) {
-				$sql_array[] = $this->wpdb->prepare( "`" . $key . "` = %s", $value );
+			if ( in_array( $key, $this->queryable ) || $raw_columns ) {
+				$wrapper = $raw_columns ? null : '`';
+				$sql_array[] = $this->wpdb->prepare( "%s" . $key . "%s = %s", $wrapper, $wrapper, $value );
 				continue;
 			}
 

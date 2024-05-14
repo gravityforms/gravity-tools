@@ -9,7 +9,7 @@ class OrderParserTest extends TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->wpdb = new WPDB_Stub();
+		$this->wpdb = new Order_WPDB_Stub();
 	}
 
 	/**
@@ -55,7 +55,7 @@ class OrderParserTest extends TestCase {
 
 }
 
-class WPDB_Stub {
+class Order_WPDB_Stub {
 
 	public function prepare( $string, ...$values ) {
 		return sprintf( $string, ...$values );

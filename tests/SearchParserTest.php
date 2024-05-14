@@ -20,7 +20,7 @@ class SearchParserTest extends TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->wpdb = new WPDB_Stub();
+		$this->wpdb = new Search_WPDB_Stub();
 	}
 
 	/**
@@ -86,7 +86,7 @@ class SearchParserTest extends TestCase {
 
 }
 
-class WPDB_Stub {
+class Search_WPDB_Stub {
 
 	public function prepare( $string, $value ) {
 		return sprintf( $string, sprintf( "%s", $value ) );
