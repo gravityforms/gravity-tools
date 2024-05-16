@@ -52,7 +52,7 @@ class Where_Parser {
 		$sql = "($sql)";
 
 		if ( $trailing_union ) {
-			$sql .= ' ' . $union . ' ';
+			$sql .= ' ' . $union;
 		}
 
 		return $sql;

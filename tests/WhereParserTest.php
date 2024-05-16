@@ -57,7 +57,7 @@ class WhereParserTest extends TestCase {
 					'status' => array( 'sent' ),
 				),
 				true,
-				"((`status` = sent)) AND "
+				"((`status` = sent)) AND"
 			),
 
 			// Single filter with single value and NO trailing union
@@ -76,7 +76,7 @@ class WhereParserTest extends TestCase {
 					'service' => array( 'google' ),
 				),
 				true,
-				"((`status` = sent) AND (`service` = google)) AND "
+				"((`status` = sent) AND (`service` = google)) AND"
 			),
 
 			// Multiple filters with single values and NO trailing union
@@ -96,7 +96,7 @@ class WhereParserTest extends TestCase {
 					'service' => array( 'google', 'microsoft' ),
 				),
 				true,
-				"((`status` = sent OR `status` = failed) AND (`service` = google OR `service` = microsoft)) AND "
+				"((`status` = sent OR `status` = failed) AND (`service` = google OR `service` = microsoft)) AND"
 			),
 
 			// Multiple filters with multiple values and NO trailing union
