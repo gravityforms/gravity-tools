@@ -102,7 +102,7 @@ class License_API_Connector {
 		}
 
 		if ( $license_info_data && $cache ) {
-			$license_info = $this->common->safe_unserialize( $license_info_data, GF_API_Response::class );
+			$license_info = $this->common->safe_unserialize( $license_info_data, License_API_Response::class );
 			if ( $license_info ) {
 				return $license_info;
 			} else {
