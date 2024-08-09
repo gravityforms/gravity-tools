@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 function rsearch($folder, $regPattern) {
 	$dir = new RecursiveDirectoryIterator($folder);
 	$ite = new RecursiveIteratorIterator($dir);
@@ -11,6 +12,7 @@ function rsearch($folder, $regPattern) {
 	return $fileList;
 }
 
+$new_namespace = $argv[1];
 
 // First, replace all lib file namespaces.
 $vendor_files_to_mod = rsearch( './vendor/gravityforms/gravity-tools/src', '/.*php/' );
@@ -21,7 +23,7 @@ foreach( $vendor_files_to_mod as $path ) {
 		continue;
 	}
 
-	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_SMTP\Gravity_Tools', $contents );
+	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', "Gravity_Forms\{$new_namespace}\Gravity_Tools", $contents );
 
 	file_put_contents( $path, $replaced );
 }
@@ -35,7 +37,7 @@ foreach( $files_to_mod as $path ) {
 		continue;
 	}
 
-	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_SMTP\Gravity_Tools', $contents );
+	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', "Gravity_Forms\{$new_namespace}\Gravity_Tools", $contents );
 
 	file_put_contents( $path, $replaced );
 }
