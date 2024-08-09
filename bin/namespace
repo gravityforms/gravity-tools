@@ -21,7 +21,7 @@ foreach( $vendor_files_to_mod as $path ) {
 		continue;
 	}
 
-	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_Tools\Gravity_SMTP', $contents );
+	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_SMTP\Gravity_Tools', $contents );
 
 	file_put_contents( $path, $replaced );
 }
@@ -35,7 +35,7 @@ foreach( $files_to_mod as $path ) {
 		continue;
 	}
 
-	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_Tools\Gravity_SMTP', $contents );
+	$replaced = str_replace( 'Gravity_Forms\Gravity_Tools', 'Gravity_Forms\Gravity_SMTP\Gravity_Tools', $contents );
 
 	file_put_contents( $path, $replaced );
 }
