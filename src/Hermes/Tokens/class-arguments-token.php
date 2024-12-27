@@ -9,11 +9,11 @@ class Arguments_Token extends Token {
 	protected $items = array();
 
 	private $comparator_strings = array(
-		'gt' => '>',
-		'lt' => '<',
 		'gte' => '>=',
 		'lte' => '<=',
 		'ne' => '!=',
+		'gt' => '>',
+		'lt' => '<',
 	);
 
 	public function items() {
@@ -39,7 +39,7 @@ class Arguments_Token extends Token {
 			$arguments[]    = array(
 				'key'        => $condition_data['key'],
 				'comparator' => $condition_data['comparator'],
-				'value'      => $value,
+				'value'      => trim( $value ),
 			);
 		}
 

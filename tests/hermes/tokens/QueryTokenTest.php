@@ -1,7 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace hermes\tokens;
+
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
+use PHPUnit\Framework\TestCase;
 
 class QueryTokenTest extends TestCase {
 

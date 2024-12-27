@@ -48,7 +48,7 @@ class ModelRelationshipTest extends TestCase {
 
 		$query = $group_model->get_relationship_query( 1, new FakeContactModel(), $fields, $conditions );
 
-		var_dump( $query );
+		$this->assertEquals( 'SELECT mt.first_name AS first_name, mt.email AS email, meta_secondary_phone.meta_value AS phone_two FROM wp_gravitycrm_contact AS mt LEFT JOIN wp_gravitycrm_group_contact AS pt ON pt.contact_id = mt.id LEFT JOIN wp_gravitycrm_meta AS meta_secondary_phone ON meta_secondary_phone.object_id = mt.id AND meta_secondary_phone.object_type = contact AND meta_secondary_phone.meta_name = secondary_phone WHERE mt.id = 1;', $query );
 	}
 
 }
