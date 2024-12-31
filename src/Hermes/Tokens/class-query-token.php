@@ -57,6 +57,9 @@ class Query_Token extends Token {
 		);
 	}
 
+	/**
+	 * @return Data_Object_From_Array_Token[]
+	 */
 	public function children() {
 		return $this->items();
 	}

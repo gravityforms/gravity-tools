@@ -32,10 +32,9 @@ class HandlerTest extends TestCase {
 		$text = file_get_contents( dirname( __FILE__ ) . '/../_data/group_to_contact.graphql' );
 		$data = new Query_Token( $text );
 
-		$object = $data->items()[0];
-
-		$sql = $handler->recursively_generate_sql( $object );
-		var_dump( $sql );
+		foreach( $data->items() as $object ) {
+			$sql = $handler->recursively_generate_sql( $object );
+		}
 	}
 
 }

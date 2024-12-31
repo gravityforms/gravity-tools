@@ -25,18 +25,23 @@ class Query_Handler {
 	}
 
 	public function handle_query( $query_string ) {
+		global $wpdb;
+
 		// Parse to token array
 		$query_token = new Query_Token( $query_string );
+		$data = array();
 
-		$sql_calls = $this->convert_token_to_sql( $query_token );
+		foreach( $query_token->children() as $object ) {
+			$object_name = $object->alias();
+			$sql = $this->recursively_generate_sql( $object );
+			$data[ $object_name ] = $sql;
+		}
 
-		// Traverse entire array and get the queries for the data
+		array_walk( $data, function( &$data_item, $key, $wpdb ) {
+			$data_item = $wpdb->get_results( $data_item, ARRAY_A );
+		}, $wpdb );
 
-		// Traverse the queries and deal with any hydrations
-
-		// Traverse the hydrated queries and execute them
-
-		// Return the result
+		return $data;
 	}
 
 	public function recursively_generate_sql( Data_Object_From_Array_Token $data, $idx_prefix = null, $parent_table = false, $parent_object_type = false ) {
