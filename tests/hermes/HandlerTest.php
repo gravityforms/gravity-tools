@@ -34,6 +34,7 @@ class HandlerTest extends TestCase {
 
 		foreach( $data->items() as $object ) {
 			$sql = $handler->recursively_generate_sql( $object );
+			var_dump( $sql );
 		}
 	}
 

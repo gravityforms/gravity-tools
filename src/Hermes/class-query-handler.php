@@ -29,45 +29,147 @@ class Query_Handler {
 
 		// Parse to token array
 		$query_token = new Query_Token( $query_string );
-		$data = array();
+		$data        = array();
 
-		foreach( $query_token->children() as $object ) {
-			$object_name = $object->alias();
-			$sql = $this->recursively_generate_sql( $object );
-			$data[ $object_name ] = $sql;
+		foreach ( $query_token->children() as $object ) {
+			$object_name          = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
+			$sql                  = $this->recursively_generate_sql( $object );
+			$data[ $object_name ] = sprintf( 'SELECT %s', $sql );
 		}
 
-		array_walk( $data, function( &$data_item, $key, $wpdb ) {
-			$data_item = $wpdb->get_results( $data_item, ARRAY_A );
-		}, $wpdb );
+		$results = array();
 
-		return $data;
+		foreach ( $data as $data_group_name => $query_to_execute ) {
+			$query_results = $wpdb->get_results( $query_to_execute, ARRAY_A );
+			$rows = array();
+			foreach ( $query_results as $query_result ) {
+				$json_data    = array_shift( $query_result );
+				$decoded_data = json_decode( $json_data, true );
+				$rows[] = $decoded_data;
+			}
+
+			$results[ $data_group_name ] = $rows;
+		}
+
+		return $results;
 	}
 
 	public function recursively_generate_sql( Data_Object_From_Array_Token $data, $idx_prefix = null, $parent_table = false, $parent_object_type = false ) {
 		global $wpdb;
 
+		$sql = '';
+
 		$meta_fields  = array();
 		$local_fields = array();
 
-		$object_type      = $data->object_type();
-		$object_model     = $this->models->get( $object_type );
-		$main_table_alias = sprintf( 'table_%s%s', $object_type, is_null( $idx_prefix ) ? null : '_' . $idx_prefix );
-		$main_table_name  = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_type );
+		$object_type  = $data->object_type();
+		$object_name  = ! empty( $data->alias() ) ? $data->alias() : $data->object_type();
+		$object_model = $this->models->get( $object_type );
 
-		$fields_to_process = $data->fields();
-		$conditions        = $data->arguments();
-		$field_join_clauses   = array();
+		$table_name  = $this->compose_table_name( $object_type );
+		$table_alias = $this->compose_table_alias( $object_name, $parent_table );
 
-		foreach ( $fields_to_process as $idx => $field ) {
-			// Field is a relationship. Skip for now.
+		$fields_to_process  = $data->fields();
+		$categorized_fields = $this->categorize_fields( $object_model, $fields_to_process, $table_alias );
+
+		$arguments = $data->arguments();
+
+		$field_pairs   = array();
+		$where_clauses = array();
+		$join_clauses  = array();
+
+		$field_sql     = null;
+		$from_sql      = null;
+		$join_sql      = null;
+		$where_sql     = null;
+		$group_sql     = null;
+		$limit_sql     = null;
+		$separator_sql = null;
+
+		if ( ! empty( $arguments ) ) {
+			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments );
+			$limit_sql = $this->get_limit_from_arguments( $arguments );
+		}
+
+		foreach ( $categorized_fields['local'] as $field_name => $field_alias ) {
+			if ( is_a( $field_alias, Data_Object_From_Array_Token::class ) ) {
+				$this_alias    = empty( $field_alias->alias() ) ? $field_alias->object_type() : $field_alias->alias();
+				$sub_sql       = $this->recursively_generate_sql( $field_alias, null, $table_alias, $object_type );
+				$sub_sql_parts = explode( '|gsmtpfieldsseparator|', $sub_sql );
+				$sub_sql       = sprintf( '( SELECT JSON_ARRAYAGG( %s ) %s )', $sub_sql_parts[0], $sub_sql_parts[1] );
+				$field_pairs[] = sprintf( '"%s", %s', $this_alias, $sub_sql );
+				continue;
+			}
+
+			$field_pairs[] = sprintf( '"%s", %s.%s', $field_alias, $table_alias, $field_name );
+		}
+
+		$meta_table_name = $this->compose_table_name( 'meta' );
+
+		foreach ( $categorized_fields['meta'] as $field_name => $field_data ) {
+			$value_clause = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
+			$field_pairs[]  = sprintf( '"%s", %s', $field_data['alias'], $value_clause, $field_name );
+			$join_clauses[] = sprintf( 'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
+				$meta_table_name,
+				$field_data['lookup_table_alias'],
+				$field_data['lookup_table_alias'],
+				$object_type,
+				$field_data['lookup_table_alias'],
+				$field_name,
+				$field_data['lookup_table_alias'],
+				$table_alias
+			);
+		}
+
+		if ( $parent_table ) {
+			$parent_model       = $this->models->get( $parent_object_type );
+			$relationship       = $parent_model->relationships()->get( $object_type );
+			$lookup_table_name  = $this->compose_join_table_name( $relationship->get_table_suffix() );
+			$lookup_table_alias = sprintf( 'join_%s', $table_alias );
+			$id_string          = sprintf( '%s_id', $object_type );
+			$parent_id_string   = sprintf( '%s_id', $parent_object_type );
+			$join_clauses[]     = sprintf( 'LEFT JOIN %s AS %s ON %s.id = %s.%s', $lookup_table_name, $lookup_table_alias, $table_alias, $lookup_table_alias, $id_string );
+			$where_clauses[]    = sprintf( '%s.%s = %s.id', $lookup_table_alias, $parent_id_string, $parent_table );
+		}
+
+		$field_sql = implode( ', ', $field_pairs );
+
+		$from_sql = sprintf( 'FROM %s AS %s', $table_name, $table_alias );
+
+		$join_sql = implode( ' ', $join_clauses );
+
+		if ( ! empty( $where_clauses ) ) {
+			$where_sql = sprintf( 'WHERE %s', implode( ' AND ', $where_clauses ) );
+		}
+
+		$group_sql = null;
+
+		if ( ! $parent_table ) {
+			$group_sql = sprintf( 'GROUP BY %s.id', $table_alias );
+		}
+
+		if ( $parent_table ) {
+			$separator_sql = '|gsmtpfieldsseparator|';
+		}
+
+		return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $limit_sql );
+	}
+
+	protected function categorize_fields( Model $object_model, $fields_to_process, $table_alias ) {
+		$categorized = array(
+			'meta'  => array(),
+			'local' => array(),
+		);
+
+		foreach ( $fields_to_process as $field ) {
 			if ( is_a( $field, Data_Object_From_Array_Token::class ) ) {
-				$local_fields[ $field->object_type() ] = $field;
-				$lookup_table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $object_type, $field->object_type() );
-				$lookup_table_alias = 'table_' . $lookup_table_name;
-				$parent_id_string = sprintf( '%s_id', $object_type );
-				$field_join_clauses[] = $wpdb->prepare( 'LEFT JOIN %s AS %s ON %s.%s = %s.%s', $lookup_table_name, $lookup_table_alias, $main_table_alias, 'id', $lookup_table_alias, $parent_id_string );
+				$child_type = $field->object_type();
+				if ( ! $object_model->relationships()->has( $child_type ) ) {
+					$error_string = sprintf( 'Attempting to access invalid related object %s for object type %s', $child_type, $object_model->type() );
+					throw new \InvalidArgumentException( $error_string );
+				}
 
+				$categorized['local'][ $field->alias() ] = $field;
 				continue;
 			}
 
@@ -78,60 +180,22 @@ class Query_Handler {
 				throw new \InvalidArgumentException( $error_string );
 			}
 
-			$alias = $field->alias();
+			$alias      = $field->alias();
+			$identifier = $alias ? $alias : $field_name;
 
 			if ( in_array( $field_name, $object_model->fields() ) ) {
-				$local_fields[ $field_name ] = $alias ? $alias : $field_name;
+				$categorized['local'][ $field_name ] = $identifier;
 			}
 
 			if ( in_array( $field_name, $object_model->meta_fields() ) ) {
-				$meta_fields[ $field_name ] = $alias ? $alias : $field_name;
+				$categorized['meta'][ $field_name ] = array(
+					'alias'              => $identifier,
+					'lookup_table_alias' => sprintf( 'meta_%s_%s', $table_alias, $identifier ),
+				);
 			}
 		}
 
-		$field_select_clauses = $this->build_local_field_select_clauses( $local_fields, $main_table_alias, $object_type );
-
-		foreach ( $meta_fields as $field_name => $field_alias ) {
-			$clauses                = $this->build_meta_query( $field_name, $field_alias, $object_model->type(), $main_table_alias, $idx_prefix );
-			$field_select_clauses[] = $clauses['select_clause'];
-			$field_join_clauses[]   = $clauses['join_clause'];
-		}
-
-		$select_concat = implode( ', ', $field_select_clauses );
-
-		$sql = $wpdb->prepare( 'SELECT JSON_ARRAYAGG( JSON_OBJECT( %s ) ) FROM %s AS %s ', $select_concat, $main_table_name, $main_table_alias );
-
-		if ( ! empty( $parent_table ) ) {
-			$lookup_table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $parent_object_type, $object_type );
-			$lookup_table_alias = 'table_' . $lookup_table_name;
-			$parent_id_string = sprintf( '%s_id', $parent_object_type );
-			$this_id_string = sprintf( '%s_id', $object_type );
-
-			$field_join_clauses[] = $lookup_table_join_clause;
-
-			$conditions[] = array(
-				'key'        => sprintf( '%s.id', $main_table_alias ),
-				'value'      => sprintf( '%s.%s', $lookup_table_alias, $this_id_string ),
-				'comparator' => '=',
-			);
-		}
-
-		if ( ! empty( $field_join_clauses ) ) {
-			$join_string = implode( ' ', $field_join_clauses );
-			$sql         .= $join_string;
-		}
-
-		$where_clauses = array();
-		$where_string  = null;
-
-		if ( ! empty( $conditions ) ) {
-			$where_clauses = $this->build_where_clauses( $conditions );
-			$where_string  = ' WHERE ' . implode( ' AND ', $where_clauses );
-		}
-
-		$sql .= $where_string;
-
-		return $sql;
+		return $categorized;
 	}
 
 	protected function build_local_field_select_clauses( $field_names, $table_alias, $object_type ) {
@@ -156,14 +220,14 @@ class Query_Handler {
 		$meta_table_name  = $wpdb->prefix . $this->db_namespace . '_' . 'meta';
 		$meta_table_alias = sprintf( 'meta_%s%s', $meta_name, is_null( $idx_prefix ) ? null : '_' . $idx_prefix );
 
-		$select_clause = $wpdb->prepare(
-			'"%s", %s.meta_value',
+		$select_clause = sprintf(
+			'"%1$s", %2$s.meta_value',
 			$alias,
 			$meta_table_alias
 		);
 
-		$join_clause = $wpdb->prepare(
-			'LEFT JOIN %s AS %s ON %s.object_id = %s.id AND %s.object_type = %s AND %s.meta_name = %s',
+		$join_clause = sprintf(
+			'LEFT JOIN %1$s AS %2$s ON %3$s.object_id = %4$s.id AND %5$s.object_type = "%6$s" AND %7$s.meta_name = "%8$s"',
 			$meta_table_name,
 			$meta_table_alias,
 			$meta_table_alias,
@@ -195,10 +259,63 @@ class Query_Handler {
 			$column_value = $condition['value'];
 			$comparator   = $condition['comparator'];
 
-			$clauses[] = $wpdb->prepare( '%1$s %2$s %3$s', $column_name, $comparator, $column_value );
+			$clauses[] = sprintf( '%1$s %2$s %3$s', $column_name, $comparator, $column_value );
 		}
 
 		return $clauses;
+	}
+
+	private function compose_table_name( $object_type ) {
+		global $wpdb;
+
+		return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_type );
+	}
+
+	private function compose_join_table_name( $suffix ) {
+		global $wpdb;
+
+		return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $suffix );
+	}
+
+	private function compose_table_alias( $object_name, $parent_table_name = false ) {
+		if ( ! empty( $parent_table_name ) ) {
+			return sprintf( '%s_%s', $parent_table_name, $object_name );
+		}
+
+		return sprintf( 'table_%s', $object_name );
+	}
+
+	private function get_limit_from_arguments( $arguments ) {
+		$response = '';
+
+		$limit = array_values( array_filter( $arguments, function( $item ) {
+			return $item['key'] === 'limit';
+		} ) );
+
+		$offset = array_values( array_filter( $arguments, function( $item ) {
+			return $item['key'] === 'offset';
+		} ) );
+
+		if ( ! empty( $limit ) ) {
+			$response .= sprintf( 'LIMIT %s', $limit[0]['value'] );
+		}
+
+		if ( ! empty( $offset ) ) {
+			$response .= sprintf( ' OFFSET %s', $offset[0]['value'] );
+		}
+
+		return $response;
+	}
+
+	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments ) {
+		foreach( $arguments as $argument ) {
+			if ( $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
+				continue;
+			}
+
+			$clause = sprintf( '%s.%s %s "%s"', $table_alias, $argument['key'], $argument['comparator'], $argument['value'] );
+			$where_clauses[] = $clause;
+		}
 	}
 
 }

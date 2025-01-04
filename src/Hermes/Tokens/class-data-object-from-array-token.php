@@ -19,7 +19,11 @@ class Data_Object_From_Array_Token extends Token_From_Array {
 	}
 
 	public function arguments() {
-		return $this->arguments;
+		if ( ! empty( $this->arguments ) ) {
+			return $this->arguments->items();
+		}
+
+		return array();
 	}
 
 	public function fields() {

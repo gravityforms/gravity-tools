@@ -7,11 +7,13 @@ class Relationship {
 	protected $from;
 	protected $to;
 	protected $cap;
+	protected $is_reverse;
 
-	public function __construct( $from, $to, $cap ) {
-		$this->from = $from;
-		$this->to = $to;
-		$this->cap = $cap;
+	public function __construct( $from, $to, $cap, $is_reverse = false ) {
+		$this->from       = $from;
+		$this->to         = $to;
+		$this->cap        = $cap;
+		$this->is_reverse = $is_reverse;
 	}
 
 	public function from() {
@@ -28,6 +30,14 @@ class Relationship {
 
 	public function has_access() {
 		return current_user_can( $this->cap );
+	}
+
+	public function get_table_suffix() {
+		if ( $this->is_reverse ) {
+			return sprintf( '%s_%s', $this->to, $this->from );
+		}
+
+		return sprintf( '%s_%s', $this->from, $this->to );
 	}
 
 }
