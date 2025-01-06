@@ -41,6 +41,10 @@ abstract class Model {
 		return $this->meta_fields;
 	}
 
+	public function has_access() {
+		return true;
+	}
+
 	public function get_relationship_table_suffix( $from, $to ) {
 //		foreach( $this->relationships() as $relationship ) {
 //			if ( $relationship->)

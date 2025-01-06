@@ -39,13 +39,15 @@ class Query_Handler {
 
 		$results = array();
 
+		var_dump( $data ); die();
+
 		foreach ( $data as $data_group_name => $query_to_execute ) {
 			$query_results = $wpdb->get_results( $query_to_execute, ARRAY_A );
-			$rows = array();
+			$rows          = array();
 			foreach ( $query_results as $query_result ) {
 				$json_data    = array_shift( $query_result );
 				$decoded_data = json_decode( $json_data, true );
-				$rows[] = $decoded_data;
+				$rows[]       = $decoded_data;
 			}
 
 			$results[ $data_group_name ] = $rows;
@@ -62,9 +64,20 @@ class Query_Handler {
 		$meta_fields  = array();
 		$local_fields = array();
 
-		$object_type  = $data->object_type();
-		$object_name  = ! empty( $data->alias() ) ? $data->alias() : $data->object_type();
+		$object_type = $data->object_type();
+		$object_name = ! empty( $data->alias() ) ? $data->alias() : $data->object_type();
+
+		if ( ! $this->models->has( $object_type ) ) {
+			$error_message = sprintf( 'Attempting to access invalid object type %s', $object_type );
+			throw new \InvalidArgumentException( $error_message );
+		}
+
 		$object_model = $this->models->get( $object_type );
+
+		if ( ! $object_model->has_access() ) {
+			$error_message = sprintf( 'Access not allowed for object type %s', $object_type );
+			throw new \InvalidArgumentException( $error_message );
+		}
 
 		$table_name  = $this->compose_table_name( $object_type );
 		$table_alias = $this->compose_table_alias( $object_name, $parent_table );
@@ -107,7 +120,7 @@ class Query_Handler {
 		$meta_table_name = $this->compose_table_name( 'meta' );
 
 		foreach ( $categorized_fields['meta'] as $field_name => $field_data ) {
-			$value_clause = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
+			$value_clause   = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
 			$field_pairs[]  = sprintf( '"%s", %s', $field_data['alias'], $value_clause, $field_name );
 			$join_clauses[] = sprintf( 'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
 				$meta_table_name,
@@ -155,7 +168,7 @@ class Query_Handler {
 		return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $limit_sql );
 	}
 
-	protected function categorize_fields( Model $object_model, $fields_to_process, $table_alias ) {
+	protected function categorize_fields( $object_model, $fields_to_process, $table_alias ) {
 		$categorized = array(
 			'meta'  => array(),
 			'local' => array(),
@@ -288,11 +301,11 @@ class Query_Handler {
 	private function get_limit_from_arguments( $arguments ) {
 		$response = '';
 
-		$limit = array_values( array_filter( $arguments, function( $item ) {
+		$limit = array_values( array_filter( $arguments, function ( $item ) {
 			return $item['key'] === 'limit';
 		} ) );
 
-		$offset = array_values( array_filter( $arguments, function( $item ) {
+		$offset = array_values( array_filter( $arguments, function ( $item ) {
 			return $item['key'] === 'offset';
 		} ) );
 
@@ -308,12 +321,23 @@ class Query_Handler {
 	}
 
 	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments ) {
-		foreach( $arguments as $argument ) {
+		foreach ( $arguments as $argument ) {
 			if ( $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
 				continue;
 			}
 
-			$clause = sprintf( '%s.%s %s "%s"', $table_alias, $argument['key'], $argument['comparator'], $argument['value'] );
+			if ( $argument['comparator'] === 'in' ) {
+				$in_vals = explode( '|', $argument['value'] );
+				foreach ( $in_vals as $key => $value ) {
+					$in_vals[ $key ] = sprintf( '"%s"', $value );
+				}
+				$in_string       = implode( ', ', $in_vals );
+				$clause          = sprintf( '%s.%s IN (%s)', $table_alias, $argument['key'], $in_string );
+				$where_clauses[] = $clause;
+				continue;
+			}
+
+			$clause          = sprintf( '%s.%s %s "%s"', $table_alias, $argument['key'], $argument['comparator'], $argument['value'] );
 			$where_clauses[] = $clause;
 		}
 	}

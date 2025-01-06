@@ -14,6 +14,7 @@ class Arguments_Token extends Token {
 		'ne' => '!=',
 		'gt' => '>',
 		'lt' => '<',
+		'in' => 'in',
 	);
 
 	public function items() {
