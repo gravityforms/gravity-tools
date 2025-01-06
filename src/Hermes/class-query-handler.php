@@ -39,8 +39,6 @@ class Query_Handler {
 
 		$results = array();
 
-		var_dump( $data ); die();
-
 		foreach ( $data as $data_group_name => $query_to_execute ) {
 			$query_results = $wpdb->get_results( $query_to_execute, ARRAY_A );
 			$rows          = array();
