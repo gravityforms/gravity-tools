@@ -82,7 +82,7 @@ class Mutation_Handler {
 
 		$data = $this->query_handler->handle_query( $objects_gql );
 
-		wp_send_json_success( $data );
+//		wp_send_json_success( $data );
 	}
 
 	public function handle_single_insert( $object_model, $categorized_fields ) {
@@ -140,7 +140,8 @@ class Mutation_Handler {
 				$validated = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
 
 				if ( ! is_null( $value ) && is_null( $validated ) ) {
-					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, (string) $field_validation_type );
+					$field_type_string = is_string( $field_validation_type ) ? $field_validation_type : 'callback';
+					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, $field_type_string );
 					throw new \InvalidArgumentException( $error_string );
 				}
 

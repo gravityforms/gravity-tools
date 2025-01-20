@@ -38,7 +38,8 @@ abstract class Model {
 	}
 
 	public function has_access() {
-		return current_user_can( $this->access_cap );
+		return true;
+//		return current_user_can( $this->access_cap );
 	}
 
 }
