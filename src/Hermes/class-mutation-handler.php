@@ -102,6 +102,7 @@ class Mutation_Handler {
 				$insert_fields_string = 'object_type, object_id, meta_name, meta_value';
 				$insert_values_string = sprintf( '"%s", "%s", "%s", "%s"', $object_model->type(), $object_id, $key, $value );
 				$meta_sql             = sprintf( 'INSERT INTO %s (%s) VALUES (%s)', $meta_table_name, $insert_fields_string, $insert_values_string );
+
 				$wpdb->query( $meta_sql );
 			}
 		}
@@ -136,12 +137,27 @@ class Mutation_Handler {
 
 			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
 				$field_validation_type = $object_model->fields()[ $field_name ];
-				$categorized['local'][ $field_name ] = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
+				$validated = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
+
+				if ( ! is_null( $value ) && is_null( $validated ) ) {
+					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, (string) $field_validation_type );
+					throw new \InvalidArgumentException( $error_string );
+				}
+
+				$categorized['local'][ $field_name ] = $validated;
 			}
 
 			if ( array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$field_validation_type = $object_model->meta_fields()[ $field_name ];
-				$categorized['meta'][ $field_name ] = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
+
+				$validated = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
+
+				if ( ! is_null( $value ) && is_null( $validated ) ) {
+					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, (string) $field_validation_type );
+					throw new \InvalidArgumentException( $error_string );
+				}
+
+				$categorized['meta'][ $field_name ] = $validated;
 			}
 		}
 

@@ -2,6 +2,7 @@
 
 namespace hermes;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Mutation_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
@@ -35,7 +36,15 @@ class HandlerTest extends TestCase {
 		}
 	}
 
-	public function testMutationHandler() {
+	/**
+	 * @dataProvider mutationHandlerProvider
+	 *
+	 * @param $text
+	 * @param $expected
+	 *
+	 * @return void
+	 */
+	public function testMutationHandler( $text, $expected ) {
 		$model_collection = new Model_Collection();
 		$contact_model = new FakeContactModel();
 		$group_model = new FakeGroupModel();
@@ -49,8 +58,22 @@ class HandlerTest extends TestCase {
 
 		$handler = new Mutation_Handler( $db_namespace, $model_collection, $query_handler );
 
-		$text = '{
-  insert_contact(objects: [{first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+		try {
+			$data = $handler->handle_mutation( $text );
+			$this->assertEquals( $expected, 'success' );
+		} catch ( \Exception $e ) {
+			$this->assertEquals( $expected, 'failure' );
+		}
+
+
+	}
+
+	public function mutationHandlerProvider() {
+		return array(
+			// Valid
+			array(
+				'{
+  insert_contact(objects: [{email: "foo@bar.com", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
     returning {
       id,
       first_name,
@@ -58,10 +81,40 @@ class HandlerTest extends TestCase {
       secondary_phone,
     }
   }
-}';
-		$data = $handler->handle_mutation( $text );
+}',
+				'success',
+			),
 
+			// Invalid email field
+			array(
+				'{
+  insert_contact(objects: [{email: "foo@bar", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}',
+				'failure',
+			),
 
+			// Invalid string field
+			array(
+				'{
+  insert_contact(objects: [{first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}',
+				'failure',
+			),
+		);
 	}
 
 }
@@ -70,20 +123,24 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	protected $type = 'contact';
 
-	protected $fields = array(
-		'id',
-		'first_name',
-		'last_name',
-		'email',
-		'phone'
-	);
-
-	protected $meta_fields = array(
-		'secondary_phone',
-		'alternate_website'
-	);
-
 	protected $access_cap = 'manage_options';
+
+	public function fields() {
+		return array(
+			'id' => Field_Type_Validation_Enum::INT,
+			'first_name' => Field_Type_Validation_Enum::STRING,
+			'last_name' => Field_Type_Validation_Enum::STRING,
+			'email' => Field_Type_Validation_Enum::EMAIL,
+			'phone' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	public function meta_fields() {
+		return array(
+			'secondary_phone' => Field_Type_Validation_Enum::STRING,
+			'alternate_website' => Field_Type_Validation_Enum::STRING,
+		);
+	}
 
 	public function relationships() {
 		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection();
@@ -98,6 +155,12 @@ class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 	protected $fields = array(
 		'label',
 	);
+
+	public function fields() {
+		return array(
+			'label' => Field_Type_Validation_Enum::STRING,
+		);
+	}
 
 	protected $access_cap = 'manage_options';
 
@@ -123,6 +186,10 @@ class fakeWPDB {
 
 	public function query( $query ) {
 		return;
+	}
+
+	public function get_results( $query ) {
+		return array();
 	}
 
 }
