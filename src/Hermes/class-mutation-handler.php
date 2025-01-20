@@ -2,6 +2,7 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Generic_Mutation_Token;
@@ -128,17 +129,19 @@ class Mutation_Handler {
 		);
 
 		foreach ( $fields_to_process as $field_name => $value ) {
-			if ( ! in_array( $field_name, $object_model->fields() ) && ! in_array( $field_name, $object_model->meta_fields() ) ) {
+			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
 				throw new \InvalidArgumentException( $error_string );
 			}
 
-			if ( in_array( $field_name, $object_model->fields() ) ) {
-				$categorized['local'][ $field_name ] = $value;
+			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
+				$field_validation_type = $object_model->fields()[ $field_name ];
+				$categorized['local'][ $field_name ] = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
 			}
 
-			if ( in_array( $field_name, $object_model->meta_fields() ) ) {
-				$categorized['meta'][ $field_name ] = $value;
+			if ( array_key_exists( $field_name, $object_model->meta_fields() ) ) {
+				$field_validation_type = $object_model->meta_fields()[ $field_name ];
+				$categorized['meta'][ $field_name ] = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
 			}
 		}
 

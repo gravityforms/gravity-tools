@@ -12,10 +12,6 @@ abstract class Model {
 
 	protected $type = '';
 
-	protected $fields = array();
-
-	protected $meta_fields = array();
-
 	protected $access_cap = '';
 
 	/**
@@ -31,24 +27,18 @@ abstract class Model {
 	 * @return array
 	 */
 	public function fields() {
-		return $this->fields;
+		return array();
 	}
 
 	/**
 	 * @return array
 	 */
 	public function meta_fields() {
-		return $this->meta_fields;
+		return array();
 	}
 
 	public function has_access() {
-		return true;
-	}
-
-	public function get_relationship_table_suffix( $from, $to ) {
-//		foreach( $this->relationships() as $relationship ) {
-//			if ( $relationship->)
-//		}
+		return current_user_can( $this->access_cap );
 	}
 
 }

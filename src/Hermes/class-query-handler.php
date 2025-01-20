@@ -186,7 +186,7 @@ class Query_Handler {
 
 			$field_name = $field->name();
 
-			if ( ! in_array( $field_name, $object_model->fields() ) && ! in_array( $field_name, $object_model->meta_fields() ) ) {
+			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
 				throw new \InvalidArgumentException( $error_string );
 			}
@@ -194,11 +194,11 @@ class Query_Handler {
 			$alias      = $field->alias();
 			$identifier = $alias ? $alias : $field_name;
 
-			if ( in_array( $field_name, $object_model->fields() ) ) {
+			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
 				$categorized['local'][ $field_name ] = $identifier;
 			}
 
-			if ( in_array( $field_name, $object_model->meta_fields() ) ) {
+			if ( array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$categorized['meta'][ $field_name ] = array(
 					'alias'              => $identifier,
 					'lookup_table_alias' => sprintf( 'meta_%s_%s', $table_alias, $identifier ),
