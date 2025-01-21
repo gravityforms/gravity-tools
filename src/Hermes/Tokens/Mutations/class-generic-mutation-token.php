@@ -37,6 +37,10 @@ class Generic_Mutation_Token extends Mutation_Token {
 						$typed_token         = new Insert_Mutation_Token( $contents );
 						$this->mutation_type = 'insert';
 					}
+					if ( strpos( $cleaned, 'update_' ) !== false ) {
+						$typed_token         = new Update_Mutation_Token( $contents );
+						$this->mutation_type = 'update';
+					}
 					break;
 				default:
 					break;

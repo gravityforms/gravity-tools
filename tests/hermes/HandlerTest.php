@@ -17,8 +17,8 @@ class HandlerTest extends TestCase {
 
 	public function testDataObjectParsesToSQL() {
 		$model_collection = new Model_Collection();
-		$contact_model = new FakeContactModel();
-		$group_model = new FakeGroupModel();
+		$contact_model    = new FakeContactModel();
+		$group_model      = new FakeGroupModel();
 
 		$model_collection->add( 'contact', $contact_model );
 		$model_collection->add( 'group', $group_model );
@@ -30,7 +30,7 @@ class HandlerTest extends TestCase {
 		$text = file_get_contents( dirname( __FILE__ ) . '/../_data/group_to_contact.graphql' );
 		$data = new Query_Token( $text );
 
-		foreach( $data->items() as $object ) {
+		foreach ( $data->items() as $object ) {
 			$sql = $handler->recursively_generate_sql( $object );
 			var_dump( $sql );
 		}
@@ -46,8 +46,8 @@ class HandlerTest extends TestCase {
 	 */
 	public function testMutationHandler( $text, $expected ) {
 		$model_collection = new Model_Collection();
-		$contact_model = new FakeContactModel();
-		$group_model = new FakeGroupModel();
+		$contact_model    = new FakeContactModel();
+		$group_model      = new FakeGroupModel();
 
 		$model_collection->add( 'contact', $contact_model );
 		$model_collection->add( 'group', $group_model );
@@ -60,12 +60,12 @@ class HandlerTest extends TestCase {
 
 		try {
 			$data = $handler->handle_mutation( $text );
-			$this->assertEquals( $expected, 'success' );
 		} catch ( \Exception $e ) {
 			$this->assertEquals( $expected, 'failure' );
+			return;
 		}
 
-
+		$this->assertEquals( $expected, 'success' );
 	}
 
 	public function mutationHandlerProvider() {
@@ -100,10 +100,55 @@ class HandlerTest extends TestCase {
 				'failure',
 			),
 
-			// Invalid string field
+			// Valid custom callback
 			array(
 				'{
-  insert_contact(objects: [{first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+  insert_contact(objects: [{foobar: "foo", first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}',
+				'success',
+			),
+
+			// Invalid custom callback
+			array(
+				'{
+  insert_contact(objects: [{foobar: "bar", first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}',
+				'failure',
+			),
+
+			// Valid update
+			array(
+				'{
+  update_contact(id: 1, email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}',
+				'success',
+			),
+
+			// Update missing ID
+			array(
+				'{
+  update_contact( email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
     returning {
       id,
       first_name,
@@ -127,17 +172,24 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	public function fields() {
 		return array(
-			'id' => Field_Type_Validation_Enum::INT,
+			'id'         => Field_Type_Validation_Enum::INT,
 			'first_name' => Field_Type_Validation_Enum::STRING,
-			'last_name' => Field_Type_Validation_Enum::STRING,
-			'email' => Field_Type_Validation_Enum::EMAIL,
-			'phone' => Field_Type_Validation_Enum::STRING,
+			'last_name'  => Field_Type_Validation_Enum::STRING,
+			'email'      => Field_Type_Validation_Enum::EMAIL,
+			'phone'      => Field_Type_Validation_Enum::STRING,
+			'foobar'     => function ( $value ) {
+				if ( $value === 'foo' ) {
+					return 'foo';
+				}
+
+				return null;
+			},
 		);
 	}
 
 	public function meta_fields() {
 		return array(
-			'secondary_phone' => Field_Type_Validation_Enum::STRING,
+			'secondary_phone'   => Field_Type_Validation_Enum::STRING,
 			'alternate_website' => Field_Type_Validation_Enum::STRING,
 		);
 	}

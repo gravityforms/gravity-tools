@@ -3,10 +3,12 @@
 namespace Gravity_Forms\Gravity_Tools\Hermes;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Generic_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert_Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 
@@ -41,8 +43,7 @@ class Mutation_Handler {
 		/**
 		 * Mutation_Token $mutation
 		 */
-		$mutation = $generic_mutation->mutation();
-
+		$mutation     = $generic_mutation->mutation();
 		$object_model = $this->models->get( $mutation->object_type() );
 
 		if ( ! $object_model->has_access() ) {
@@ -55,6 +56,8 @@ class Mutation_Handler {
 				$this->handle_insert_mutation( $mutation, $object_model );
 				break;
 			case 'update':
+				$this->handle_update_mutation( $mutation, $object_model );
+				break;
 			case 'delete':
 			default:
 				break;
@@ -78,7 +81,7 @@ class Mutation_Handler {
 			$inserted_ids[]     = $inserted_id;
 		}
 
-		$objects_gql = sprintf( '{ contact: contact(id_in: %s){ %s }', implode( '|', $inserted_ids ), implode( ', ', $mutation->return_fields() ) );
+		$objects_gql = sprintf( '{ %s: %s(id_in: %s){ %s }', $object_model->type(), $object_model->type(), implode( '|', $inserted_ids ), implode( ', ', $mutation->return_fields() ) );
 
 		$data = $this->query_handler->handle_query( $objects_gql );
 
@@ -110,6 +113,60 @@ class Mutation_Handler {
 		return $object_id;
 	}
 
+	/**
+	 * @param Update_Mutation_Token $mutation
+	 * @param Model                 $object_model
+	 *
+	 * @return void
+	 */
+	public function handle_update_mutation( $mutation, $object_model ) {
+		$fields_to_update = $mutation->children()->children();
+
+		if ( ! array_key_exists( 'id', $fields_to_update ) ) {
+			$error_string = sprintf( 'Update mutations must contain an id in the fields list. Fields provided: %s', json_encode( array_keys( $fields_to_update ) ) );
+			throw new \InvalidArgumentException( $error_string );
+		}
+
+		$object_id = $fields_to_update['id'];
+
+		$categorized_fields = $this->categorize_fields( $object_model, $fields_to_update );
+
+		$this->handle_single_update( $object_model, $categorized_fields, $object_id );
+
+		$objects_gql = sprintf( '{ %s: %s(id: %s){ %s }', $object_model->type(), $object_model->type(), $inserted_id, implode( ', ', $mutation->return_fields() ) );
+
+		$data = $this->query_handler->handle_query( $objects_gql );
+
+//		wp_send_json_success( $data );
+	}
+
+	private function handle_single_update( $object_model, $categorized_fields, $object_id ) {
+		global $wpdb;
+
+		$table_name  = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
+		$field_list  = $this->get_update_field_list( $categorized_fields['local'] );
+		$sql         = sprintf( 'UPDATE %s SET %s WHERE id = "%s"', $table_name, $field_list, $object_id );
+
+		$wpdb->query( $sql );
+
+		if ( ! empty( $categorized_fields['meta'] ) ) {
+			foreach ( $categorized_fields['meta'] as $key => $value ) {
+				$meta_table_name      = sprintf( '%s%s_meta', $wpdb->prefix, $this->db_namespace );
+
+				$delete_sql = sprintf( 'DELETE FROM %s WHERE meta_name = "%s" AND object_id = "%s"', $meta_table_name, $key, $object_id );
+				$wpdb->query( $delete_sql );
+
+				$insert_fields_string = 'object_type, object_id, meta_name, meta_value';
+				$insert_values_string = sprintf( '"%s", "%s", "%s", "%s"', $object_model->type(), $object_id, $key, $value );
+				$meta_sql             = sprintf( 'INSERT INTO %s (%s) VALUES (%s)', $meta_table_name, $insert_fields_string, $insert_values_string );
+
+				$wpdb->query( $meta_sql );
+			}
+		}
+
+		return $object_id;
+	}
+
 	private function get_field_name_list_from_fields( $fields ) {
 		return implode( ', ', array_keys( $fields ) );
 	}
@@ -121,6 +178,19 @@ class Mutation_Handler {
 		}
 
 		return implode( ', ', $values );
+	}
+
+	private function get_update_field_list( $fields ) {
+		$pairs = array();
+
+		foreach( $fields as $key => $value ) {
+			if ( $key === 'id' ) {
+				continue;
+			}
+			$pairs[] = sprintf( '%s = "%s"', $key, $value );
+		}
+
+		return implode( ', ', $pairs );
 	}
 
 	private function categorize_fields( $object_model, $fields_to_process ) {
@@ -137,11 +207,11 @@ class Mutation_Handler {
 
 			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
 				$field_validation_type = $object_model->fields()[ $field_name ];
-				$validated = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
+				$validated             = Field_Type_Validation_Enum::validate( $field_validation_type, $value );
 
 				if ( ! is_null( $value ) && is_null( $validated ) ) {
 					$field_type_string = is_string( $field_validation_type ) ? $field_validation_type : 'callback';
-					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, $field_type_string );
+					$error_string      = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, $field_type_string );
 					throw new \InvalidArgumentException( $error_string );
 				}
 
