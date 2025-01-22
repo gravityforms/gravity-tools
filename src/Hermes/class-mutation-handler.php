@@ -6,6 +6,7 @@ use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Generic_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert_Mutation_Token;
@@ -44,7 +45,7 @@ class Mutation_Handler {
 		/**
 		 * Mutation_Token $mutation
 		 */
-		$mutation     = $generic_mutation->mutation();
+		$mutation = $generic_mutation->mutation();
 
 		if ( ! $this->models->has( $mutation->object_type() ) ) {
 			$error_message = sprintf( 'Mutation attempted with invalid object type: %s', $mutation->object_type() );
@@ -68,6 +69,7 @@ class Mutation_Handler {
 			case 'delete':
 				$this->handle_delete_mutation( $mutation, $object_model );
 			case 'connect':
+				$this->handle_connect_mutation( $mutation, $object_model );
 			default:
 				break;
 		}
@@ -94,7 +96,7 @@ class Mutation_Handler {
 
 		$data = $this->query_handler->handle_query( $objects_gql );
 
-//		wp_send_json_success( $data );
+		wp_send_json_success( $data );
 	}
 
 	public function handle_single_insert( $object_model, $categorized_fields ) {
@@ -146,21 +148,21 @@ class Mutation_Handler {
 
 		$data = $this->query_handler->handle_query( $objects_gql );
 
-//		wp_send_json_success( $data );
+		wp_send_json_success( $data );
 	}
 
 	private function handle_single_update( $object_model, $categorized_fields, $object_id ) {
 		global $wpdb;
 
-		$table_name  = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
-		$field_list  = $this->get_update_field_list( $categorized_fields['local'] );
-		$sql         = sprintf( 'UPDATE %s SET %s WHERE id = "%s"', $table_name, $field_list, $object_id );
+		$table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
+		$field_list = $this->get_update_field_list( $categorized_fields['local'] );
+		$sql        = sprintf( 'UPDATE %s SET %s WHERE id = "%s"', $table_name, $field_list, $object_id );
 
 		$wpdb->query( $sql );
 
 		if ( ! empty( $categorized_fields['meta'] ) ) {
 			foreach ( $categorized_fields['meta'] as $key => $value ) {
-				$meta_table_name      = sprintf( '%s%s_meta', $wpdb->prefix, $this->db_namespace );
+				$meta_table_name = sprintf( '%s%s_meta', $wpdb->prefix, $this->db_namespace );
 
 				$delete_sql = sprintf( 'DELETE FROM %s WHERE meta_name = "%s" AND object_id = "%s"', $meta_table_name, $key, $object_id );
 				$wpdb->query( $delete_sql );
@@ -178,7 +180,7 @@ class Mutation_Handler {
 
 	/**
 	 * @param Delete_Mutation_Token $mutation
-	 * @param $object_model
+	 * @param                       $object_model
 	 *
 	 * @return void
 	 */
@@ -186,12 +188,56 @@ class Mutation_Handler {
 		global $wpdb;
 
 		$id_to_delete = $mutation->id_to_delete();
-		$table_name  = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
-		$delete_sql = sprintf( 'DELETE FROM %s WHERE id = "%s"', $table_name, $id_to_delete );
+		$table_name   = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
+		$delete_sql   = sprintf( 'DELETE FROM %s WHERE id = "%s"', $table_name, $id_to_delete );
 
 		$wpdb->query( $delete_sql );
 
-//		wp_send_json_success( array( 'deleted_id' => $id_to_delete ) );
+		wp_send_json_success( array( 'deleted_id' => $id_to_delete ) );
+	}
+
+	/**
+	 * @param Connect_Mutation_Token $mutation
+	 * @param Model                  $object_model
+	 *
+	 * @return void
+	 */
+	private function handle_connect_mutation( $mutation, $object_model ) {
+		global $wpdb;
+
+		$from_object = $mutation->from_object();
+		$to_object   = $mutation->to_object();
+		$from_id     = $mutation->from_id();
+		$to_id       = $mutation->to_id();
+
+		if ( ! $object_model->relationships()->has( $to_object ) ) {
+			$error_message = sprintf( 'Relationship from %s to %s does not exist.', $from_object, $to_object );
+			throw new \InvalidArgumentException( $error_message );
+		}
+
+		if ( ! $object_model->relationships()->get( $to_object )->has_access() ) {
+			$error_message = sprintf( 'Attempting to access forbidden object type %s.', $to_object );
+			throw new \InvalidArgumentException( $error_message );
+		}
+
+		$table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $from_object, $to_object );
+
+		$check_sql = sprintf( 'SELECT * FROM %s WHERE %_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
+
+		$existing = $wpdb->get_results( $check_sql );
+
+		if ( ! empty( $existing ) ) {
+			$response = sprintf( 'Connection from %s ID %s to %s ID %s already exists.', $from_object, $from_id, $to_object, $to_id );
+			wp_send_json_success( $response );
+		}
+
+		$connect_sql = sprintf( 'INSERT INTO %s ( %s_id, %s_id ) VALUES( "%s", "%s" )', $table_name, $from_object, $to_object, $from_id, $to_id );
+
+		$wpdb->query( $connect_sql );
+
+		$response = sprintf( 'Connection from %s ID %s to %s ID %s created.', $from_object, $from_id, $to_object, $to_id );
+
+		wp_send_json_success( $response );
 	}
 
 	private function get_field_name_list_from_fields( $fields ) {
@@ -210,7 +256,7 @@ class Mutation_Handler {
 	private function get_update_field_list( $fields ) {
 		$pairs = array();
 
-		foreach( $fields as $key => $value ) {
+		foreach ( $fields as $key => $value ) {
 			if ( $key === 'id' ) {
 				continue;
 			}

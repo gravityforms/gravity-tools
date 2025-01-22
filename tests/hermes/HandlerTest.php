@@ -186,6 +186,15 @@ class HandlerTest extends TestCase {
 }',
 				'failure',
 			),
+
+			// Delete missing valid object type
+			array(
+				'{
+  connect_group_contact(from: 1, to: 2) {
+  }
+}',
+				'success',
+			),
 		);
 	}
 
