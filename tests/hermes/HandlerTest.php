@@ -159,6 +159,33 @@ class HandlerTest extends TestCase {
 }',
 				'failure',
 			),
+
+			// Delete
+			array(
+				'{
+  delete_contact(id: 1) {
+  }
+}',
+				'success',
+			),
+
+			// Delete missing ID
+			array(
+				'{
+  delete_contact() {
+  }
+}',
+				'failure',
+			),
+
+			// Delete missing valid object type
+			array(
+				'{
+  delete_invalid_object(id: 1) {
+  }
+}',
+				'failure',
+			),
 		);
 	}
 

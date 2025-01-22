@@ -30,21 +30,32 @@ class Generic_Mutation_Token extends Mutation_Token {
 			$value     = array_shift( $matches );
 			$mark_type = array_shift( $marks );
 
-			switch ( $mark_type ) {
-				case 'operation':
-					$cleaned = trim( $value, '{ (' );
-					if ( strpos( $cleaned, 'insert_' ) !== false ) {
-						$typed_token         = new Insert_Mutation_Token( $contents );
-						$this->mutation_type = 'insert';
-					}
-					if ( strpos( $cleaned, 'update_' ) !== false ) {
-						$typed_token         = new Update_Mutation_Token( $contents );
-						$this->mutation_type = 'update';
-					}
-					break;
-				default:
-					break;
+			if ( $mark_type !== 'operation' ) {
+				continue;
 			}
+
+			$cleaned = trim( $value, '{ (' );
+
+			if ( strpos( $cleaned, 'insert_' ) !== false ) {
+				$typed_token         = new Insert_Mutation_Token( $contents );
+				$this->mutation_type = 'insert';
+			}
+
+			if ( strpos( $cleaned, 'update_' ) !== false ) {
+				$typed_token         = new Update_Mutation_Token( $contents );
+				$this->mutation_type = 'update';
+			}
+
+			if ( strpos( $cleaned, 'delete_' ) !== false ) {
+				$typed_token         = new Delete_Mutation_Token( $contents );
+				$this->mutation_type = 'delete';
+			}
+
+			if ( strpos( $cleaned, 'connect_' ) !== false ) {
+				$typed_token         = new Connect_Mutation_Token( $contents );
+				$this->mutation_type = 'connect';
+			}
+
 		}
 
 		if ( empty( $typed_token ) ) {

@@ -6,6 +6,7 @@ use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Generic_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update_Mutation_Token;
@@ -44,6 +45,12 @@ class Mutation_Handler {
 		 * Mutation_Token $mutation
 		 */
 		$mutation     = $generic_mutation->mutation();
+
+		if ( ! $this->models->has( $mutation->object_type() ) ) {
+			$error_message = sprintf( 'Mutation attempted with invalid object type: %s', $mutation->object_type() );
+			throw new \InvalidArgumentException( $error_message );
+		}
+
 		$object_model = $this->models->get( $mutation->object_type() );
 
 		if ( ! $object_model->has_access() ) {
@@ -59,6 +66,8 @@ class Mutation_Handler {
 				$this->handle_update_mutation( $mutation, $object_model );
 				break;
 			case 'delete':
+				$this->handle_delete_mutation( $mutation, $object_model );
+			case 'connect':
 			default:
 				break;
 		}
@@ -165,6 +174,24 @@ class Mutation_Handler {
 		}
 
 		return $object_id;
+	}
+
+	/**
+	 * @param Delete_Mutation_Token $mutation
+	 * @param $object_model
+	 *
+	 * @return void
+	 */
+	private function handle_delete_mutation( $mutation, $object_model ) {
+		global $wpdb;
+
+		$id_to_delete = $mutation->id_to_delete();
+		$table_name  = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
+		$delete_sql = sprintf( 'DELETE FROM %s WHERE id = "%s"', $table_name, $id_to_delete );
+
+		$wpdb->query( $delete_sql );
+
+//		wp_send_json_success( array( 'deleted_id' => $id_to_delete ) );
 	}
 
 	private function get_field_name_list_from_fields( $fields ) {
