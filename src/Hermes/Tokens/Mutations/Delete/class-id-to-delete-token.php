@@ -1,21 +1,21 @@
 <?php
 
-namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations;
+namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
 
-class Fields_To_Update_Token extends Token {
+class ID_To_Delete_Token extends Token {
 
-	protected $type = 'Fields_To_Update';
+	protected $type = 'ID_To_Update';
 
-	protected $items = array();
+	protected $id;
 
-	public function items() {
-		return $this->items;
+	public function id() {
+		return $this->id;
 	}
 
 	public function children() {
-		return $this->items();
+		return array( $this->id );
 	}
 
 	public function parse( $contents ) {
@@ -36,7 +36,11 @@ class Fields_To_Update_Token extends Token {
 			$fields[ $key ] = trim( $value, '"\' ');
 		}
 
-		$this->items = $fields;
+		if ( ! array_key_exists( 'id', $fields ) ) {
+			throw new \InvalidArgumentException( 'Delete operations must provide a valid ID for deletion.' );
+		}
+
+		$this->id = $fields['id'];
 	}
 
 	public function regex_types() {

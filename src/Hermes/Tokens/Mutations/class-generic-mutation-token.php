@@ -3,6 +3,10 @@
 namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert\Insert_Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update\Update_Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete\Delete_Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect\Connect_Mutation_Token;
 
 class Generic_Mutation_Token extends Mutation_Token {
 

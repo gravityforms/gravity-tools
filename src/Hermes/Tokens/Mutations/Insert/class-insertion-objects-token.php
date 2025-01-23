@@ -1,6 +1,6 @@
 <?php
 
-namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations;
+namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
 
