@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class QueryTokenTest extends TestCase {
 
 	public function testQueryParsesToArray() {
-		$text = file_get_contents( dirname( __FILE__ ) . '/../_data/basic.graphql' );
+		$text = file_get_contents( dirname( __FILE__ ) . '/../../_data/basic.graphql' );
 		$data = new Query_Token( $text );
 
 		$items = $data->items();
