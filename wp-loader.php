@@ -1,5 +1,6 @@
 <?php
 
+use tad\FunctionMocker\FunctionMocker;
 
 class WpLoader {
 	public function init() {
@@ -34,7 +35,12 @@ class WpLoader {
 
 
 	protected function loadWP() {
+		FunctionMocker::setup();
+
 		require WP_TESTS_DIR . 'includes/bootstrap.php';
+
+		FunctionMocker::replace('wp_send_json_success', '' );
+		FunctionMocker::replace('wp_send_json_error', '' );
 	}
 
 
@@ -72,7 +78,9 @@ class WpLoader {
 		//nuke all PMB data once the tests are done, so that it doesn't carry over to the next time we run tests
 		register_shutdown_function(
 			function () {
+				FunctionMocker::tearDown();
 
+				\gravitytools_tests_reset_db();
 			}
 		);
 	}

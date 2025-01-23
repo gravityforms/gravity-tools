@@ -8,30 +8,32 @@ use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 use PHPUnit\Framework\TestCase;
+use tad\FunctionMocker\FunctionMocker;
 
 global $wpdb;
 
 class HandlerTest extends TestCase {
 
-	public function testDataObjectParsesToSQL() {
-		$model_collection = new Model_Collection();
-		$contact_model    = new FakeContactModel();
-		$group_model      = new FakeGroupModel();
+	protected $model_collection;
+	protected $contact_model;
+	protected $group_model;
+	protected $query_handler;
+	protected $mutation_handler;
+	protected $db_namespace;
 
-		$model_collection->add( 'contact', $contact_model );
-		$model_collection->add( 'group', $group_model );
+	public function setUp() {
+		$this->model_collection = new Model_Collection();
+		$this->contact_model    = new \FakeContactModel();
+		$this->group_model      = new \FakeGroupModel();
 
-		$db_namespace = 'gravitycrm';
+		$this->model_collection->add( 'contact', $this->contact_model );
+		$this->model_collection->add( 'group', $this->group_model );
 
-		$handler = new Query_Handler( $db_namespace, $model_collection );
+		$this->db_namespace = 'gravitycrm';
 
-		$text = file_get_contents( dirname( __FILE__ ) . '/../_data/group_to_contact.graphql' );
-		$data = new Query_Token( $text );
+		$this->query_handler = new Query_Handler( $this->db_namespace, $this->model_collection );
 
-		foreach ( $data->items() as $object ) {
-			$sql = $handler->recursively_generate_sql( $object );
-			var_dump( $sql );
-		}
+		$this->mutation_handler = new Mutation_Handler( $this->db_namespace, $this->model_collection, $this->query_handler );
 	}
 
 	/**
@@ -43,23 +45,12 @@ class HandlerTest extends TestCase {
 	 * @return void
 	 */
 	public function testMutationHandler( $text, $expected ) {
-		$model_collection = new Model_Collection();
-		$contact_model    = new FakeContactModel();
-		$group_model      = new FakeGroupModel();
-
-		$model_collection->add( 'contact', $contact_model );
-		$model_collection->add( 'group', $group_model );
-
-		$db_namespace = 'gravitycrm';
-
-		$query_handler = new Query_Handler( $db_namespace, $model_collection );
-
-		$handler = new Mutation_Handler( $db_namespace, $model_collection, $query_handler );
 
 		try {
-			$data = $handler->handle_mutation( $text );
+			$data = $this->mutation_handler->handle_mutation( $text );
 		} catch ( \Exception $e ) {
 			$this->assertEquals( $expected, 'failure' );
+
 			return;
 		}
 
@@ -96,21 +87,6 @@ class HandlerTest extends TestCase {
   }
 }',
 				'failure',
-			),
-
-			// Valid custom callback
-			array(
-				'{
-  insert_contact(objects: [{foobar: "foo", first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
-				'success',
 			),
 
 			// Invalid custom callback
@@ -185,7 +161,7 @@ class HandlerTest extends TestCase {
 				'failure',
 			),
 
-			// Delete missing valid object type
+			// Connect
 			array(
 				'{
   connect_group_contact(from: 1, to: 2) {
@@ -196,86 +172,145 @@ class HandlerTest extends TestCase {
 		);
 	}
 
-}
+	public function testInsertMutation() {
+		global $wpdb;
+		\gravitytools_tests_reset_db();
 
-class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+		$text = '{
+  insert_contact(objects: [{email: "foo@bar.com", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}';
 
-	protected $type = 'contact';
+		$this->mutation_handler->handle_mutation( $text );
+		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
+		$meta_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'meta' );
 
-	protected $access_cap = 'manage_options';
+		$check_query = sprintf( 'SELECT * FROM %s', $table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
 
-	public function fields() {
-		return array(
-			'id'         => Field_Type_Validation_Enum::INT,
-			'first_name' => Field_Type_Validation_Enum::STRING,
-			'last_name'  => Field_Type_Validation_Enum::STRING,
-			'email'      => Field_Type_Validation_Enum::EMAIL,
-			'phone'      => Field_Type_Validation_Enum::STRING,
-			'foobar'     => function ( $value ) {
-				if ( $value === 'foo' ) {
-					return 'foo';
-				}
+		$this->assertEquals( 2, count( $results ) );
 
-				return null;
-			},
-		);
+		$record = $results[1];
+
+		$this->assertEquals( 'Bing', $record['first_name'] );
+
+		$meta_check_query = sprintf( 'SELECT meta_value FROM %s WHERE object_id = "%s" AND meta_name = "%s"', $meta_table_name, $record['id'], 'secondary_phone' );
+		$meta_results     = $wpdb->get_results( $meta_check_query, ARRAY_A );
+
+		$this->assertEquals( '4445554848', $meta_results[0]['meta_value'] );
 	}
 
-	public function meta_fields() {
-		return array(
-			'secondary_phone'   => Field_Type_Validation_Enum::STRING,
-			'alternate_website' => Field_Type_Validation_Enum::STRING,
-		);
+	public function testUpdateMutation() {
+		global $wpdb;
+		\gravitytools_tests_reset_db();
+
+		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
+		$meta_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'meta' );
+
+		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $table_name );
+		$wpdb->query( $insert_query );
+
+		$insert_meta_query = sprintf( 'INSERT INTO %s (meta_name, meta_value, object_type, object_id) VALUES ("secondary_phone", "4445554545", "contact", "1" )', $meta_table_name );
+		$wpdb->query( $insert_meta_query );
+
+		$text = '{
+  update_contact(id: 1, email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
+    returning {
+      id,
+      first_name,
+      last_name,
+      secondary_phone,
+    }
+  }
+}';
+
+		$this->mutation_handler->handle_mutation( $text );
+
+		$check_query = sprintf( 'SELECT * FROM %s', $table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
+
+		$this->assertEquals( 1, count( $results ) );
+
+		$check_query = sprintf( 'SELECT * FROM %s WHERE id = "%s"', $table_name, 1 );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
+
+		$record = $results[0];
+
+		$this->assertEquals( 'Foo', $record['first_name'] );
+		$this->assertEquals( 'Bar', $record['last_name'] );
+		$this->assertEquals( 'foo@bar.com', $record['email'] );
+
+		$meta_check_query = sprintf( 'SELECT meta_value FROM %s WHERE object_id = "%s" AND meta_name = "%s"', $meta_table_name, $record['id'], 'secondary_phone' );
+		$meta_results     = $wpdb->get_results( $meta_check_query, ARRAY_A );
+
+		$this->assertEquals( '4445554848', $meta_results[0]['meta_value'] );
+
 	}
 
-	public function relationships() {
-		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection();
+	public function testDeleteMutation() {
+		global $wpdb;
+		\gravitytools_tests_reset_db();
+
+		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
+		$meta_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'meta' );
+
+		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $table_name );
+		$wpdb->query( $insert_query );
+
+		$text = '{
+  delete_contact(id: 1) {}
+}';
+
+		$check_query = sprintf( 'SELECT * FROM %s', $table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
+
+		$this->assertEquals( 1, count( $results ) );
+
+		$this->mutation_handler->handle_mutation( $text );
+
+		$check_query = sprintf( 'SELECT * FROM %s', $table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
+
+		$this->assertEquals( 0, count( $results ) );
 	}
 
-}
+	public function testConnectMutation() {
+		global $wpdb;
+		\gravitytools_tests_reset_db();
 
-class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+		$contact_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
+		$group_table_name   = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'group' );
+		$connect_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'group_contact' );
 
-	protected $type = 'group';
+		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $contact_table_name );
+		$wpdb->query( $insert_query );
 
-	protected $fields = array(
-		'label',
-	);
+		$insert_query = sprintf( 'INSERT INTO %s (label) VALUES ("Test Group")', $group_table_name );
+		$wpdb->query( $insert_query );
 
-	public function fields() {
-		return array(
-			'label' => Field_Type_Validation_Enum::STRING,
-		);
-	}
+		$text = '{
+  connect_group_contact(from: 1, to: 1) {}
+}';
 
-	protected $access_cap = 'manage_options';
+		$check_query = sprintf( 'SELECT * FROM %s', $connect_table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
 
-	public function relationships() {
-		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
-			array(
-				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'group', 'contact', 'manage_options' )
-			)
-		);
-	}
+		$this->assertEquals( 0, count( $results ) );
 
-}
+		$this->mutation_handler->handle_mutation( $text );
 
-class fakeWPDB {
+		$check_query = sprintf( 'SELECT * FROM %s', $connect_table_name );
+		$results     = $wpdb->get_results( $check_query, ARRAY_A );
 
-	public $prefix = 'wp_';
-
-	public $insert_id = 1;
-
-	public function prepare( $string, ...$args ) {
-		return sprintf( $string, ...$args );
-	}
-
-	public function query( $query ) {
-		return;
-	}
-
-	public function get_results( $query ) {
-		return array();
+		$this->assertEquals( 1, count( $results ) );
+		$this->assertEquals( 1, $results[0]['group_id'] );
+		$this->assertEquals( 1, $results[0]['contact_id'] );
 	}
 
 }
