@@ -5,6 +5,10 @@ namespace hermes;
 use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Mutation_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Connect_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Delete_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Insert_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Update_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +37,14 @@ class HandlerTest extends TestCase {
 
 		$this->query_handler = new Query_Handler( $this->db_namespace, $this->model_collection );
 
-		$this->mutation_handler = new Mutation_Handler( $this->db_namespace, $this->model_collection, $this->query_handler );
+		$runners = array(
+			'insert'  => new Insert_Runner( $this->db_namespace, $this->query_handler ),
+			'delete'  => new Delete_Runner( $this->db_namespace, $this->query_handler ),
+			'connect' => new Connect_Runner( $this->db_namespace, $this->query_handler ),
+			'update'  => new Update_Runner( $this->db_namespace, $this->query_handler ),
+		);
+
+		$this->mutation_handler = new Mutation_Handler( $this->db_namespace, $this->model_collection, $this->query_handler, $runners );
 	}
 
 	/**
