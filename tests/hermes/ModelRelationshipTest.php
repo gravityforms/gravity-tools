@@ -3,14 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 
-function current_user_can( $cap ) {
-	return true;
-}
-
-global $wpdb;
-
-$wpdb = new fakeWPDB();
-
 class ModelRelationshipTest extends TestCase {
 
 	public function testRelationshipsParseToSQL() {
@@ -100,16 +92,6 @@ class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'group', 'contact', 'manage_options' )
 			)
 		);
-	}
-
-}
-
-class fakeWPDB {
-
-	public $prefix = 'wp_gravitycrm_';
-
-	public function prepare( $string, ...$args ) {
-		return sprintf( $string, ...$args );
 	}
 
 }

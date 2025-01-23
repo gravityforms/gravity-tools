@@ -55,7 +55,7 @@ class Mutation_Handler {
 		$object_model = $this->models->get( $mutation->object_type() );
 
 		if ( ! $object_model->has_access() ) {
-			$error_message = sprintf( 'Access not allowed for object type %s', $object_type );
+			$error_message = sprintf( 'Access not allowed for object type %s', $mutation->object_type() );
 			throw new \InvalidArgumentException( $error_message );
 		}
 

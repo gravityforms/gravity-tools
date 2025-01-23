@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 global $wpdb;
 
-$wpdb = new fakeWPDB();
-
 class HandlerTest extends TestCase {
 
 	public function testDataObjectParsesToSQL() {

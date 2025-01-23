@@ -15,13 +15,13 @@ class Field_Type_Validation_Enum {
 
 	private static function validation_map() {
 		return array(
-			self::STRING => array( self, 'validate_string' ),
-			self::INT    => array( self, 'validate_int' ),
-			self::FLOAT  => array( self, 'validate_float' ),
-			self::DATE   => array( self, 'validate_date' ),
-			self::OBJECT => array( self, 'validate_object' ),
-			self::ARR    => array( self, 'validate_array' ),
-			self::EMAIL  => array( self, 'validate_email' ),
+			self::STRING => array( self::class, 'validate_string' ),
+			self::INT    => array( self::class, 'validate_int' ),
+			self::FLOAT  => array( self::class, 'validate_float' ),
+			self::DATE   => array( self::class, 'validate_date' ),
+			self::OBJECT => array( self::class, 'validate_object' ),
+			self::ARR    => array( self::class, 'validate_array' ),
+			self::EMAIL  => array( self::class, 'validate_email' ),
 		);
 	}
 
