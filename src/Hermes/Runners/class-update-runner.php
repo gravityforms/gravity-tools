@@ -2,8 +2,29 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes\Runners;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update\Update_Mutation_Token;
+
+/**
+ * A concrete implementation of Runner which handles database operations required
+ * to insert a set of objects into the appropriate tables.
+ */
 class Update_Runner extends Runner {
 
+	/**
+	 * Using the data provided by the Mutation_Token, this determines the correct
+	 * DB table for the update and updates the record identified by the ID column.
+	 *
+	 * This also checks permissions for the object type to ensure that the user has
+	 * the appropriate capabilities for running this update mutation. If any meta fields
+	 * are defined in the mutation, those values are inserted into the meta table with
+	 * the appropriate values.
+	 *
+	 * @param Update_Mutation_Token $mutation
+	 * @param Model                 $object_model
+	 *
+	 * @return void
+	 */
 	public function run( $mutation, $object_model ) {
 		$fields_to_update = $mutation->children()->children();
 
@@ -25,6 +46,14 @@ class Update_Runner extends Runner {
 		wp_send_json_success( $data );
 	}
 
+	/**
+	 * Helper method to handle an individual update action from the array of objects to update.
+	 *
+	 * @param Model $object_model
+	 * @param array $categorized_fields
+	 *
+	 * @return int
+	 */
 	private function handle_single_update( $object_model, $categorized_fields, $object_id ) {
 		global $wpdb;
 

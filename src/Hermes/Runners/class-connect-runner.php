@@ -2,8 +2,28 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes\Runners;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect\Connect_Mutation_Token;
+
+/**
+ * A concrete implementation of Runner which handles database operations connecting
+ * two object types to one another via a lookup table.
+ */
 class Connect_Runner extends Runner {
 
+	/**
+	 * Using the data provided by the Mutation_Token, this determines the correct
+	 * DB table for the connection and inserts the appropriate IDs into the table.
+	 *
+	 * This also checks permissions for both object types to ensure that the user has
+	 * the appropriate capabilities for running this connect mutation.
+	 *
+	 *
+	 * @param Connect_Mutation_Token $mutation
+	 * @param Model                  $object_model
+	 *
+	 * @return void
+	 */
 	public function run( $mutation, $object_model ) {
 		global $wpdb;
 

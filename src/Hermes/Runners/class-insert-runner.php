@@ -2,8 +2,29 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes\Runners;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert\Insert_Mutation_Token;
+
+/**
+ * A concrete implementation of Runner which handles database operations required
+ * to insert a set of objects into the appropriate tables.
+ */
 class Insert_Runner extends Runner {
 
+	/**
+	 * Using the data provided by the Mutation_Token, this determines the correct
+	 * DB table for the insertion and adds the records one-by-one.
+	 *
+	 * This also checks permissions for the object type to ensure that the user has
+	 * the appropriate capabilities for running this insert mutation. If any meta fields
+	 * are defined in the mutation, those values are inserted into the meta table with
+	 * the appropriate values.
+	 *
+	 * @param Insert_Mutation_Token $mutation
+	 * @param Model                 $object_model
+	 *
+	 * @return void
+	 */
 	public function run( $mutation, $object_model ) {
 		$insertion_objects = $mutation->children();
 		$inserted_ids      = array();
@@ -22,6 +43,14 @@ class Insert_Runner extends Runner {
 		wp_send_json_success( $data );
 	}
 
+	/**
+	 * Helper method to handle an individual insertion action from the array of objects to insert.
+	 *
+	 * @param Model $object_model
+	 * @param array $categorized_fields
+	 *
+	 * @return int
+	 */
 	private function handle_single_insert( $object_model, $categorized_fields ) {
 		global $wpdb;
 
