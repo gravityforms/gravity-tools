@@ -4,31 +4,95 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Runners;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
+use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
 
+/**
+ * Runner
+ *
+ * This provides the abstract contract for a Runner.
+ *
+ * Runners are the classes responsible for actually running a given mutation type.
+ * The majority of the logic already exists in this abstract class, so all a concrete
+ * need do is implement the public ::run() method to take the mutation values and
+ * handle the database interactions.
+ */
 abstract class Runner {
 
+	/**
+	 * The namespace to use for DB tables. This is used between the
+	 * $wpdb->prefix value and the DB table name.
+	 *
+	 * Example: passing 'gravitytools' here would result in tables such
+	 * as 'wp_gravitytools_meta', etc.
+	 *
+	 * This is typically defined a single time in a service provider and passed
+	 * to the various classes which need it, such as this Runner.
+	 *
+	 * @var string
+	 */
 	protected $db_namespace;
 
+	/**
+	 * The Query Handler is used to form response objects for Insert and Update operations.
+	 * Using it instead of direct SQL calls ensures that aliases, field validation, etc, are
+	 * all applied to the response just like a normal Query would.
+	 *
+	 * @var Query_Handler
+	 */
 	protected $query_handler;
 
+	/**
+	 * See property descriptions for more information about these arguments and their usage.
+	 *
+	 * @param string $db_namespace
+	 * @param Query_Handler $query_handler
+	 *
+	 * @return void
+	 */
 	public function __construct( $db_namespace, $query_handler ) {
 		$this->db_namespace  = $db_namespace;
 		$this->query_handler = $query_handler;
 	}
 
 	/**
+	 * Run the actual mutation action against the database.
+	 *
+	 * Concrete Runners will implement this method in order to handle all
+	 * of the database transactions for this mutation type.
+	 *
+	 * This method should have no return value, as it is intended to be the final
+	 * process called before echoing the JSON to return to the client. As such, this method
+	 * should always end with either wp_json_send_success() or wp_json_send_error() to ensure
+	 * that values are echoed correctly and that the request doesn't continue after processing.
+	 *
 	 * @param Mutation_Token $mutation
 	 * @param Model          $object_model
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	abstract public function run( $mutation, $object_model );
 
+	/**
+	 * Helper method to take an array of fields and return a comma-delimited
+	 * list for use in INSERT column statements.
+	 *
+	 * @param array $fields
+	 *
+	 * @return string
+	 */
 	protected function get_field_name_list_from_fields( $fields ) {
 		return implode( ', ', array_keys( $fields ) );
 	}
 
+	/**
+	 * Helper method to take an array of fields and return a comma-delimited
+	 * list of their values for use in an INSERT VALUES() statement.
+	 *
+	 * @param array $fields
+	 *
+	 * @return string
+	 */
 	protected function get_field_values_list_from_fields( $fields ) {
 		$values = array_values( $fields );
 		foreach ( $values as $key => $value ) {
@@ -38,6 +102,15 @@ abstract class Runner {
 		return implode( ', ', $values );
 	}
 
+	/**
+	 * Helper method to take an array of fields and return a set of
+	 * comma-delimited pairs of 'key = value' strings for usage in
+	 * UPDATE statements.
+	 *
+	 * @param array $fields
+	 *
+	 * @return string
+	 */
 	protected function get_update_field_list( $fields ) {
 		$pairs = array();
 
@@ -51,6 +124,17 @@ abstract class Runner {
 		return implode( ', ', $pairs );
 	}
 
+	/**
+	 * Takes an object model and array of fields to process and categorizes them into
+	 * 'local' (aka, existing in the database as columns) fields and 'meta' fields. This
+	 * also uses the Model to check permissions for the given object type, and ensures
+	 * that all referenced fields are properly defined in the Model.
+	 *
+	 * @param Model $object_model
+	 * @param array $fields_to_process
+	 *
+	 * @return array|array[]
+	 */
 	protected function categorize_fields( $object_model, $fields_to_process ) {
 		$categorized = array(
 			'meta'  => array(),
