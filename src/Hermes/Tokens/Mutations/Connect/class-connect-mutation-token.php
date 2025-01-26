@@ -4,35 +4,77 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
 
+/**
+ * Connect Mutation Token
+ *
+ * A token containing information for perfoming a Connect Mutation.
+ */
 class Connect_Mutation_Token extends Mutation_Token {
 
 	protected $operation = 'connect';
 
 	/**
+	 * A token containing the IDs to connect.
+	 *
 	 * @var Connection_Values_Token
 	 */
 	protected $connection_ids;
 
+	/**
+	 * The object type to connect from.
+	 *
+	 * @var string
+	 */
 	protected $from_object;
 
+	/**
+	 * The object type to connect to.
+	 *
+	 * @var string
+	 */
 	protected $to_object;
 
+	/**
+	 * Public $from_object accessor.
+	 *
+	 * @return string
+	 */
 	public function from_object() {
 		return $this->from_object;
 	}
 
+	/**
+	 * Public $to_object accessor.
+	 *
+	 * @return string
+	 */
 	public function to_object() {
 		return $this->to_object;
 	}
 
+	/**
+	 * Public $from_id accessor.
+	 *
+	 * @return string
+	 */
 	public function from_id() {
 		return $this->connection_ids->from();
 	}
 
+	/**
+	 * Public $to_id accessor.
+	 *
+	 * @return string
+	 */
 	public function to_id() {
 		return $this->connection_ids->to();
 	}
 
+	/**
+	 * Return the class properties as an array when children() is called.
+	 *
+	 * @return array
+	 */
 	public function children() {
 		return array(
 			'from_object' => $this->from_object(),
@@ -42,6 +84,13 @@ class Connect_Mutation_Token extends Mutation_Token {
 		);
 	}
 
+	/**
+	 * Parse the string contents to values.
+	 *
+	 * @param string $contents
+	 *
+	 * @return void
+	 */
 	public function parse( $contents ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 		$this->tokenize( $results );
@@ -49,6 +98,13 @@ class Connect_Mutation_Token extends Mutation_Token {
 		return;
 	}
 
+	/**
+	 * Use the given REGEX matches to generate the appropriate tokens for this mutation.
+	 *
+	 * @param array $parts - An array resulting from preg_match_all() with this class's regex values.
+	 *
+	 * @return void
+	 */
 	public function tokenize( $parts ) {
 		$matches = $parts[0];
 		$marks   = $parts['MARK'];
@@ -87,6 +143,13 @@ class Connect_Mutation_Token extends Mutation_Token {
 		$this->set_properties( $data );
 	}
 
+	/**
+	 * Use the parsed tokens data to set the class properties.
+	 *
+	 * @param array $data
+	 *
+	 * @return void
+	 */
 	protected function set_properties( $data ) {
 		$this->alias          = $data['alias'];
 		$this->connection_ids = $data['connection_ids'];
@@ -95,6 +158,13 @@ class Connect_Mutation_Token extends Mutation_Token {
 		$this->to_object      = $data['to_object'];
 	}
 
+	/**
+	 * The regex types to use while parsing.
+	 *
+	 * $key represents the MARK type, while the $value represents the REGEX string to use.
+	 *
+	 * @return string[]
+	 */
 	protected function regex_types() {
 		return array(
 			'operation_alias' => 'connect_[^\(]*',

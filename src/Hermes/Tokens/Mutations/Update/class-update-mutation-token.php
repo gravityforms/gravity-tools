@@ -4,25 +4,63 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
 
+/**
+ * Update Mutation Token
+ *
+ * Contains the values needed for executing an Update Mutation.
+ */
 class Update_Mutation_Token extends Mutation_Token {
 
 	protected $operation = 'update';
 
+	/**
+	 * The fields to return after the Update has been performed.
+	 *
+	 * @var array
+	 */
 	protected $return_fields = array();
 
 	/**
+	 * The fields to update during the mutation.
+	 *
 	 * @var Fields_To_Update_Token
 	 */
 	protected $fields_to_update;
 
+	/**
+	 * Public accessor for $return_fields
+	 *
+	 * @return array
+	 */
 	public function return_fields() {
 		return $this->return_fields;
 	}
 
+	/**
+	 * Public acessor for $fields_to_update.
+	 *
+	 * @return Fields_To_Update_Token
+	 */
 	public function fields_to_update() {
 		return $this->fields_to_update;
 	}
 
+	/**
+	 * Return $fields_to_update as children.
+	 *
+	 * @return Fields_To_Update_Token
+	 */
+	public function children() {
+		return $this->fields_to_update;
+	}
+
+	/**
+	 * Parse the string contents to values.
+	 *
+	 * @param string $contents
+	 *
+	 * @return void
+	 */
 	public function parse( $contents ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 		$this->tokenize( $results );
@@ -30,6 +68,13 @@ class Update_Mutation_Token extends Mutation_Token {
 		return;
 	}
 
+	/**
+	 * Use the given REGEX matches to generate the appropriate tokens for this mutation.
+	 *
+	 * @param array $parts - An array resulting from preg_match_all() with this class's regex values.
+	 *
+	 * @return void
+	 */
 	public function tokenize( $parts ) {
 		$matches = $parts[0];
 		$marks   = $parts['MARK'];
@@ -79,10 +124,13 @@ class Update_Mutation_Token extends Mutation_Token {
 		$this->set_properties( $data );
 	}
 
-	public function children() {
-		return $this->fields_to_update;
-	}
-
+	/**
+	 * Use the parsed tokens data to set the class properties.
+	 *
+	 * @param array $data
+	 *
+	 * @return void
+	 */
 	protected function set_properties( $data ) {
 		$this->alias            = $data['alias'];
 		$this->object_type      = $data['object_type'];
@@ -90,6 +138,13 @@ class Update_Mutation_Token extends Mutation_Token {
 		$this->return_fields    = $data['return_fields'];
 	}
 
+	/**
+	 * The regex types to use while parsing.
+	 *
+	 * $key represents the MARK type, while the $value represents the REGEX string to use.
+	 *
+	 * @return string[]
+	 */
 	protected function regex_types() {
 		return array(
 			'returning_def'   => 'returning',

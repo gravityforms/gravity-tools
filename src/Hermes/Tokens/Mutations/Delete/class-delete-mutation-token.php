@@ -4,23 +4,47 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
 
+/**
+ * Delete Mutation Token
+ *
+ * Contains the values for executing a Delete mutation.
+ */
 class Delete_Mutation_Token extends Mutation_Token {
 
 	protected $operation = 'delete';
 
 	/**
+	 * Token holding the ID to delete.
+	 *
 	 * @var ID_To_Delete_Token
 	 */
 	protected $id_to_delete;
 
+	/**
+	 * Public accessor for the ID to delete.
+	 *
+	 * @return string
+	 */
 	public function id_to_delete() {
 		return $this->id_to_delete->id();
 	}
 
+	/**
+	 * Pass through the children from the $id_to_delete token.
+	 *
+	 * @return array
+	 */
 	public function children() {
 		return $this->id_to_delete->children();
 	}
 
+	/**
+	 * Parse the string contents to values.
+	 *
+	 * @param string $contents
+	 *
+	 * @return void
+	 */
 	public function parse( $contents ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 		$this->tokenize( $results );
@@ -28,6 +52,13 @@ class Delete_Mutation_Token extends Mutation_Token {
 		return;
 	}
 
+	/**
+	 * Use the given REGEX matches to generate the appropriate tokens for this mutation.
+	 *
+	 * @param array $parts - An array resulting from preg_match_all() with this class's regex values.
+	 *
+	 * @return void
+	 */
 	public function tokenize( $parts ) {
 		$matches = $parts[0];
 		$marks   = $parts['MARK'];
@@ -64,6 +95,13 @@ class Delete_Mutation_Token extends Mutation_Token {
 		$this->id_to_delete = $data['id_to_delete'];
 	}
 
+	/**
+	 * The regex types to use while parsing.
+	 *
+	 * $key represents the MARK type, while the $value represents the REGEX string to use.
+	 *
+	 * @return string[]
+	 */
 	protected function regex_types() {
 		return array(
 			'operation_alias' => 'delete_[^\(]*',
