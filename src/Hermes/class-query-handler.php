@@ -2,28 +2,58 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes;
 
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 
+/**
+ * Query Handler
+ *
+ * The entry point for parsing queries made to Hermes. For Mutations, see Mutation_Handler.
+ */
 class Query_Handler {
 
 	/**
+	 * The namespace to use when querying DB tables. The namespace is used after the $wpdb->prefix
+	 * value and before the actual table name.
+	 *
+	 * Example:
+	 *
+	 * Passing `gravitytools` would result in a meta table name of `wp_gravitytools_meta`..
+	 *
 	 * @var string
 	 */
 	protected $db_namespace;
 
 	/**
+	 * The collection of models supported for queries.
+	 *
 	 * @var Model_Collection
 	 */
 	protected $models;
 
+
+	/**
+	 * Constructor
+	 *
+	 * @param string           $db_namespace
+	 * @param Model_Collection $models
+	 */
 	public function __construct( $db_namespace, Model_Collection $models ) {
 		$this->db_namespace = $db_namespace;
 		$this->models       = $models;
 	}
 
+	/**
+	 * Parse the given query string text and perform the appropriate database queries to return
+	 * the requested data structure.
+	 *
+	 * @param string $query_string
+	 *
+	 * @return array
+	 */
 	public function handle_query( $query_string ) {
 		global $wpdb;
 
@@ -31,6 +61,7 @@ class Query_Handler {
 		$query_token = new Query_Token( $query_string );
 		$data        = array();
 
+		// Use the Token to generate recursive SQL.
 		foreach ( $query_token->children() as $object ) {
 			$object_name          = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
 			$sql                  = $this->recursively_generate_sql( $object );
@@ -39,6 +70,7 @@ class Query_Handler {
 
 		$results = array();
 
+		// Decode the results and set them up for return.
 		foreach ( $data as $data_group_name => $query_to_execute ) {
 			$query_results = $wpdb->get_results( $query_to_execute, ARRAY_A );
 			$rows          = array();
@@ -54,7 +86,21 @@ class Query_Handler {
 		return $results;
 	}
 
+	/**
+	 * Loops through the objects in the Query String and recursively generates the appropriate
+	 * SQL for the related query. Supports an infinite level of nesting, but caution should be used when
+	 * performing deeply-nested queries as performance may be impacted.
+	 *
+	 * @param Data_Object_From_Array_Token $data
+	 * @param                              $idx_prefix
+	 * @param                              $parent_table
+	 * @param                              $parent_object_type
+	 *
+	 * @return string
+	 */
 	public function recursively_generate_sql( Data_Object_From_Array_Token $data, $idx_prefix = null, $parent_table = false, $parent_object_type = false ) {
+
+		// Set up variables
 		global $wpdb;
 
 		$sql = '';
@@ -65,6 +111,7 @@ class Query_Handler {
 		$object_type = $data->object_type();
 		$object_name = ! empty( $data->alias() ) ? $data->alias() : $data->object_type();
 
+		// Ensure the object type being queried exists as a Model.
 		if ( ! $this->models->has( $object_type ) ) {
 			$error_message = sprintf( 'Attempting to access invalid object type %s', $object_type );
 			throw new \InvalidArgumentException( $error_message );
@@ -72,19 +119,23 @@ class Query_Handler {
 
 		$object_model = $this->models->get( $object_type );
 
+		// Ensure that the querying user has the appropriate permissions to access object.
 		if ( ! $object_model->has_access() ) {
 			$error_message = sprintf( 'Access not allowed for object type %s', $object_type );
 			throw new \InvalidArgumentException( $error_message );
 		}
 
+		// Set up values for the table being queried.
 		$table_name  = $this->compose_table_name( $object_type );
 		$table_alias = $this->compose_table_alias( $object_name, $parent_table );
 
+		// Categorized queried fields as either local or meta fields for future processing.
 		$fields_to_process  = $data->fields();
 		$categorized_fields = $this->categorize_fields( $object_model, $fields_to_process, $table_alias );
 
 		$arguments = $data->arguments();
 
+		// Set up data arrays for holding pieces of the SQL statement for later concatenation.
 		$field_pairs   = array();
 		$where_clauses = array();
 		$join_clauses  = array();
@@ -97,11 +148,13 @@ class Query_Handler {
 		$limit_sql     = null;
 		$separator_sql = null;
 
+		// Arguments are present; parse them and add them to the appropriate SQL arrays.
 		if ( ! empty( $arguments ) ) {
 			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments );
 			$limit_sql = $this->get_limit_from_arguments( $arguments );
 		}
 
+		// Loop through each local field and generate the appropriate SQL chunks for retrieving the data.
 		foreach ( $categorized_fields['local'] as $field_name => $field_alias ) {
 			if ( is_a( $field_alias, Data_Object_From_Array_Token::class ) ) {
 				$this_alias    = empty( $field_alias->alias() ) ? $field_alias->object_type() : $field_alias->alias();
@@ -117,6 +170,7 @@ class Query_Handler {
 
 		$meta_table_name = $this->compose_table_name( 'meta' );
 
+		// Loop through each meta field and compose the appropriate JOIN query for gathering its data.
 		foreach ( $categorized_fields['meta'] as $field_name => $field_data ) {
 			$value_clause   = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
 			$field_pairs[]  = sprintf( '"%s", %s', $field_data['alias'], $value_clause, $field_name );
@@ -132,6 +186,8 @@ class Query_Handler {
 			);
 		}
 
+		// A parent table exists, meaning this is a nested query and requires a JOIN statement relating it
+		// to the parent table.
 		if ( $parent_table ) {
 			$parent_model       = $this->models->get( $parent_object_type );
 			$relationship       = $parent_model->relationships()->get( $object_type );
@@ -143,6 +199,7 @@ class Query_Handler {
 			$where_clauses[]    = sprintf( '%s.%s = %s.id', $lookup_table_alias, $parent_id_string, $parent_table );
 		}
 
+		// Concatenate each SQL array to generate the final SQL.
 		$field_sql = implode( ', ', $field_pairs );
 
 		$from_sql = sprintf( 'FROM %s AS %s', $table_name, $table_alias );
@@ -163,9 +220,20 @@ class Query_Handler {
 			$separator_sql = '|gsmtpfieldsseparator|';
 		}
 
+		// Return the resulting SQL
 		return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $limit_sql );
 	}
 
+	/**
+	 * Categorizes fields as either local (i.e., existing as columns within the table for the object) or meta
+	 * (i.e., existing as custom values in the meta table).
+	 *
+	 * @param Model  $object_model
+	 * @param array  $fields_to_process
+	 * @param string $table_alias
+	 *
+	 * @return array|array[]
+	 */
 	protected function categorize_fields( $object_model, $fields_to_process, $table_alias ) {
 		$categorized = array(
 			'meta'  => array(),
@@ -209,6 +277,18 @@ class Query_Handler {
 		return $categorized;
 	}
 
+	/**
+	 * From the given array of $field_names, build the properly-structured SQL for selecting them.
+	 *
+	 * If a field is detected as a related object, we treat it as a top-level query and recursively
+	 * begin the SQL generation process for it.
+	 *
+	 * @param array  $field_names
+	 * @param string $table_alias
+	 * @param string $object_type
+	 *
+	 * @return array
+	 */
 	protected function build_local_field_select_clauses( $field_names, $table_alias, $object_type ) {
 		$pairs = array();
 
@@ -225,6 +305,19 @@ class Query_Handler {
 		return $pairs;
 	}
 
+	/**
+	 * Generates the appropriate SQL clause(s) for selecting a Meta field. Meta fields exist in a lookup table, and thus require both a SELECT statement to properly
+	 * query the fields as well as a JOIN clause to join the meta table with a specific alias.
+	 *
+	 * @param string $meta_name          The name of the field being selected.
+	 * @param string $alias              The alias to use when returning the selected field.
+	 * @param string $object_type        The object type to grab the values from.
+	 * @param string $parent_table_alias If present, the parent table this nested query belongs to.
+	 * @param string $idx_prefix         If present, the previous IDX prefix used for the parent table.
+	 *                                   (to be prenended to this table's alias)
+	 *
+	 * @return array
+	 */
 	protected function build_meta_query( $meta_name, $alias, $object_type, $parent_table_alias, $idx_prefix ) {
 		global $wpdb;
 
@@ -256,6 +349,8 @@ class Query_Handler {
 	}
 
 	/**
+	 * Build a SQL WHERE clause from the given set of conditions.
+	 *
 	 * @param array $conditions
 	 *
 	 * @return void
@@ -276,18 +371,40 @@ class Query_Handler {
 		return $clauses;
 	}
 
+	/**
+	 * Compose the proper table name for a given object type.
+	 *
+	 * @param string $object_type
+	 *
+	 * @return string
+	 */
 	private function compose_table_name( $object_type ) {
 		global $wpdb;
 
 		return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_type );
 	}
 
+	/**
+	 * Compose the appropriate join table name for a given suffix.
+	 *
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
 	private function compose_join_table_name( $suffix ) {
 		global $wpdb;
 
 		return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $suffix );
 	}
 
+	/**
+	 * Composes a table alias to ensure every table has a unique name in the query.
+	 *
+	 * @param string $object_name
+	 * @param string $parent_table_name
+	 *
+	 * @return string
+	 */
 	private function compose_table_alias( $object_name, $parent_table_name = false ) {
 		if ( ! empty( $parent_table_name ) ) {
 			return sprintf( '%s_%s', $parent_table_name, $object_name );
@@ -296,6 +413,14 @@ class Query_Handler {
 		return sprintf( 'table_%s', $object_name );
 	}
 
+	/**
+	 * Search an array of arguments and return the appropriate SQL LIMIT clause from
+	 * the values.
+	 *
+	 * @param array $arguments
+	 *
+	 * @return string
+	 */
 	private function get_limit_from_arguments( $arguments ) {
 		$response = '';
 
@@ -318,6 +443,15 @@ class Query_Handler {
 		return $response;
 	}
 
+	/**
+	 * Search an array of arguments and compose the appropriate WHERE clause for the values provided.
+	 *
+	 * @param array  $where_clauses
+	 * @param string $table_alias
+	 * @param array  $arguments
+	 *
+	 * @return void
+	 */
 	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments ) {
 		foreach ( $arguments as $argument ) {
 			if ( $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
