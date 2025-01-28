@@ -113,7 +113,7 @@ class Mutation_Handler {
 		// Ensure the object type in question is registered in our Model Collection.
 		if ( ! $this->models->has( $mutation->object_type() ) ) {
 			$error_message = sprintf( 'Mutation attempted with invalid object type: %s', $mutation->object_type() );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 470 );
 		}
 
 		$object_model = $this->models->get( $mutation->object_type() );
@@ -121,7 +121,7 @@ class Mutation_Handler {
 		// Ensure the querying user has the appropriate permissions to access data for this object.
 		if ( ! $object_model->has_access() ) {
 			$error_message = sprintf( 'Access not allowed for object type %s', $mutation->object_type() );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 403 );
 		}
 
 		// Handle the actual mutation based on the identified mutation type by calling its appropriate Runner.

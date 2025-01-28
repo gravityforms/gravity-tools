@@ -83,7 +83,7 @@ class Delete_Mutation_Token extends Mutation_Token {
 		}
 
 		if ( empty( $data['id_to_delete'] ) || empty( $data['object_type'] ) ) {
-			throw new \InvalidArgumentException( 'Delete payload malformed. Check values and try again.' );
+			throw new \InvalidArgumentException( 'Delete payload malformed. Check values and try again.', 490 );
 		}
 
 		$this->set_properties( $data );

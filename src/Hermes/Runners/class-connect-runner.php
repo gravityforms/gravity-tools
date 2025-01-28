@@ -34,12 +34,12 @@ class Connect_Runner extends Runner {
 
 		if ( ! $object_model->relationships()->has( $to_object ) ) {
 			$error_message = sprintf( 'Relationship from %s to %s does not exist.', $from_object, $to_object );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 455 );
 		}
 
 		if ( ! $object_model->relationships()->get( $to_object )->has_access() ) {
 			$error_message = sprintf( 'Attempting to access forbidden object type %s.', $to_object );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 403 );
 		}
 
 		$table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $from_object, $to_object );

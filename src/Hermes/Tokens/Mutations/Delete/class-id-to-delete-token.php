@@ -64,7 +64,7 @@ class ID_To_Delete_Token extends Token {
 		}
 
 		if ( ! array_key_exists( 'id', $fields ) ) {
-			throw new \InvalidArgumentException( 'Delete operations must provide a valid ID for deletion.' );
+			throw new \InvalidArgumentException( 'Delete operations must provide a valid ID for deletion.', 495 );
 		}
 
 		$this->id = $fields['id'];

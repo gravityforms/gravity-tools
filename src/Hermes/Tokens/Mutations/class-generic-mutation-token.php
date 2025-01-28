@@ -106,7 +106,7 @@ class Generic_Mutation_Token extends Mutation_Token {
 		}
 
 		if ( empty( $typed_token ) ) {
-			throw new \InvalidArgumentException( 'Invalid operation type passed to mutation.' );
+			throw new \InvalidArgumentException( 'Invalid operation type passed to mutation.', 475 );
 		}
 
 		$this->typed_token = $typed_token;

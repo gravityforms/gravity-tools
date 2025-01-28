@@ -120,7 +120,7 @@ class Connect_Mutation_Token extends Mutation_Token {
 					$object_parts = explode( '_', $objects );
 
 					if ( count( $object_parts ) !== 2 ) {
-						throw new \InvalidArgumentException( 'Error parsing connection object types.' );
+						throw new \InvalidArgumentException( 'Error parsing connection object types.', 480 );
 					}
 
 					$data['from_object'] = $object_parts[0];
@@ -137,7 +137,7 @@ class Connect_Mutation_Token extends Mutation_Token {
 		}
 
 		if ( empty( $data['connection_ids'] ) || empty( $data['from_object'] ) ) {
-			throw new \InvalidArgumentException( 'Connect payload malformed. Check values and try again.' );
+			throw new \InvalidArgumentException( 'Connect payload malformed. Check values and try again.', 485 );
 		}
 
 		$this->set_properties( $data );

@@ -144,7 +144,7 @@ abstract class Runner {
 		foreach ( $fields_to_process as $field_name => $value ) {
 			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
-				throw new \InvalidArgumentException( $error_string );
+				throw new \InvalidArgumentException( $error_string, 450 );
 			}
 
 			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
@@ -154,7 +154,7 @@ abstract class Runner {
 				if ( ! is_null( $value ) && is_null( $validated ) ) {
 					$field_type_string = is_string( $field_validation_type ) ? $field_validation_type : 'callback';
 					$error_string      = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, $field_type_string );
-					throw new \InvalidArgumentException( $error_string );
+					throw new \InvalidArgumentException( $error_string, 451 );
 				}
 
 				$categorized['local'][ $field_name ] = $validated;
@@ -167,7 +167,7 @@ abstract class Runner {
 
 				if ( ! is_null( $value ) && is_null( $validated ) ) {
 					$error_string = sprintf( 'Invalid field value %s sent to field %s with a type of %s.', $value, $field_name, (string) $field_validation_type );
-					throw new \InvalidArgumentException( $error_string );
+					throw new \InvalidArgumentException( $error_string, 451 );
 				}
 
 				$categorized['meta'][ $field_name ] = $validated;

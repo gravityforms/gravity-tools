@@ -30,7 +30,7 @@ class Update_Runner extends Runner {
 
 		if ( ! array_key_exists( 'id', $fields_to_update ) ) {
 			$error_string = sprintf( 'Update mutations must contain an id in the fields list. Fields provided: %s', json_encode( array_keys( $fields_to_update ) ) );
-			throw new \InvalidArgumentException( $error_string );
+			throw new \InvalidArgumentException( $error_string, 452 );
 		}
 
 		$object_id = $fields_to_update['id'];

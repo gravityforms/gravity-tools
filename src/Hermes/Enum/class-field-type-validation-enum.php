@@ -63,7 +63,7 @@ class Field_Type_Validation_Enum {
 
 		if ( ! array_key_exists( $type, self::validation_map() ) ) {
 			$error_string = sprintf( 'Field type %s is not valid.', $type );
-			throw new \InvalidArgumentException( $error_string );
+			throw new \InvalidArgumentException( $error_string, 480 );
 		}
 
 		$validated_value = call_user_func( self::validation_map()[ $type ], $value );

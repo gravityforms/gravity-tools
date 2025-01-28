@@ -114,7 +114,7 @@ class Query_Handler {
 		// Ensure the object type being queried exists as a Model.
 		if ( ! $this->models->has( $object_type ) ) {
 			$error_message = sprintf( 'Attempting to access invalid object type %s', $object_type );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 460 );
 		}
 
 		$object_model = $this->models->get( $object_type );
@@ -122,7 +122,7 @@ class Query_Handler {
 		// Ensure that the querying user has the appropriate permissions to access object.
 		if ( ! $object_model->has_access() ) {
 			$error_message = sprintf( 'Access not allowed for object type %s', $object_type );
-			throw new \InvalidArgumentException( $error_message );
+			throw new \InvalidArgumentException( $error_message, 403 );
 		}
 
 		// Set up values for the table being queried.
@@ -245,7 +245,7 @@ class Query_Handler {
 				$child_type = $field->object_type();
 				if ( ! $object_model->relationships()->has( $child_type ) ) {
 					$error_string = sprintf( 'Attempting to access invalid related object %s for object type %s', $child_type, $object_model->type() );
-					throw new \InvalidArgumentException( $error_string );
+					throw new \InvalidArgumentException( $error_string, 455 );
 				}
 
 				$categorized['local'][ $field->alias() ] = $field;
@@ -256,7 +256,7 @@ class Query_Handler {
 
 			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
-				throw new \InvalidArgumentException( $error_string );
+				throw new \InvalidArgumentException( $error_string, 450 );
 			}
 
 			$alias      = $field->alias();

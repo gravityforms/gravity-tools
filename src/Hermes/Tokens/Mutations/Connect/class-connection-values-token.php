@@ -83,7 +83,7 @@ class Connection_Values_Token extends Token {
 		}
 
 		if ( ! array_key_exists( 'from', $fields ) || ! array_key_exists( 'to', $fields ) ) {
-			throw new \InvalidArgumentException( 'Connect mutations must provide a from and to ID.' );
+			throw new \InvalidArgumentException( 'Connect mutations must provide a from and to ID.', 485 );
 		}
 
 		$this->from = $fields['from'];
