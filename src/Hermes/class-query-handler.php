@@ -83,7 +83,7 @@ class Query_Handler {
 			$results[ $data_group_name ] = $rows;
 		}
 
-		return $results;
+		wp_send_json_success( $results );
 	}
 
 	/**
