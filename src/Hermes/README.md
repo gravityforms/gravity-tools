@@ -356,3 +356,199 @@ So our `contact` to `group` table would have columns of `id`, `contact_id`, and 
 
 A meta table in a product with a namespace of `gravitytools` will need a table named `wp_gravitytools_meta`.
 
+## Using Hermes
+
+Once you've gotten Hermes set up in your environment (and created the related DB tables), you're ready to start
+querying it. 
+
+There are two fundamental types of interactions you can have with Hermes: `query` and `mutation`. 
+
+### Queries
+
+Queries are the mechanism used to _retrieve_ data from the server. In a REST paradigm, this would be your
+`GET` requests. They don't modify any existing data, they simply retrieve data from the server in the shape 
+sent in the query.
+
+#### Basic Query
+
+Let's look at a very basic example. Imagine you need to retrieve all of the `company` records from the server,
+and that you want to have the `id`, `name`, and `address` fields returned for each record. The query would look
+something like this:
+
+```graphql
+{
+    company {
+        id,
+        name,
+        address
+    }
+}
+```
+
+#### Adding Arguments
+
+That works great, but it's rare that you need to retrieve every single record of a given type in a single query. 
+Instead, let's add `limit` as an `argument` so we only retreive the first 10 records:
+
+```graphql
+{
+    company( limit: 10 ) {
+        id,
+        name,
+        address
+    }
+}
+```
+
+`Arguments` can be combined by passing multiple comma-delineated pairs:
+
+```graphql
+{
+    company( limit: 10, offset: 5, is_operational: true ) {
+        id,
+        name,
+        address
+    }
+}
+```
+
+Here we provided three `arguments`: we limite the results to 10, offset the results by 5, and restrict 
+the results to only those records in which the field `is_operational` is `true`.
+
+#### Argument Operators
+
+By default, an argument will be evaluated as `=` (e.g. `limit: 10` becomes `limit = 10` ). Other operator types
+can be indicated by suffixing the argument's field name with the operator type you wish to use. See the following table
+for all the supported operators.
+
+| Operator Type | Suffix      | Example                   |
+|---------------|-------------|---------------------------|
+| `=`           | `No Suffix` | `length: 10`              |
+| `!=`          | `_ne`       | `length_ne: 10`           |
+| `>`           | `_gt`       | `length_gt: 10`           |
+| `<`           | `_lt`       | `length_lt: 10`           |
+| `>=`          | `_gte`      | `length_gte: 10`          |
+| `<=`          | `_lte`      | `length_lte: 10`          |
+| `IN/CONTAINS` | `_in`       | `length_in: 10\|20\|30\|` |
+
+
+#### Related Object Records
+
+We can also query for records related to the main object type we're retrieving. For instance, if we wanted to 
+retrieve all of the `departments` in each `company`, we can simply add it like so:
+
+```graphql
+{
+    company( limit: 10 ) {
+        id,
+        name,
+        address,
+        department {
+            id,
+            name,
+        }
+    }
+}
+```
+
+Queries can be infinitely-nested, and each level can utilize arguments and fields just like a non-nested query. Do note, however, 
+that higher levels of nesting will result in more-complex queries, and on larger datasets the query time can balloon. Using `limits` and 
+other `argument` types can help alleviate this, but always use caution when heavily-nesting your queries.
+
+#### Aliasing
+
+Sometimes, the field names we use in the database don't work particularly well in client applications. Rather than forcing 
+the client application to traverse the resulting records and rename fields as needed, we can simply alias the field names directly 
+in the query:
+
+```graphql
+{
+    first_ten_companies: company( limit: 10 ) {
+        id,
+        business_name: name,
+        address
+    }
+}
+```
+
+This would alias `company` to `first_ten_companies`, and the field `name` to `business_name` in the resulting data. Any level of the query
+can be aliased, whether it's a field or a nested query.
+
+### Mutations
+
+In addition to retrieving data, we can also use Hermes to modify, create, or remove existing data. These types of operations 
+are called `mutations`, and come in four varieties. The type of mutation can be defined by prefixing the `object type` with the type
+of `mutation` you wish to run.
+
+#### Insert
+
+An `insert` mutation inserts a new record into the database. It consists of two parts: the objects to insert, and the values to return once 
+they have been inserted:
+
+```graphql
+{
+    insert_company( objects: [{ name: "My Business", address: "1234 Pine Drive" }]) {
+        returning {
+            id,
+            name,
+            address
+        }
+    }
+}
+```
+
+The above `mutation` would result in our record being added to the database, and the `id`, `name`, and `address` fields being returned for our new record.
+
+Multiple records can be inserted at a time, and the returned values will include every record created.
+
+#### Update
+
+An `update` mutation modifies an existing record with new values. Similar to the `insert` mutation, we also define what data shape we want to be returned
+once the update is complete. Unlike `insert` mutations, only a single record can be updated at a time.
+
+```graphql
+{
+    update_company( id: 5, name: "My Updated Company Name" ){
+        returning {
+            id,
+            name,
+            address
+        }
+    }
+}
+```
+
+The above mutation would update the record with an `id` of `5` with the new name `My Updated Company Name`.
+
+**Note**: every `update` mutation _must_ include an `id` so that the server knows which record to update. Updates 
+based on other column values are not currently supported.
+
+#### Delete
+
+A `delete` mutation simply removes the provided record from the database. No returning data shape is defined, as there 
+is no data to return.
+
+```graphql
+{
+    delete_company( id: 10 ){}
+}
+```
+
+The above `mutation` would result in the company record with an id of `10` being deleted from the database. 
+
+**Note**: as with `update` mutations, you must pass the `id` of the record you wish to delete.
+
+#### Connect
+
+A `connect` mutation creates a relationship between two `object types` (if such a relationship is defined in
+the appropriate object `models`). We don't define a resulting data shape; instead the server simply returns a 
+basic success/failure response.
+
+```graphql
+{
+    connect_company_department( from : 1, to: 3 ){}
+}
+```
+
+The above `mutation` would result in the `company` with an `id` of `1` to be related to the `department` with 
+an `id` of `3`.
