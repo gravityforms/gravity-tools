@@ -126,6 +126,97 @@ class FieldTypeValidationEnumTest extends TestCase {
 				null
 			),
 
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				true,
+				true
+			),
+
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'true',
+				true
+			),
+
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				1,
+				true
+			),
+
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'yes',
+				true
+			),
+
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'1',
+				true
+			),
+
+			// Boolean true
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'on',
+				true
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				false,
+				false
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'false',
+				false
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				0,
+				false
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'no',
+				false
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'0',
+				false
+			),
+
+			// Boolean false
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				'off',
+				false
+			),
+
+			// Boolean null
+			array(
+				Field_Type_Validation_Enum::BOOLEAN,
+				new \stdClass(),
+				null
+			),
+
 			// Y/m/d
 			array(
 				Field_Type_Validation_Enum::DATE,

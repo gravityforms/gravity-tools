@@ -2,6 +2,8 @@
 
 namespace Gravity_Forms\Gravity_Tools\Hermes\Enum;
 
+use Gravity_Forms\Gravity_Tools\Utils\Booliesh;
+
 /**
  * Field Type Validation Enum
  *
@@ -18,13 +20,14 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Enum;
  */
 class Field_Type_Validation_Enum {
 
-	const STRING = 'string';
-	const INT    = 'int';
-	const FLOAT  = 'float';
-	const DATE   = 'date';
-	const OBJECT = 'object';
-	const ARR    = 'array';
-	const EMAIL  = 'email';
+	const STRING  = 'string';
+	const INT     = 'int';
+	const FLOAT   = 'float';
+	const BOOLEAN = 'boolean';
+	const DATE    = 'date';
+	const OBJECT  = 'object';
+	const ARR     = 'array';
+	const EMAIL   = 'email';
 
 
 	/**
@@ -36,13 +39,14 @@ class Field_Type_Validation_Enum {
 	 */
 	private static function validation_map() {
 		return array(
-			self::STRING => array( self::class, 'validate_string' ),
-			self::INT    => array( self::class, 'validate_int' ),
-			self::FLOAT  => array( self::class, 'validate_float' ),
-			self::DATE   => array( self::class, 'validate_date' ),
-			self::OBJECT => array( self::class, 'validate_object' ),
-			self::ARR    => array( self::class, 'validate_array' ),
-			self::EMAIL  => array( self::class, 'validate_email' ),
+			self::STRING  => array( self::class, 'validate_string' ),
+			self::INT     => array( self::class, 'validate_int' ),
+			self::FLOAT   => array( self::class, 'validate_float' ),
+			self::BOOLEAN => array( self::class, 'validate_bool' ),
+			self::DATE    => array( self::class, 'validate_date' ),
+			self::OBJECT  => array( self::class, 'validate_object' ),
+			self::ARR     => array( self::class, 'validate_array' ),
+			self::EMAIL   => array( self::class, 'validate_email' ),
 		);
 	}
 
@@ -120,6 +124,19 @@ class Field_Type_Validation_Enum {
 		}
 
 		return (float) $value;
+	}
+
+	/**
+	 * Validates a boolean.
+	 *
+	 * @since 1.0
+	 *
+	 * @param mixed $value The value to validate.
+	 *
+	 * @return bool|null
+	 */
+	public static function validate_bool( $value ) {
+		return Booliesh::get( $value, null );
 	}
 
 	/**
