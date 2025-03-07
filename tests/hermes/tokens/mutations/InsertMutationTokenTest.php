@@ -32,4 +32,61 @@ class QueryTokenTest extends TestCase {
         $this->assertEquals( $expected_fields, $token->return_fields() );
 	}
 
+	public function testInsertObjectsParseCorrectly(){
+		$text = '{
+  insert_todos(objects: [{title: "New Todo", status: "active", body: "Hey this is the body. Its a lot of fun, and has \"nested\" quotation marks."}, {title: "Second Todo", status: "pending"}]) {
+    returning {
+      id
+      title
+      is_completed
+      is_public
+      created_at
+    }
+  }
+}';
+		$token = new Insert_Mutation_Token( $text );
+
+		$this->assertEquals( 2, count( $token->children()->children() ) );
+
+		$expected_fields = array(
+			"id",
+			"title",
+			"is_completed",
+			"is_public",
+			"created_at",
+		);
+
+		$this->assertEquals( $expected_fields, $token->return_fields() );
+	}
+
+	public function testInsertedObjectsWithComplexFields(){
+		$text = '{
+  insert_todos(objects: [{title: "New Todo", status: "active", body: "<html>
+ <body>
+ <p>Hey this is some text. It has <b>bold text</b> and some other <br/> things in it.</p>
+ </body>
+</html>"}, {title: "Second Todo", status: "pending"}]) {
+    returning {
+      id
+      title
+      is_completed
+      is_public
+      created_at
+    }
+  }
+}';
+		$token = new Insert_Mutation_Token( $text );
+
+		$this->assertEquals( 2, count( $token->children()->children() ) );
+
+		$expected_fields = array(
+			"id",
+			"title",
+			"is_completed",
+			"is_public",
+			"created_at",
+		);
+
+		$this->assertEquals( $expected_fields, $token->return_fields() );
+	}
 }

@@ -35,12 +35,31 @@ abstract class Model {
 	protected $access_cap = '';
 
 	/**
+	 * If a model needs to support ad-hoc defined meta fields (i.e., fields that
+	 * are defined by the user and are not defined explicitly in the model), set
+	 * this to true.
+	 *
+	 * @var bool
+	 */
+	protected $supports_ad_hoc_fields = false;
+
+	/**
 	 * Concrete Models must implement the public ::relationships() method
 	 * in order to define any relationships this object type may have.
 	 *
 	 * @return Relationship_Collection
 	 */
 	abstract public function relationships();
+
+	/**
+	 * Determine if this model supports ad hoc field
+	 * definitions.
+	 *
+	 * @return bool
+	 */
+	public function supports_ad_hoc_fields() {
+		return $this->supports_ad_hoc_fields;
+	}
 
 	/**
 	 * Accessor for the type property

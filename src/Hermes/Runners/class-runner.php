@@ -142,7 +142,7 @@ abstract class Runner {
 		);
 
 		foreach ( $fields_to_process as $field_name => $value ) {
-			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
+			if ( ! $object_model->supports_ad_hoc_fields() && ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
 				throw new \InvalidArgumentException( $error_string, 450 );
 			}
