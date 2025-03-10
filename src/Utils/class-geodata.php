@@ -3,18 +3,22 @@
 namespace Gravity_Forms\Gravity_Tools\Utils;
 
 /**
-* Countries List
+* Provides methods for retrieving lists of geological data. 
 *
-* Returns a formatted, translated array of countries organized by their Country Codes.
+* Each of the public methods allows two arguments:
 *
-* Including this file will return the array of values. Example usage:
-*
-* $countries = include( INCLUDES_DIR . )
+* - $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
+* - $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version. 
+*								   This can be useful for manipulating/ordering/modifying the data before use.
 *
 */
 class GeoData {
 
-
+	/**
+	* Provides a list of Countries organized by their 2-character country codes.
+	*
+	* @return array
+	*/
 	private static function countries_list() {
 		return array(
 			'AF' => __( 'Afghanistan', 'gravitytools' ),
@@ -269,6 +273,11 @@ class GeoData {
 		);
 	}
 
+	/**
+	* Provides a list of US states organized by their two-character state code.
+	*
+	* @return array
+	*/
 	private static function states_list() {
 		return array(
 			'AL' => 'Alabama',
@@ -325,6 +334,11 @@ class GeoData {
 		);
 	}
 
+	/**
+	* Provides a list of Canadian provinces, organized by their two-character province code.
+	*
+	* @return array
+	*/
 	private static function provinces_list() {
 		return array(
 			'AB' => 'Alberta',
@@ -343,6 +357,16 @@ class GeoData {
 		);
 	}
 
+	/**
+	* Retrieves the given list of data by type. Helper method used to route the individual type requests
+	* through to the appropriate data list method.
+	*
+	* @param $type - string - The type of data to retrieve.
+	* @param $as_json - boolean - Whether to retrieve this data as as JSON string.
+	* @param $process_callback - callable - An optional callback for transforming the data before returning.
+	*
+	* @return string|array
+	*/
 	private static function get_data_by_type( $type, $as_json = false, $process_callback = null ) {
 		switch( $type ) {
 			case 'country':
@@ -366,14 +390,38 @@ class GeoData {
 		return $as_json ? json_encode( $data ) : $data;
 	}
 
+	/**
+	* Provides an array of US States.
+	*
+	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	* @param $process_callback - callable - An optional callback for transforming the data before returning.
+	*
+	* @return string|array
+	*/
 	public static function states( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'state', $as_json, $process_callback );
 	}
 
+	/**
+	* Provides an array of Canadian Provinces.
+	*
+	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	* @param $process_callback - callable - An optional callback for transforming the data before returning.
+	*
+	* @return string|array
+	*/
 	public static function provinces( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'province', $as_json, $process_callback );
 	}
 
+	/**
+	* Provides an array of Countries.
+	*
+	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	* @param $process_callback - callable - An optional callback for transforming the data before returning.
+	*
+	* @return string|array
+	*/
 	public static function countries( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'country', $as_json, $process_callback );
 	}
