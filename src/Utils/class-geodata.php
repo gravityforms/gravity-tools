@@ -9,7 +9,6 @@ namespace Gravity_Forms\Gravity_Tools\Utils;
 *
 * - $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
 * - $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version. 
-*								   This can be useful for manipulating/ordering/modifying the data before use.
 *
 */
 class GeoData {
