@@ -352,7 +352,7 @@ class GeoData {
 			'PE' => __( 'Prince Edward Island', 'gravitytools' ),
 			'QC' => __( 'Quebec', 'gravitytools' ),
 			'SK' => __( 'Saskatchewan', 'gravitytools' ),
-			'YT' => __( 'Yukon', , 'gravitytools' ) 
+			'YT' => __( 'Yukon', 'gravitytools' ) 
 		);
 	}
 
