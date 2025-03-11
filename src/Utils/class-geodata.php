@@ -7,8 +7,8 @@ namespace Gravity_Forms\Gravity_Tools\Utils;
 *
 * Each of the public methods allows two arguments:
 *
-* - $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
-* - $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version. 
+* @param $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
+* @param $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version. 
 *
 */
 class GeoData {
