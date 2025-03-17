@@ -41,5 +41,13 @@ class GeoDataTest extends TestCase {
 		$this->assertEquals( $countries_data['AU'], 'Australia' );
 	}
 
+	public function testPhoneDataReturns() {
+		$phone_data = GeoData::phone_info();
+		$this->assertTrue( is_array( $phone_data ) );
+		$first_value = $phone_data[0];
+
+		$this->assertEquals( $first_value['iso'], 'AF' );
+		$this->assertEquals( $first_value['calling_code'], '93' );
+	}
 
 }
