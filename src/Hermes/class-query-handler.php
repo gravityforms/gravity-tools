@@ -99,15 +99,6 @@ class Query_Handler {
 	 * @return string
 	 */
 	public function recursively_generate_sql( Data_Object_From_Array_Token $data, $idx_prefix = null, $parent_table = false, $parent_object_type = false ) {
-
-		// Set up variables
-		global $wpdb;
-
-		$sql = '';
-
-		$meta_fields  = array();
-		$local_fields = array();
-
 		$object_type = $data->object_type();
 		$object_name = ! empty( $data->alias() ) ? $data->alias() : $data->object_type();
 
@@ -381,7 +372,13 @@ class Query_Handler {
 	private function compose_table_name( $object_type ) {
 		global $wpdb;
 
-		return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_type );
+		if ( ! $this->models->has( $object_type ) || ! $this->models->get( $object_type )->forced_table_name() ) {
+			return sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_type );
+		}
+
+		$object_model = $this->models->get( $object_type );
+
+		return sprintf( '%s_%s', $wpdb->prefix, $object_model->forced_table_name() );
 	}
 
 	/**

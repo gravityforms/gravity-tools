@@ -44,6 +44,14 @@ abstract class Model {
 	protected $supports_ad_hoc_fields = false;
 
 	/**
+	 * If your model needs to use an explicit/non-standard table, set it here.
+	 * Do not include the DB prefix in the table name.
+	 *
+	 * @var bool|string
+	 */
+	protected $forced_table_name = false;
+
+	/**
 	 * Concrete Models must implement the public ::relationships() method
 	 * in order to define any relationships this object type may have.
 	 *
@@ -61,6 +69,14 @@ abstract class Model {
 		return $this->supports_ad_hoc_fields;
 	}
 
+	/**
+	 * Accessor for forced_table_name.
+	 *
+	 * @return bool|string
+	 */
+	public function forced_table_name() {
+		return $this->forced_table_name;
+	}
 	/**
 	 * Accessor for the type property
 	 *
