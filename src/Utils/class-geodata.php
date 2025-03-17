@@ -3,21 +3,20 @@
 namespace Gravity_Forms\Gravity_Tools\Utils;
 
 /**
-* Provides methods for retrieving lists of geological data. 
-*
-* Each of the public methods allows two arguments:
-*
-* @param $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
-* @param $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version. 
-*
-*/
+ * Provides methods for retrieving lists of geological data.
+ *
+ * Each of the public methods allows two arguments:
+ *
+ * @param $as_json          - bool     - Whether the data should be returned as JSON instead of an array.
+ * @param $process_callback - callable - An optional callback that takes the data as a parameter and returns a modified version.
+ */
 class GeoData {
 
 	/**
-	* Provides a list of Countries organized by their 2-character country codes.
-	*
-	* @return array
-	*/
+	 * Provides a list of Countries organized by their 2-character country codes.
+	 *
+	 * @return array
+	 */
 	private static function countries_list() {
 		return array(
 			'AF' => __( 'Afghanistan', 'gravitytools' ),
@@ -273,10 +272,10 @@ class GeoData {
 	}
 
 	/**
-	* Provides a list of US states organized by their two-character state code.
-	*
-	* @return array
-	*/
+	 * Provides a list of US states organized by their two-character state code.
+	 *
+	 * @return array
+	 */
 	private static function states_list() {
 		return array(
 			'AL' => __( 'Alabama', 'gravitytools' ),
@@ -334,10 +333,10 @@ class GeoData {
 	}
 
 	/**
-	* Provides a list of Canadian provinces, organized by their two-character province code.
-	*
-	* @return array
-	*/
+	 * Provides a list of Canadian provinces, organized by their two-character province code.
+	 *
+	 * @return array
+	 */
 	private static function provinces_list() {
 		return array(
 			'AB' => __( 'Alberta', 'gravitytools' ),
@@ -352,22 +351,1252 @@ class GeoData {
 			'PE' => __( 'Prince Edward Island', 'gravitytools' ),
 			'QC' => __( 'Quebec', 'gravitytools' ),
 			'SK' => __( 'Saskatchewan', 'gravitytools' ),
-			'YT' => __( 'Yukon', 'gravitytools' ) 
+			'YT' => __( 'Yukon', 'gravitytools' ),
 		);
 	}
 
 	/**
-	* Retrieves the given list of data by type. Helper method used to route the individual type requests
-	* through to the appropriate data list method.
-	*
-	* @param $type - string - The type of data to retrieve.
-	* @param $as_json - boolean - Whether to retrieve this data as as JSON string.
-	* @param $process_callback - callable - An optional callback for transforming the data before returning.
-	*
-	* @return string|array
-	*/
+	 * Provides a list of phone number formatting info.
+	 *
+	 * @return array
+	 */
+	private static function phone_list() {
+		return array(
+			array(
+				'iso'          => 'AF',
+				'calling_code' => '93',
+				'flag'         => '🇦🇫',
+			),
+			array(
+				'iso'          => 'AX',
+				'calling_code' => '358',
+				'flag'         => '🇦🇽',
+			),
+			array(
+				'iso'          => 'AL',
+				'calling_code' => '355',
+				'flag'         => '🇦🇱',
+			),
+			array(
+				'iso'          => 'DZ',
+				'calling_code' => '213',
+				'flag'         => '🇩🇿',
+			),
+			array(
+				'iso'          => 'AS',
+				'calling_code' => '1',
+				'flag'         => '🇦🇸',
+			),
+			array(
+				'iso'          => 'AD',
+				'calling_code' => '376',
+				'flag'         => '🇦🇩',
+			),
+			array(
+				'iso'          => 'AO',
+				'calling_code' => '244',
+				'flag'         => '🇦🇴',
+			),
+			array(
+				'iso'          => 'AI',
+				'calling_code' => '1',
+				'flag'         => '🇦🇮',
+			),
+			array(
+				'iso'          => 'AG',
+				'calling_code' => '1',
+				'flag'         => '🇦🇬',
+			),
+			array(
+				'iso'          => 'AR',
+				'calling_code' => '54',
+				'flag'         => '🇦🇷',
+			),
+			array(
+				'iso'          => 'AM',
+				'calling_code' => '374',
+				'flag'         => '🇦🇲',
+			),
+			array(
+				'iso'          => 'AW',
+				'calling_code' => '297',
+				'flag'         => '🇦🇼',
+			),
+			array(
+				'iso'          => 'AC',
+				'calling_code' => '247',
+				'flag'         => '🇦🇨',
+			),
+			array(
+				'iso'          => 'AU',
+				'calling_code' => '61',
+				'flag'         => '🇦🇺',
+			),
+			array(
+				'iso'          => 'AT',
+				'calling_code' => '43',
+				'flag'         => '🇦🇹',
+			),
+			array(
+				'iso'          => 'AZ',
+				'calling_code' => '994',
+				'flag'         => '🇦🇿',
+			),
+			array(
+				'iso'          => 'BS',
+				'calling_code' => '1',
+				'flag'         => '🇧🇸',
+			),
+			array(
+				'iso'          => 'BH',
+				'calling_code' => '973',
+				'flag'         => '🇧🇭',
+			),
+			array(
+				'iso'          => 'BD',
+				'calling_code' => '880',
+				'flag'         => '🇧🇩',
+			),
+			array(
+				'iso'          => 'BB',
+				'calling_code' => '1',
+				'flag'         => '🇧🇧',
+			),
+			array(
+				'iso'          => 'BY',
+				'calling_code' => '375',
+				'flag'         => '🇧🇾',
+			),
+			array(
+				'iso'          => 'BE',
+				'calling_code' => '32',
+				'flag'         => '🇧🇪',
+			),
+			array(
+				'iso'          => 'BZ',
+				'calling_code' => '501',
+				'flag'         => '🇧🇿',
+			),
+			array(
+				'iso'          => 'BJ',
+				'calling_code' => '229',
+				'flag'         => '🇧🇯',
+			),
+			array(
+				'iso'          => 'BM',
+				'calling_code' => '1',
+				'flag'         => '🇧🇲',
+			),
+			array(
+				'iso'          => 'BT',
+				'calling_code' => '975',
+				'flag'         => '🇧🇹',
+			),
+			array(
+				'iso'          => 'BO',
+				'calling_code' => '591',
+				'flag'         => '🇧🇴',
+			),
+			array(
+				'iso'          => 'BA',
+				'calling_code' => '387',
+				'flag'         => '🇧🇦',
+			),
+			array(
+				'iso'          => 'BW',
+				'calling_code' => '267',
+				'flag'         => '🇧🇼',
+			),
+			array(
+				'iso'          => 'BR',
+				'calling_code' => '55',
+				'flag'         => '🇧🇷',
+			),
+			array(
+				'iso'          => 'IO',
+				'calling_code' => '246',
+				'flag'         => '🇮🇴',
+			),
+			array(
+				'iso'          => 'VG',
+				'calling_code' => '1',
+				'flag'         => '🇻🇬',
+			),
+			array(
+				'iso'          => 'BN',
+				'calling_code' => '673',
+				'flag'         => '🇧🇳',
+			),
+			array(
+				'iso'          => 'BG',
+				'calling_code' => '359',
+				'flag'         => '🇧🇬',
+			),
+			array(
+				'iso'          => 'BF',
+				'calling_code' => '226',
+				'flag'         => '🇧🇫',
+			),
+			array(
+				'iso'          => 'BI',
+				'calling_code' => '257',
+				'flag'         => '🇧🇮',
+			),
+			array(
+				'iso'          => 'KH',
+				'calling_code' => '855',
+				'flag'         => '🇰🇭',
+			),
+			array(
+				'iso'          => 'CM',
+				'calling_code' => '237',
+				'flag'         => '🇨🇲',
+			),
+			array(
+				'iso'          => 'CA',
+				'calling_code' => '1',
+				'flag'         => '🇨🇦',
+			),
+			array(
+				'iso'          => 'CV',
+				'calling_code' => '238',
+				'flag'         => '🇨🇻',
+			),
+			array(
+				'iso'          => 'BQ',
+				'calling_code' => '599',
+				'flag'         => '🇧🇶',
+			),
+			array(
+				'iso'          => 'KY',
+				'calling_code' => '1',
+				'flag'         => '🇰🇾',
+			),
+			array(
+				'iso'          => 'CF',
+				'calling_code' => '236',
+				'flag'         => '🇨🇫',
+			),
+			array(
+				'iso'          => 'TD',
+				'calling_code' => '235',
+				'flag'         => '🇹🇩',
+			),
+			array(
+				'iso'          => 'CL',
+				'calling_code' => '56',
+				'flag'         => '🇨🇱',
+			),
+			array(
+				'iso'          => 'CN',
+				'calling_code' => '86',
+				'flag'         => '🇨🇳',
+			),
+			array(
+				'iso'          => 'CX',
+				'calling_code' => '61',
+				'flag'         => '🇨🇽',
+			),
+			array(
+				'iso'          => 'CC',
+				'calling_code' => '61',
+				'flag'         => '🇨🇨',
+			),
+			array(
+				'iso'          => 'CO',
+				'calling_code' => '57',
+				'flag'         => '🇨🇴',
+			),
+			array(
+				'iso'          => 'KM',
+				'calling_code' => '269',
+				'flag'         => '🇰🇲',
+			),
+			array(
+				'iso'          => 'CG',
+				'calling_code' => '242',
+				'flag'         => '🇨🇬',
+			),
+			array(
+				'iso'          => 'CD',
+				'calling_code' => '243',
+				'flag'         => '🇨🇩',
+			),
+			array(
+				'iso'          => 'CK',
+				'calling_code' => '682',
+				'flag'         => '🇨🇰',
+			),
+			array(
+				'iso'          => 'CR',
+				'calling_code' => '506',
+				'flag'         => '🇨🇷',
+			),
+			array(
+				'iso'          => 'CI',
+				'calling_code' => '225',
+				'flag'         => '🇨🇮',
+			),
+			array(
+				'iso'          => 'HR',
+				'calling_code' => '385',
+				'flag'         => '🇭🇷',
+			),
+			array(
+				'iso'          => 'CU',
+				'calling_code' => '53',
+				'flag'         => '🇨🇺',
+			),
+			array(
+				'iso'          => 'CW',
+				'calling_code' => '599',
+				'flag'         => '🇨🇼',
+			),
+			array(
+				'iso'          => 'CY',
+				'calling_code' => '357',
+				'flag'         => '🇨🇾',
+			),
+			array(
+				'iso'          => 'CZ',
+				'calling_code' => '420',
+				'flag'         => '🇨🇿',
+			),
+			array(
+				'iso'          => 'DK',
+				'calling_code' => '45',
+				'flag'         => '🇩🇰',
+			),
+			array(
+				'iso'          => 'DJ',
+				'calling_code' => '253',
+				'flag'         => '🇩🇯',
+			),
+			array(
+				'iso'          => 'DM',
+				'calling_code' => '1',
+				'flag'         => '🇩🇲',
+			),
+			array(
+				'iso'          => 'DO',
+				'calling_code' => '1',
+				'flag'         => '🇩🇴',
+			),
+			array(
+				'iso'          => 'EC',
+				'calling_code' => '593',
+				'flag'         => '🇪🇨',
+			),
+			array(
+				'iso'          => 'EG',
+				'calling_code' => '20',
+				'flag'         => '🇪🇬',
+			),
+			array(
+				'iso'          => 'SV',
+				'calling_code' => '503',
+				'flag'         => '🇸🇻',
+			),
+			array(
+				'iso'          => 'GQ',
+				'calling_code' => '240',
+				'flag'         => '🇬🇶',
+			),
+			array(
+				'iso'          => 'ER',
+				'calling_code' => '291',
+				'flag'         => '🇪🇷',
+			),
+			array(
+				'iso'          => 'EE',
+				'calling_code' => '372',
+				'flag'         => '🇪🇪',
+			),
+			array(
+				'iso'          => 'SZ',
+				'calling_code' => '268',
+				'flag'         => '🇸🇿',
+			),
+			array(
+				'iso'          => 'ET',
+				'calling_code' => '251',
+				'flag'         => '🇪🇹',
+			),
+			array(
+				'iso'          => 'FK',
+				'calling_code' => '500',
+				'flag'         => '🇫🇰',
+			),
+			array(
+				'iso'          => 'FO',
+				'calling_code' => '298',
+				'flag'         => '🇫🇴',
+			),
+			array(
+				'iso'          => 'FJ',
+				'calling_code' => '679',
+				'flag'         => '🇫🇯',
+			),
+			array(
+				'iso'          => 'FI',
+				'calling_code' => '358',
+				'flag'         => '🇫🇮',
+			),
+			array(
+				'iso'          => 'FR',
+				'calling_code' => '33',
+				'flag'         => '🇫🇷',
+			),
+			array(
+				'iso'          => 'GF',
+				'calling_code' => '594',
+				'flag'         => '🇬🇫',
+			),
+			array(
+				'iso'          => 'PF',
+				'calling_code' => '689',
+				'flag'         => '🇵🇫',
+			),
+			array(
+				'iso'          => 'GA',
+				'calling_code' => '241',
+				'flag'         => '🇬🇦',
+			),
+			array(
+				'iso'          => 'GM',
+				'calling_code' => '220',
+				'flag'         => '🇬🇲',
+			),
+			array(
+				'iso'          => 'GE',
+				'calling_code' => '995',
+				'flag'         => '🇬🇪',
+			),
+			array(
+				'iso'          => 'DE',
+				'calling_code' => '49',
+				'flag'         => '🇩🇪',
+			),
+			array(
+				'iso'          => 'GH',
+				'calling_code' => '233',
+				'flag'         => '🇬🇭',
+			),
+			array(
+				'iso'          => 'GI',
+				'calling_code' => '350',
+				'flag'         => '🇬🇮',
+			),
+			array(
+				'iso'          => 'GR',
+				'calling_code' => '30',
+				'flag'         => '🇬🇷',
+			),
+			array(
+				'iso'          => 'GL',
+				'calling_code' => '299',
+				'flag'         => '🇬🇱',
+			),
+			array(
+				'iso'          => 'GD',
+				'calling_code' => '1',
+				'flag'         => '🇬🇩',
+			),
+			array(
+				'iso'          => 'GP',
+				'calling_code' => '590',
+				'flag'         => '🇬🇵',
+			),
+			array(
+				'iso'          => 'GU',
+				'calling_code' => '1',
+				'flag'         => '괌',
+			),
+			array(
+				'iso'          => 'GT',
+				'calling_code' => '502',
+				'flag'         => '🇬🇹',
+			),
+			array(
+				'iso'          => 'GG',
+				'calling_code' => '44',
+				'flag'         => '🇬🇬',
+			),
+			array(
+				'iso'          => 'GN',
+				'calling_code' => '224',
+				'flag'         => '🇬🇳',
+			),
+			array(
+				'iso'          => 'GW',
+				'calling_code' => '245',
+				'flag'         => '🇬🇼',
+			),
+			array(
+				'iso'          => 'GY',
+				'calling_code' => '592',
+				'flag'         => '🇬🇾',
+			),
+			array(
+				'iso'          => 'HT',
+				'calling_code' => '509',
+				'flag'         => '🇭🇹',
+			),
+			array(
+				'iso'          => 'HN',
+				'calling_code' => '504',
+				'flag'         => '🇭🇳',
+			),
+			array(
+				'iso'          => 'HK',
+				'calling_code' => '852',
+				'flag'         => '🇭🇰',
+			),
+			array(
+				'iso'          => 'HU',
+				'calling_code' => '36',
+				'flag'         => '🇭🇺',
+			),
+			array(
+				'iso'          => 'IS',
+				'calling_code' => '354',
+				'flag'         => '🇮🇸',
+			),
+			array(
+				'iso'          => 'IN',
+				'calling_code' => '91',
+				'flag'         => '🇮🇳',
+			),
+			array(
+				'iso'          => 'ID',
+				'calling_code' => '62',
+				'flag'         => '🇮🇩',
+			),
+			array(
+				'iso'          => 'IR',
+				'calling_code' => '98',
+				'flag'         => '🇮🇷',
+			),
+			array(
+				'iso'          => 'IQ',
+				'calling_code' => '964',
+				'flag'         => '🇮🇶',
+			),
+			array(
+				'iso'          => 'IE',
+				'calling_code' => '353',
+				'flag'         => '🇮🇪',
+			),
+			array(
+				'iso'          => 'IM',
+				'calling_code' => '44',
+				'flag'         => '🇮🇲',
+			),
+			array(
+				'iso'          => 'IL',
+				'calling_code' => '972',
+				'flag'         => '🇮🇱',
+			),
+			array(
+				'iso'          => 'IT',
+				'calling_code' => '39',
+				'flag'         => '🇮🇹',
+			),
+			array(
+				'iso'          => 'JM',
+				'calling_code' => '1',
+				'flag'         => '🇯🇲',
+			),
+			array(
+				'iso'          => 'JP',
+				'calling_code' => '81',
+				'flag'         => '🇯🇵',
+			),
+			array(
+				'iso'          => 'JE',
+				'calling_code' => '44',
+				'flag'         => '🇯🇪',
+			),
+			array(
+				'iso'          => 'JO',
+				'calling_code' => '962',
+				'flag'         => '🇯🇴',
+			),
+			array(
+				'iso'          => 'KZ',
+				'calling_code' => '7',
+				'flag'         => '🇰🇿',
+			),
+			array(
+				'iso'          => 'KE',
+				'calling_code' => '254',
+				'flag'         => '🇰🇪',
+			),
+			array(
+				'iso'          => 'KI',
+				'calling_code' => '686',
+				'flag'         => '🇰🇮',
+			),
+			array(
+				'iso'          => 'XK',
+				'calling_code' => '383',
+				'flag'         => '🇽🇰',
+			),
+			array(
+				'iso'          => 'KW',
+				'calling_code' => '965',
+				'flag'         => '🇰🇼',
+			),
+			array(
+				'iso'          => 'KG',
+				'calling_code' => '996',
+				'flag'         => '🇰🇬',
+			),
+			array(
+				'iso'          => 'LA',
+				'calling_code' => '856',
+				'flag'         => '🇱🇦',
+			),
+			array(
+				'iso'          => 'LV',
+				'calling_code' => '371',
+				'flag'         => '🇱🇻',
+			),
+			array(
+				'iso'          => 'LB',
+				'calling_code' => '961',
+				'flag'         => '🇱🇧',
+			),
+			array(
+				'iso'          => 'LS',
+				'calling_code' => '266',
+				'flag'         => '🇱🇸',
+			),
+			array(
+				'iso'          => 'LR',
+				'calling_code' => '231',
+				'flag'         => '🇱🇷',
+			),
+			array(
+				'iso'          => 'LY',
+				'calling_code' => '218',
+				'flag'         => '🇱🇾',
+			),
+			array(
+				'iso'          => 'LI',
+				'calling_code' => '423',
+				'flag'         => '🇱🇮',
+			),
+			array(
+				'iso'          => 'LT',
+				'calling_code' => '370',
+				'flag'         => '🇱🇹',
+			),
+			array(
+				'iso'          => 'LU',
+				'calling_code' => '352',
+				'flag'         => '🇱🇺',
+			),
+			array(
+				'iso'          => 'MO',
+				'calling_code' => '853',
+				'flag'         => '🇲🇴',
+			),
+			array(
+				'iso'          => 'MG',
+				'calling_code' => '261',
+				'flag'         => '🇲🇬',
+			),
+			array(
+				'iso'          => 'MW',
+				'calling_code' => '265',
+				'flag'         => '🇲🇼',
+			),
+			array(
+				'iso'          => 'MY',
+				'calling_code' => '60',
+				'flag'         => '🇲🇾',
+			),
+			array(
+				'iso'          => 'MV',
+				'calling_code' => '960',
+				'flag'         => '🇲🇻',
+			),
+			array(
+				'iso'          => 'ML',
+				'calling_code' => '223',
+				'flag'         => '🇲🇱',
+			),
+			array(
+				'iso'          => 'MT',
+				'calling_code' => '356',
+				'flag'         => '🇲🇹',
+			),
+			array(
+				'iso'          => 'MH',
+				'calling_code' => '692',
+				'flag'         => '🇲🇭',
+			),
+			array(
+				'iso'          => 'MQ',
+				'calling_code' => '596',
+				'flag'         => '🇲🇶',
+			),
+			array(
+				'iso'          => 'MR',
+				'calling_code' => '222',
+				'flag'         => '🇲🇷',
+			),
+			array(
+				'iso'          => 'MU',
+				'calling_code' => '230',
+				'flag'         => '🇲🇺',
+			),
+			array(
+				'iso'          => 'YT',
+				'calling_code' => '262',
+				'flag'         => '🇾🇹',
+			),
+			array(
+				'iso'          => 'MX',
+				'calling_code' => '52',
+				'flag'         => '🇲🇽',
+			),
+			array(
+				'iso'          => 'FM',
+				'calling_code' => '691',
+				'flag'         => '🇫🇲',
+			),
+			array(
+				'iso'          => 'MD',
+				'calling_code' => '373',
+				'flag'         => '🇲🇩',
+			),
+			array(
+				'iso'          => 'MC',
+				'calling_code' => '377',
+				'flag'         => '🇲🇨',
+			),
+			array(
+				'iso'          => 'MN',
+				'calling_code' => '976',
+				'flag'         => '🇲🇳',
+			),
+			array(
+				'iso'          => 'ME',
+				'calling_code' => '382',
+				'flag'         => '🇲🇪',
+			),
+			array(
+				'iso'          => 'MS',
+				'calling_code' => '1',
+				'flag'         => '🇲🇸',
+			),
+			array(
+				'iso'          => 'MA',
+				'calling_code' => '212',
+				'flag'         => '🇲🇦',
+			),
+			array(
+				'iso'          => 'MZ',
+				'calling_code' => '258',
+				'flag'         => '🇲🇿',
+			),
+			array(
+				'iso'          => 'MM',
+				'calling_code' => '95',
+				'flag'         => '🇲🇲',
+			),
+			array(
+				'iso'          => 'NA',
+				'calling_code' => '264',
+				'flag'         => '🇳🇦',
+			),
+			array(
+				'iso'          => 'NR',
+				'calling_code' => '674',
+				'flag'         => '🇳🇷',
+			),
+			array(
+				'iso'          => 'NP',
+				'calling_code' => '977',
+				'flag'         => '🇳🇵',
+			),
+			array(
+				'iso'          => 'NL',
+				'calling_code' => '31',
+				'flag'         => '🇳🇱',
+			),
+			array(
+				'iso'          => 'NC',
+				'calling_code' => '687',
+				'flag'         => '🇳🇨',
+			),
+			array(
+				'iso'          => 'NZ',
+				'calling_code' => '64',
+				'flag'         => '🇳🇿',
+			),
+			array(
+				'iso'          => 'NI',
+				'calling_code' => '505',
+				'flag'         => '🇳🇮',
+			),
+			array(
+				'iso'          => 'NE',
+				'calling_code' => '227',
+				'flag'         => '🇳🇪',
+			),
+			array(
+				'iso'          => 'NG',
+				'calling_code' => '234',
+				'flag'         => '🇳🇬',
+			),
+			array(
+				'iso'          => 'NU',
+				'calling_code' => '683',
+				'flag'         => '🇳🇺',
+			),
+			array(
+				'iso'          => 'NF',
+				'calling_code' => '672',
+				'flag'         => '🇳🇫',
+			),
+			array(
+				'iso'          => 'KP',
+				'calling_code' => '850',
+				'flag'         => '🇰🇵',
+			),
+			array(
+				'iso'          => 'MK',
+				'calling_code' => '389',
+				'flag'         => '🇲🇰',
+			),
+			array(
+				'iso'          => 'MP',
+				'calling_code' => '1',
+				'flag'         => '🇲🇵',
+			),
+			array(
+				'iso'          => 'NO',
+				'calling_code' => '47',
+				'flag'         => '🇳🇴',
+			),
+			array(
+				'iso'          => 'OM',
+				'calling_code' => '968',
+				'flag'         => '🇴🇲',
+			),
+			array(
+				'iso'          => 'PK',
+				'calling_code' => '92',
+				'flag'         => '🇵🇰',
+			),
+			array(
+				'iso'          => 'PW',
+				'calling_code' => '680',
+				'flag'         => '🇵🇼',
+			),
+			array(
+				'iso'          => 'PS',
+				'calling_code' => '970',
+				'flag'         => '🇵🇸',
+			),
+			array(
+				'iso'          => 'PA',
+				'calling_code' => '507',
+				'flag'         => '🇵🇦',
+			),
+			array(
+				'iso'          => 'PG',
+				'calling_code' => '675',
+				'flag'         => '🇵🇬',
+			),
+			array(
+				'iso'          => 'PY',
+				'calling_code' => '595',
+				'flag'         => '🇵🇾',
+			),
+			array(
+				'iso'          => 'PE',
+				'calling_code' => '51',
+				'flag'         => '🇵🇪',
+			),
+			array(
+				'iso'          => 'PH',
+				'calling_code' => '63',
+				'flag'         => '🇵🇭',
+			),
+			array(
+				'iso'          => 'PL',
+				'calling_code' => '48',
+				'flag'         => '🇵🇱',
+			),
+			array(
+				'iso'          => 'PT',
+				'calling_code' => '351',
+				'flag'         => '🇵🇹',
+			),
+			array(
+				'iso'          => 'PR',
+				'calling_code' => '1',
+				'flag'         => '🇵🇷',
+			),
+			array(
+				'iso'          => 'QA',
+				'calling_code' => '974',
+				'flag'         => '🇶🇦',
+			),
+			array(
+				'iso'          => 'RE',
+				'calling_code' => '262',
+				'flag'         => '🇷🇪',
+			),
+			array(
+				'iso'          => 'RO',
+				'calling_code' => '40',
+				'flag'         => '🇷🇴',
+			),
+			array(
+				'iso'          => 'RU',
+				'calling_code' => '7',
+				'flag'         => '🇷🇺',
+			),
+			array(
+				'iso'          => 'RW',
+				'calling_code' => '250',
+				'flag'         => '🇷🇼',
+			),
+			array(
+				'iso'          => 'WS',
+				'calling_code' => '685',
+				'flag'         => '🇼🇸',
+			),
+			array(
+				'iso'          => 'SM',
+				'calling_code' => '378',
+				'flag'         => '🇸🇲',
+			),
+			array(
+				'iso'          => 'ST',
+				'calling_code' => '239',
+				'flag'         => '🇸🇹',
+			),
+			array(
+				'iso'          => 'SA',
+				'calling_code' => '966',
+				'flag'         => '🇸🇦',
+			),
+			array(
+				'iso'          => 'SN',
+				'calling_code' => '221',
+				'flag'         => '🇸🇳',
+			),
+			array(
+				'iso'          => 'RS',
+				'calling_code' => '381',
+				'flag'         => '🇷🇸',
+			),
+			array(
+				'iso'          => 'SC',
+				'calling_code' => '248',
+				'flag'         => '🇸🇨',
+			),
+			array(
+				'iso'          => 'SL',
+				'calling_code' => '232',
+				'flag'         => '🇸🇱',
+			),
+			array(
+				'iso'          => 'SG',
+				'calling_code' => '65',
+				'flag'         => '🇸🇬',
+			),
+			array(
+				'iso'          => 'SX',
+				'calling_code' => '1',
+				'flag'         => '🇸🇽',
+			),
+			array(
+				'iso'          => 'SK',
+				'calling_code' => '421',
+				'flag'         => '🇸🇰',
+			),
+			array(
+				'iso'          => 'SI',
+				'calling_code' => '386',
+				'flag'         => '🇸🇮',
+			),
+			array(
+				'iso'          => 'SB',
+				'calling_code' => '677',
+				'flag'         => '🇸🇧',
+			),
+			array(
+				'iso'          => 'SO',
+				'calling_code' => '252',
+				'flag'         => '🇸🇴',
+			),
+			array(
+				'iso'          => 'ZA',
+				'calling_code' => '27',
+				'flag'         => '🇿🇦',
+			),
+			array(
+				'iso'          => 'KR',
+				'calling_code' => '82',
+				'flag'         => '🇰🇷',
+			),
+			array(
+				'iso'          => 'SS',
+				'calling_code' => '211',
+				'flag'         => '🇸🇸',
+			),
+			array(
+				'iso'          => 'ES',
+				'calling_code' => '34',
+				'flag'         => '🇪🇸',
+			),
+			array(
+				'iso'          => 'LK',
+				'calling_code' => '94',
+				'flag'         => '🇱🇰',
+			),
+			array(
+				'iso'          => 'BL',
+				'calling_code' => '590',
+				'flag'         => '🇧🇱',
+			),
+			array(
+				'iso'          => 'SH',
+				'calling_code' => '290',
+				'flag'         => '🇸🇭',
+			),
+			array(
+				'iso'          => 'KN',
+				'calling_code' => '1',
+				'flag'         => '🇰🇳',
+			),
+			array(
+				'iso'          => 'LC',
+				'calling_code' => '1',
+				'flag'         => '🇱🇨',
+			),
+			array(
+				'iso'          => 'MF',
+				'calling_code' => '590',
+				'flag'         => '🇲🇫',
+			),
+			array(
+				'iso'          => 'PM',
+				'calling_code' => '508',
+				'flag'         => '🇵🇲',
+			),
+			array(
+				'iso'          => 'VC',
+				'calling_code' => '1',
+				'flag'         => '🇻🇨',
+			),
+			array(
+				'iso'          => 'SD',
+				'calling_code' => '249',
+				'flag'         => '🇸🇩',
+			),
+			array(
+				'iso'          => 'SR',
+				'calling_code' => '597',
+				'flag'         => '🇸🇷',
+			),
+			array(
+				'iso'          => 'SJ',
+				'calling_code' => '47',
+				'flag'         => '🇸🇯',
+			),
+			array(
+				'iso'          => 'SE',
+				'calling_code' => '46',
+				'flag'         => '🇸🇪',
+			),
+			array(
+				'iso'          => 'CH',
+				'calling_code' => '41',
+				'flag'         => '🇨🇭',
+			),
+			array(
+				'iso'          => 'SY',
+				'calling_code' => '963',
+				'flag'         => '🇸🇾',
+			),
+			array(
+				'iso'          => 'TW',
+				'calling_code' => '886',
+				'flag'         => '🇹🇼',
+			),
+			array(
+				'iso'          => 'TJ',
+				'calling_code' => '992',
+				'flag'         => '🇹🇯',
+			),
+			array(
+				'iso'          => 'TZ',
+				'calling_code' => '255',
+				'flag'         => '🇹🇿',
+			),
+			array(
+				'iso'          => 'TH',
+				'calling_code' => '66',
+				'flag'         => '🇹🇭',
+			),
+			array(
+				'iso'          => 'TL',
+				'calling_code' => '670',
+				'flag'         => '🇹🇱',
+			),
+			array(
+				'iso'          => 'TG',
+				'calling_code' => '228',
+				'flag'         => '🇹🇬',
+			),
+			array(
+				'iso'          => 'TK',
+				'calling_code' => '690',
+				'flag'         => '🇹🇰',
+			),
+			array(
+				'iso'          => 'TO',
+				'calling_code' => '676',
+				'flag'         => '🇹🇴',
+			),
+			array(
+				'iso'          => 'TT',
+				'calling_code' => '1',
+				'flag'         => '🇹🇹',
+			),
+			array(
+				'iso'          => 'TN',
+				'calling_code' => '216',
+				'flag'         => '🇹🇳',
+			),
+			array(
+				'iso'          => 'TR',
+				'calling_code' => '90',
+				'flag'         => '🇹🇷',
+			),
+			array(
+				'iso'          => 'TM',
+				'calling_code' => '993',
+				'flag'         => '🇹🇲',
+			),
+			array(
+				'iso'          => 'TC',
+				'calling_code' => '1',
+				'flag'         => '🇹🇨',
+			),
+			array(
+				'iso'          => 'TV',
+				'calling_code' => '688',
+				'flag'         => '🇹🇻',
+			),
+			array(
+				'iso'          => 'UG',
+				'calling_code' => '256',
+				'flag'         => '🇺🇬',
+			),
+			array(
+				'iso'          => 'UA',
+				'calling_code' => '380',
+				'flag'         => '🇺🇦',
+			),
+			array(
+				'iso'          => 'AE',
+				'calling_code' => '971',
+				'flag'         => '🇦🇪',
+			),
+			array(
+				'iso'          => 'GB',
+				'calling_code' => '44',
+				'flag'         => '🇬🇧',
+			),
+			array(
+				'iso'          => 'US',
+				'calling_code' => '1',
+				'flag'         => '🇺🇸',
+			),
+			array(
+				'iso'          => 'UY',
+				'calling_code' => '598',
+				'flag'         => '🇺🇾',
+			),
+			array(
+				'iso'          => 'VI',
+				'calling_code' => '1',
+				'flag'         => '🇻🇮',
+			),
+			array(
+				'iso'          => 'UZ',
+				'calling_code' => '998',
+				'flag'         => '🇺🇿',
+			),
+			array(
+				'iso'          => 'VU',
+				'calling_code' => '678',
+				'flag'         => '🇻🇺',
+			),
+			array(
+				'iso'          => 'VA',
+				'calling_code' => '39',
+				'flag'         => '🇻🇦',
+			),
+			array(
+				'iso'          => 'VE',
+				'calling_code' => '58',
+				'flag'         => '🇻🇪',
+			),
+			array(
+				'iso'          => 'VN',
+				'calling_code' => '84',
+				'flag'         => '🇻🇳',
+			),
+			array(
+				'iso'          => 'WF',
+				'calling_code' => '681',
+				'flag'         => '🇼🇫',
+			),
+			array(
+				'iso'          => 'EH',
+				'calling_code' => '212',
+				'flag'         => '🇪🇭',
+			),
+			array(
+				'iso'          => 'YE',
+				'calling_code' => '967',
+				'flag'         => '🇾🇪',
+			),
+			array(
+				'iso'          => 'ZM',
+				'calling_code' => '260',
+				'flag'         => '🇿🇲',
+			),
+			array(
+				'iso'          => 'ZW',
+				'calling_code' => '263',
+				'flag'         => '🇿🇼',
+			),
+		);
+	}
+
+	/**
+	 * Retrieves the given list of data by type. Helper method used to route the individual type requests
+	 * through to the appropriate data list method.
+	 *
+	 * @param $type - string - The type of data to retrieve.
+	 * @param $as_json - boolean - Whether to retrieve this data as as JSON string.
+	 * @param $process_callback - callable - An optional callback for transforming the data before returning.
+	 *
+	 * @return string|array
+	 */
 	private static function get_data_by_type( $type, $as_json = false, $process_callback = null ) {
-		switch( $type ) {
+		switch ( $type ) {
 			case 'country':
 				$data = self::countries_list();
 				break;
@@ -376,6 +1605,9 @@ class GeoData {
 				break;
 			case 'province':
 				$data = self::provinces_list();
+				break;
+			case 'phone':
+				$data = self::phone_list();
 				break;
 			default:
 				$data = array();
@@ -390,40 +1622,50 @@ class GeoData {
 	}
 
 	/**
-	* Provides an array of US States.
-	*
-	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
-	* @param $process_callback - callable - An optional callback for transforming the data before returning.
-	*
-	* @return string|array
-	*/
+	 * Provides an array of US States.
+	 *
+	 * @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	 * @param $process_callback - callable - An optional callback for transforming the data before returning.
+	 *
+	 * @return string|array
+	 */
 	public static function states( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'state', $as_json, $process_callback );
 	}
 
 	/**
-	* Provides an array of Canadian Provinces.
-	*
-	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
-	* @param $process_callback - callable - An optional callback for transforming the data before returning.
-	*
-	* @return string|array
-	*/
+	 * Provides an array of Canadian Provinces.
+	 *
+	 * @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	 * @param $process_callback - callable - An optional callback for transforming the data before returning.
+	 *
+	 * @return string|array
+	 */
 	public static function provinces( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'province', $as_json, $process_callback );
 	}
 
 	/**
-	* Provides an array of Countries.
-	*
-	* @param $as_json - boolean - Whether to retrieve this data as a JSON string.
-	* @param $process_callback - callable - An optional callback for transforming the data before returning.
-	*
-	* @return string|array
-	*/
+	 * Provides an array of Countries.
+	 *
+	 * @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	 * @param $process_callback - callable - An optional callback for transforming the data before returning.
+	 *
+	 * @return string|array
+	 */
 	public static function countries( $as_json = false, $process_callback = null ) {
 		return self::get_data_by_type( 'country', $as_json, $process_callback );
 	}
+
+	/**
+	 * Provides an array of phone format information.
+	 *
+	 * @param $as_json - boolean - Whether to retrieve this data as a JSON string.
+	 * @param $process_callback - callable - An optional callback for transforming the data before returning.
+	 *
+	 * @return string|array
+	 */
+	public static function phone_info( $as_json = false, $process_callback = null ) {
+		return self::get_data_by_type( 'phone', $as_json, $process_callback );
+	}
 }
-
-
