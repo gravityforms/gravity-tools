@@ -363,7 +363,7 @@ class GeoData {
 	 * @return array
 	 */
 	private static function phone_list() {
-		$countries = self::get_countries();
+		$countries = self::countries_list();
 
 		$data = array(
 			array( 'AF', '93', '🇦🇫' ),
