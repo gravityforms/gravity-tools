@@ -127,4 +127,36 @@ abstract class Model {
 		return current_user_can( $this->access_cap );
 	}
 
+	/**
+	 * Concrete Models may define various transformations that can be applied to queried data. This
+	 * is useful in situations where the data being stored for a given model's field needs to be returned
+	 * in various formats. For instance, the data stored could be a post ID, and the transformation could return
+	 * various aspects of that post, such as the Post Title, Description, etc. Other use-cases are things such as
+	 * converting to all-caps, translating strings to other languages, or converting currencies.
+	 *
+	 * @return array
+	 */
+	public function transformations() {
+		return array();
+	}
+
+	/**
+	 * Using the given transformation type, pass a value through a transformation and return the result. The
+	 * given transformation must be present in the transformations() array of this model.
+	 *
+	 * @param string $transformation_name
+	 * @param mixed  $transformation_arg
+	 * @param mixed  $value
+	 *
+	 * @return mixed
+	 */
+	public function handle_transformation( $transformation_name, $transformation_arg, $value ) {
+		if ( ! isset( $this->transformations()[ $transformation_name ] ) ) {
+			throw new \InvalidArgumentException( 'Attempting to call invalid transformation type ' . $transformation_name . ' on object type ' . $this->type );
+		}
+
+		$transformation = $this->transformations()[ $transformation_name ];
+
+		return call_user_func( $transformation, $transformation_arg, $value );
+	}
 }

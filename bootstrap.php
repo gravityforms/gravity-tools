@@ -1,9 +1,11 @@
 <?php
 
 use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
+use Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship;
+use Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection;
 use tad\FunctionMocker\FunctionMocker;
 
-require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 FunctionMocker::init();
 
@@ -22,12 +24,13 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	public function fields() {
 		return array(
-			'id'         => Field_Type_Validation_Enum::INT,
-			'first_name' => Field_Type_Validation_Enum::STRING,
-			'last_name'  => Field_Type_Validation_Enum::STRING,
-			'email'      => Field_Type_Validation_Enum::EMAIL,
-			'phone'      => Field_Type_Validation_Enum::STRING,
-			'foobar'     => function ( $value ) {
+			'id'              => Field_Type_Validation_Enum::INT,
+			'first_name'      => Field_Type_Validation_Enum::STRING,
+			'last_name'       => Field_Type_Validation_Enum::STRING,
+			'email'           => Field_Type_Validation_Enum::EMAIL,
+			'phone'           => Field_Type_Validation_Enum::STRING,
+			'profile_picture' => Field_Type_Validation_Enum::INT,
+			'foobar'          => function ( $value ) {
 				if ( $value === 'foo' ) {
 					return 'foo';
 				}
@@ -44,10 +47,39 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 		);
 	}
 
+	public function transformations() {
+		return array(
+			'transformMakeThumb' => function( $thumb_type, $thumb_id ) {
+				return sprintf( 'thumbnail_url:%s/%s', $thumb_type, $thumb_id );
+			},
+		);
+	}
+
 	public function relationships() {
 		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection();
 	}
+}
 
+class FakeCompanyModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'company';
+
+	public function fields() {
+		return array(
+			'id'           => Field_Type_Validation_Enum::STRING,
+			'company_name' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	protected $access_cap = 'manage_options';
+
+	public function relationships() {
+		$relationships = array(
+			new Relationship( 'company', 'contact', 'manage_options' ),
+		);
+
+		return new Relationship_Collection( $relationships );
+	}
 }
 
 class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
@@ -69,11 +101,10 @@ class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 	public function relationships() {
 		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
 			array(
-				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'group', 'contact', 'manage_options' )
+				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'group', 'contact', 'manage_options' ),
 			)
 		);
 	}
-
 }
 
 function gravitytools_tests_reset_db() {
@@ -96,9 +127,9 @@ function gravitytools_tests_reset_db() {
 		'meta',
 	);
 
-	foreach( $tables as $table ) {
+	foreach ( $tables as $table ) {
 		$table_name = sprintf( '%s%s_%s', $wpdb->prefix, 'gravitycrm', $table );
-		$sql = sprintf( 'TRUNCATE TABLE %s', $table_name );
+		$sql        = sprintf( 'TRUNCATE TABLE %s', $table_name );
 		$wpdb->query( $sql );
 	}
 

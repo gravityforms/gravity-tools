@@ -65,20 +65,26 @@ class Query_Handler {
 		foreach ( $query_token->children() as $object ) {
 			$object_name          = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
 			$sql                  = $this->recursively_generate_sql( $object );
-			$data[ $object_name ] = sprintf( 'SELECT %s', $sql );
+			$transformations      = $this->recursively_get_transformations( $object );
+			$data[ $object_name ] = array(
+				'sql'             => sprintf( 'SELECT %s', $sql ),
+				'transformations' => $transformations,
+			);
 		}
 
 		$results = array();
 
 		// Decode the results and set them up for return.
-		foreach ( $data as $data_group_name => $query_to_execute ) {
-			$query_results = $wpdb->get_results( $query_to_execute, ARRAY_A );
+		foreach ( $data as $data_group_name => $data_group_values ) {
+			$query_results = $wpdb->get_results( $data_group_values['sql'], ARRAY_A );
 			$rows          = array();
 			foreach ( $query_results as $query_result ) {
 				$json_data    = array_shift( $query_result );
 				$decoded_data = json_decode( $json_data, true );
 				$rows[]       = $decoded_data;
 			}
+
+			$rows = $this->recursively_apply_transformations( $rows, $data_group_values['transformations'] );
 
 			$results[ $data_group_name ] = $rows;
 		}
@@ -165,7 +171,8 @@ class Query_Handler {
 		foreach ( $categorized_fields['meta'] as $field_name => $field_data ) {
 			$value_clause   = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
 			$field_pairs[]  = sprintf( '"%s", %s', $field_data['alias'], $value_clause, $field_name );
-			$join_clauses[] = sprintf( 'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
+			$join_clauses[] = sprintf(
+				'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
 				$meta_table_name,
 				$field_data['lookup_table_alias'],
 				$field_data['lookup_table_alias'],
@@ -421,13 +428,23 @@ class Query_Handler {
 	private function get_limit_from_arguments( $arguments ) {
 		$response = '';
 
-		$limit = array_values( array_filter( $arguments, function ( $item ) {
-			return $item['key'] === 'limit';
-		} ) );
+		$limit = array_values(
+			array_filter(
+				$arguments,
+				function ( $item ) {
+					return $item['key'] === 'limit';
+				}
+			)
+		);
 
-		$offset = array_values( array_filter( $arguments, function ( $item ) {
-			return $item['key'] === 'offset';
-		} ) );
+		$offset = array_values(
+			array_filter(
+				$arguments,
+				function ( $item ) {
+					return $item['key'] === 'offset';
+				}
+			)
+		);
 
 		if ( ! empty( $limit ) ) {
 			$response .= sprintf( 'LIMIT %s', $limit[0]['value'] );
@@ -471,4 +488,76 @@ class Query_Handler {
 		}
 	}
 
+	/**
+	 * Traverse the Query Object and gather all the transformation arguments into a hierarchical array which can
+	 * be used to modify the actual data from the database.
+	 *
+	 * @param Data_Object_From_Array_Token $data
+	 * @param array                        $transformations
+	 *
+	 * @return array
+	 */
+	private function recursively_get_transformations( Data_Object_From_Array_Token $data, $transformations = array() ) {
+		foreach ( $data->fields() as $field ) {
+			if ( is_a( $field, Data_Object_From_Array_Token::class ) ) {
+				$this_alias                     = ! empty( $field->alias() ) ? $field->alias() : $field->object_type();
+				$transformations[ $this_alias ] = $this->recursively_get_transformations( $field, $transformations );
+			}
+
+			$arguments = $field->arguments();
+
+			if ( empty( $arguments ) ) {
+				continue;
+			}
+
+			$transformations[ $field->alias() ] = array(
+				'items' => array(),
+			);
+
+			foreach ( $arguments->items() as $argument ) {
+				if ( strpos( $argument['key'], 'transform' ) !== false ) {
+					$transformations[ $field->alias() ]['items'][ $argument['key'] ] = array(
+						'key'         => $argument['key'],
+						'value'       => $argument['value'],
+						'object_type' => $data->object_type(),
+					);
+				}
+			}
+		}
+
+		return $transformations;
+	}
+
+	/**
+	 * Traverse all of the data rows (and the corresponding array of transformations gathered previously) and apply
+	 * the transformations to the data.
+	 *
+	 * @param array $rows
+	 * @param array $transformations
+	 *
+	 * @return array
+	 */
+	private function recursively_apply_transformations( $rows, $transformations ) {
+		foreach ( $rows as $idx => $row ) {
+			foreach ( $row as $key => $value ) {
+				if ( ! array_key_exists( $key, $transformations ) ) {
+					continue;
+				}
+
+				$local_transformations = $transformations[ $key ];
+
+				if ( is_array( $value ) ) {
+					$rows[ $idx ][ $key ] = $this->recursively_apply_transformations( $value, $local_transformations );
+					continue;
+				}
+
+				foreach ( $local_transformations['items'] as $transformation_name => $transformation_values ) {
+					$object_model         = $this->models->get( $transformation_values['object_type'] );
+					$rows[ $idx ][ $key ] = $object_model->handle_transformation( $transformation_name, $transformation_values['value'], $value );
+				}
+			}
+		}
+
+		return $rows;
+	}
 }
