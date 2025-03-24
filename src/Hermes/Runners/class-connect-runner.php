@@ -44,7 +44,7 @@ class Connect_Runner extends Runner {
 
 		$table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $from_object, $to_object );
 
-		$check_sql = sprintf( 'SELECT * FROM %s WHERE %_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
+		$check_sql = sprintf( 'SELECT * FROM %s WHERE %s_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
 
 		$existing = $wpdb->get_results( $check_sql );
 
