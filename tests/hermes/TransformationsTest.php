@@ -3,7 +3,6 @@
 namespace hermes\tokens;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
-use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 use PHPUnit\Framework\TestCase;
 
