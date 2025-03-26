@@ -60,7 +60,7 @@ class Data_Object_From_Array_Token extends Token_From_Array {
 					if ( $marks[0] === 'open_bracket' || ( $marks[0] === 'arg_group' && $marks[1] === 'open_bracket' ) ) {
 						$data_object = new self( $matches, $marks, array(
 							'object_type' => $value,
-							'alias'       => $has_alias
+							'alias'       => $has_alias ? $has_alias : $value,
 						) );
 						$data_object->set_parent( $this );
 						$data['fields'][] = $data_object;
