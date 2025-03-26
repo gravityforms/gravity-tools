@@ -4,7 +4,6 @@ namespace Gravity_Forms\Gravity_Tools\Hermes;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
-use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Field_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 
@@ -34,6 +33,14 @@ class Query_Handler {
 	 */
 	protected $models;
 
+	/**
+	* Any fields that are global to all queries.
+	* 
+	* @var array
+	*/ 
+	private $global_fields = array(
+		'aggregate',
+	);
 
 	/**
 	 * Constructor
@@ -165,6 +172,11 @@ class Query_Handler {
 			$field_pairs[] = sprintf( '"%s", %s.%s', $field_alias, $table_alias, $field_name );
 		}
 
+		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
+			$agg_alias = $categorized_fields['global']['aggregate'];
+			$field_pairs[] = sprintf( '"%s", COUNT(%s.*)', $agg_alias, $table_alias );
+		}
+
 		$meta_table_name = $this->compose_table_name( 'meta' );
 
 		// Loop through each meta field and compose the appropriate JOIN query for gathering its data.
@@ -234,8 +246,9 @@ class Query_Handler {
 	 */
 	protected function categorize_fields( $object_model, $fields_to_process, $table_alias ) {
 		$categorized = array(
-			'meta'  => array(),
-			'local' => array(),
+			'meta'   => array(),
+			'local'  => array(),
+			'global' => array(),
 		);
 
 		foreach ( $fields_to_process as $field ) {
@@ -252,13 +265,17 @@ class Query_Handler {
 
 			$field_name = $field->name();
 
-			if ( ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
+			if ( ! in_array( $field_name, $this->global_fields ) && ! array_key_exists( $field_name, $object_model->fields() ) && ! array_key_exists( $field_name, $object_model->meta_fields() ) ) {
 				$error_string = sprintf( 'Attempting to access invalid field %s on object type %s', $field_name, $object_model->type() );
 				throw new \InvalidArgumentException( $error_string, 450 );
 			}
 
 			$alias      = $field->alias();
 			$identifier = $alias ? $alias : $field_name;
+
+			if ( in_array( $field_name, $this->global_fields ) ) {
+				$categorized['global'][ $field_name ] = $identifier;
+			}
 
 			if ( array_key_exists( $field_name, $object_model->fields() ) ) {
 				$categorized['local'][ $field_name ] = $identifier;
