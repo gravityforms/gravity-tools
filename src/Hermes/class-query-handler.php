@@ -172,11 +172,7 @@ class Query_Handler {
 			$field_pairs[] = sprintf( '"%s", %s.%s', $field_alias, $table_alias, $field_name );
 		}
 
-		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
-			$agg_alias = $categorized_fields['global']['aggregate'];
-			$field_pairs[] = sprintf( '"%s", COUNT(%s.*)', $agg_alias, $table_alias );
-		}
-
+	
 		$meta_table_name = $this->compose_table_name( 'meta' );
 
 		// Loop through each meta field and compose the appropriate JOIN query for gathering its data.
@@ -194,6 +190,11 @@ class Query_Handler {
 				$field_data['lookup_table_alias'],
 				$table_alias
 			);
+		}
+
+		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
+			$agg_alias = $categorized_fields['global']['aggregate'];
+			$field_pairs[] = sprintf( '"%s", (SELECT COUNT(*) FROM %s WHERE %s)', $agg_alias, $table_name, str_replace( $table_alias, $table_name, implode( ' AND ', $where_clauses ) ) );
 		}
 
 		// A parent table exists, meaning this is a nested query and requires a JOIN statement relating it
