@@ -191,14 +191,17 @@ class Query_Handler {
 				$table_alias
 			);
 		}
-
+		
+		// If an aggregate is being called, add it as a subquery with the existing where conditions applied.
 		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
 			$agg_alias = $categorized_fields['global']['aggregate'];
-			$agg_sql   = sprintf( '"%s", (SELECT COUNT(*) FROM %s)', $agg_alias, $table_name );
+			$agg_sql   = sprintf( '"%s", (SELECT COUNT(*) FROM %s', $agg_alias, $table_name );
 
 			if ( ! empty( $where_clauses ) ) {
 				$agg_sql .= sprintf( ' WHERE %s', str_replace( $table_alias, $table_name, implode( ' AND ', $where_clauses ) ) );
 			}
+
+			$agg_sql .= ')';
 
 			$field_pairs[] = $agg_sql;
 		}
