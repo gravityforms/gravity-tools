@@ -32,6 +32,11 @@ class Insert_Runner extends Runner {
 		foreach ( $insertion_objects->children() as $object ) {
 			$fields             = $object->children();
 			$categorized_fields = $this->categorize_fields( $object_model, $fields );
+
+			// Make sure to set the correct timestamps for created and updated.
+			$categorized_fields['local']['date_created'] = gmdate( 'Y-m-d H:i:s', time() );
+			$categorized_fields['local']['date_updated'] = gmdate( 'Y-m-d H:i:s', time() );
+			
 			$inserted_id        = $this->handle_single_insert( $object_model, $categorized_fields );
 			$inserted_ids[]     = $inserted_id;
 		}
