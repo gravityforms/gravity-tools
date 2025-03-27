@@ -194,7 +194,13 @@ class Query_Handler {
 
 		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
 			$agg_alias = $categorized_fields['global']['aggregate'];
-			$field_pairs[] = sprintf( '"%s", (SELECT COUNT(*) FROM %s WHERE %s)', $agg_alias, $table_name, str_replace( $table_alias, $table_name, implode( ' AND ', $where_clauses ) ) );
+			$agg_sql   = sprintf( '"%s", (SELECT COUNT(*) FROM %s)', $agg_alias, $table_name );
+
+			if ( ! empty( $where_clauses ) ) {
+				$agg_sql .= sprintf( ' WHERE %s', str_replace( $table_alias, $table_name, implode( ' AND ', $where_clauses ) ) );
+			}
+
+			$field_pairs[] = $agg_sql;
 		}
 
 		// A parent table exists, meaning this is a nested query and requires a JOIN statement relating it
