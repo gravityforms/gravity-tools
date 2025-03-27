@@ -150,12 +150,14 @@ class Query_Handler {
 		$where_sql     = null;
 		$group_sql     = null;
 		$limit_sql     = null;
+		$order_sql     = null;
 		$separator_sql = null;
 
 		// Arguments are present; parse them and add them to the appropriate SQL arrays.
 		if ( ! empty( $arguments ) ) {
 			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments );
 			$limit_sql = $this->get_limit_from_arguments( $arguments );
+			$order_sql = $this->get_order_from_arguments( $arguments );
 		}
 
 		// Loop through each local field and generate the appropriate SQL chunks for retrieving the data.
@@ -241,7 +243,7 @@ class Query_Handler {
 		}
 
 		// Return the resulting SQL
-		return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $limit_sql );
+		return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $order_sql, $limit_sql );
 	}
 
 	/**
@@ -480,6 +482,40 @@ class Query_Handler {
 		if ( ! empty( $offset ) ) {
 			$response .= sprintf( ' OFFSET %s', $offset[0]['value'] );
 		}
+
+		return $response;
+	}
+
+	private function get_order_from_arguments( $arguments ) {
+		$response = '';
+		
+		$order = array_values(
+			array_filter(
+				$arguments,
+				function ( $item ) {
+					return $item['key'] === 'order';
+				}
+			)
+		);
+
+		$order_by = array_values(
+			array_filter(
+				$arguments,
+				function ( $item ) {
+					return $item['key'] === 'orderBy';
+				}
+			)
+		);
+		
+		if ( empty( $order_by ) ) {
+			return null;
+		}
+
+		if ( empty( $order ) ) {
+			$order = array( array( 'value' => 'DESC' ) );
+		}
+
+		$response = sprintf( 'ORDER BY %s %s', $order_by[0]['value'], $order[0]['value'] );
 
 		return $response;
 	}
