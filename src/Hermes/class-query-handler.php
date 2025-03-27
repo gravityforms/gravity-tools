@@ -486,7 +486,7 @@ class Query_Handler {
 		return $response;
 	}
 
-	private function get_order_from_arguments( $arguments ) {
+	private function get_order_from_arguments( $arguments, $table_alias ) {
 		$response = '';
 		
 		$order = array_values(
@@ -515,7 +515,7 @@ class Query_Handler {
 			$order = array( array( 'value' => 'DESC' ) );
 		}
 
-		$response = sprintf( 'ORDER BY %s %s', $order_by[0]['value'], $order[0]['value'] );
+		$response = sprintf( 'ORDER BY %s.%s %s', $table_alias, $order_by[0]['value'], $order[0]['value'] );
 
 		return $response;
 	}
