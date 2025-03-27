@@ -157,7 +157,7 @@ class Query_Handler {
 		if ( ! empty( $arguments ) ) {
 			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments );
 			$limit_sql = $this->get_limit_from_arguments( $arguments );
-			$order_sql = $this->get_order_from_arguments( $arguments );
+			$order_sql = $this->get_order_from_arguments( $arguments, $table_alias );
 		}
 
 		// Loop through each local field and generate the appropriate SQL chunks for retrieving the data.
