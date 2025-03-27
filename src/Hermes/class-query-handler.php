@@ -531,7 +531,7 @@ class Query_Handler {
 	 */
 	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments ) {
 		foreach ( $arguments as $argument ) {
-			if ( $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
+			if ( $argument['key'] === 'order' || $argument['key'] === 'orderBy' || $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
 				continue;
 			}
 
