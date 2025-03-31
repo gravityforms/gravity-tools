@@ -37,8 +37,8 @@ class Update_Runner extends Runner {
 
 		$categorized_fields = $this->categorize_fields( $object_model, $fields_to_update );
 
-		// Set date_updated with current time
-		$categorized_fields['local']['date_updated'] = gmdate( 'Y-m-d H:i:s', time() );
+		// Set dateUpdated with current time
+		$categorized_fields['local']['dateUpdated'] = gmdate( 'Y-m-d H:i:s', time() );
 
 		$this->handle_single_update( $object_model, $categorized_fields, $object_id );
 
