@@ -25,10 +25,8 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 	public function fields() {
 		return array(
 			'id'              => Field_Type_Validation_Enum::INT,
-			'first_name'      => Field_Type_Validation_Enum::STRING,
-			'last_name'       => Field_Type_Validation_Enum::STRING,
-			'email'           => Field_Type_Validation_Enum::EMAIL,
-			'phone'           => Field_Type_Validation_Enum::STRING,
+			'firstName'       => Field_Type_Validation_Enum::STRING,
+			'lastName'        => Field_Type_Validation_Enum::STRING,
 			'profile_picture' => Field_Type_Validation_Enum::INT,
 			'foobar'          => function ( $value ) {
 				if ( $value === 'foo' ) {
@@ -49,7 +47,7 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	public function transformations() {
 		return array(
-			'transformMakeThumb' => function( $thumb_type, $thumb_id ) {
+			'transformMakeThumb' => function ( $thumb_type, $thumb_id ) {
 				return sprintf( 'thumbnail_url:%s/%s', $thumb_type, $thumb_id );
 			},
 		);
@@ -66,8 +64,8 @@ class FakeCompanyModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	public function fields() {
 		return array(
-			'id'           => Field_Type_Validation_Enum::STRING,
-			'company_name' => Field_Type_Validation_Enum::STRING,
+			'id'          => Field_Type_Validation_Enum::STRING,
+			'companyName' => Field_Type_Validation_Enum::STRING,
 		);
 	}
 
@@ -123,7 +121,6 @@ function gravitytools_tests_reset_db() {
 		'group_contact',
 		'deal_company',
 		'deal_contact',
-		'pipeline_deal',
 		'meta',
 	);
 

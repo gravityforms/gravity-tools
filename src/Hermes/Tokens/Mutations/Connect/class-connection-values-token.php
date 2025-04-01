@@ -14,35 +14,14 @@ class Connection_Values_Token extends Token {
 	protected $type = 'Connection_Values';
 
 	/**
-	 * The ID of the object to connect from.
-	 *
-	 * @var string
-	 */
-	protected $from;
+	* An array of sub-arrays, each consisting of a `to` and `from` index.
+	*
+	* @var array[]
+	*/ 
+	protected $pairs = array();
 
-	/**
-	 * The ID of the object to connect to.
-	 *
-	 * @var string
-	 */
-	protected $to;
-
-	/**
-	 * Public accessor for $from.
-	 *
-	 * @return string
-	 */
-	public function from() {
-		return $this->from;
-	}
-
-	/**
-	 * Public accessor for $to.
-	 *
-	 * @return string
-	 */
-	public function to() {
-		return $this->to;
+	public function pairs() {
+		return $this->pairs;
 	}
 
 	/**
@@ -51,10 +30,7 @@ class Connection_Values_Token extends Token {
 	 * @return array
 	 */
 	public function children() {
-		return array(
-			'from' => $this->from,
-			'to'   => $this->to,
-		);
+		return $this->pairs;
 	}
 
 	/**
@@ -72,22 +48,31 @@ class Connection_Values_Token extends Token {
 			return;
 		}
 
+		$pairs  = array();
 		$fields = array();
 
-		$keys   = $results[1];
-		$values = $results[2];
+		$keys        = $results[1];
+		$values      = $results[2];
+		$pairs_index = 0;
 
 		foreach ( $keys as $idx => $key ) {
 			$value          = $values[ $idx ];
 			$fields[ $key ] = trim( $value, '"\' ' );
+
+			if ( $key === 'to' ) {
+				$pairs[ $pairs_index ] = $fields;
+				$fields                = array();
+				$pairs_index          += 1;
+			}
 		}
 
-		if ( ! array_key_exists( 'from', $fields ) || ! array_key_exists( 'to', $fields ) ) {
-			throw new \InvalidArgumentException( 'Connect mutations must provide a from and to ID.', 485 );
+		foreach ( $pairs as $fields ) {
+			if ( ! array_key_exists( 'from', $fields ) || ! array_key_exists( 'to', $fields ) ) {
+				throw new \InvalidArgumentException( 'Connect mutations must provide a from and to ID.', 485 );
+			}
 		}
 
-		$this->from = $fields['from'];
-		$this->to   = $fields['to'];
+		$this->pairs = $pairs;
 	}
 
 	/**
@@ -99,8 +84,8 @@ class Connection_Values_Token extends Token {
 	 */
 	public function regex_types() {
 		return array(
-			'argument_pair' => '([a-zA-z0-9_-]*):([^,\)]+)',
+			'argument_pair' => '([a-zA-z0-9_-]*):([^,\}\)]+)',
 		);
 	}
-
 }
+

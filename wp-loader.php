@@ -39,8 +39,16 @@ class WpLoader {
 
 		require WP_TESTS_DIR . 'includes/bootstrap.php';
 
-		FunctionMocker::replace( 'wp_send_json_success', '' );
-		FunctionMocker::replace( 'wp_send_json_error', '' );
+		FunctionMocker::replace( 'wp_send_json_success', function( $text, $code = null, $flags = array() ) {
+			global $hermes_test_response;
+			$hermes_test_response = $text;
+			return;
+		} );
+		FunctionMocker::replace( 'wp_send_json_error', function( $text, $code ) {
+			global $hermes_test_response;
+			$hermes_test_response = $text;
+			return;
+		} );
 	}
 
 
@@ -99,15 +107,15 @@ class WpLoader {
 		$sql = "
 		CREATE TABLE $table_name (
 		id mediumint(9) NOT NULL AUTO_INCREMENT,
-		first_name varchar(100) NOT NULL,
-		last_name varchar(100) NOT NULL,
+		firstName varchar(100) NOT NULL,
+		lastName varchar(100) NOT NULL,
 		email varchar(100) NOT NULL,
 		phone varchar(100) NOT NULL,
 		profile_picture varchar(100) NOT NULL,
-		date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		date_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		FULLTEXT(first_name),
-		FULLTEXT(last_name),
+		dateCreated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateUpdated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		FULLTEXT(firstName),
+		FULLTEXT(lastName),
 		FULLTEXT(email),
 		FULLTEXT(phone),
 		PRIMARY KEY (id)
@@ -132,8 +140,8 @@ class WpLoader {
 		company_name varchar(100) NOT NULL,
 		url varchar(100) NOT NULL,
 		description text NOT NULL,
-		date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		date_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateCreated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateUpdated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 		FULLTEXT(company_name),
 		FULLTEXT(url),
 		FULLTEXT(description),
@@ -157,8 +165,8 @@ class WpLoader {
 		CREATE TABLE $table_name (
 		id mediumint(9) NOT NULL AUTO_INCREMENT,
 		label varchar(100) NOT NULL,
-		date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		date_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateCreated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateUpdated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 		FULLTEXT(label),
 		PRIMARY KEY (id)
 		) $charset_collate;
@@ -181,8 +189,8 @@ class WpLoader {
 		id mediumint(9) NOT NULL AUTO_INCREMENT,
 		label varchar(100) NOT NULL,
 		status varchar(100) NOT NULL,
-		date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		date_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateCreated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateUpdated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 		FULLTEXT(label),
 		PRIMARY KEY (id)
 		) $charset_collate;
@@ -204,8 +212,8 @@ class WpLoader {
 		CREATE TABLE $table_name (
 		id mediumint(9) NOT NULL AUTO_INCREMENT,
 		label varchar(100) NOT NULL,
-		date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-		date_updated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateCreated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+		dateUpdated datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 		FULLTEXT(label),
 		PRIMARY KEY (id)
 		) $charset_collate;

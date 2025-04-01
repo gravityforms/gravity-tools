@@ -32,7 +32,7 @@ class TransformationsTest extends TestCase {
 		{
 			company {
 				id,
-				company_name,
+				companyName,
 				contact {
 					id,
 					main_img: profile_picture(transformMakeThumb: lg),

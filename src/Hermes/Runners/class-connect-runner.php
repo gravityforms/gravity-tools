@@ -18,7 +18,6 @@ class Connect_Runner extends Runner {
 	 * This also checks permissions for both object types to ensure that the user has
 	 * the appropriate capabilities for running this connect mutation.
 	 *
-	 *
 	 * @param Connect_Mutation_Token $mutation
 	 * @param Model                  $object_model
 	 *
@@ -29,8 +28,22 @@ class Connect_Runner extends Runner {
 
 		$from_object = $mutation->from_object();
 		$to_object   = $mutation->to_object();
-		$from_id     = $mutation->from_id();
-		$to_id       = $mutation->to_id();
+		$pairs       = $mutation->pairs();
+
+		foreach ( $pairs as $pair ) {
+			$to_id   = $pair['to'];
+			$from_id = $pair['from'];
+
+			$this->run_single( $from_object, $to_object, $from_id, $to_id, $object_model );
+		}
+
+		$response = sprintf( '%s connections from %s to %s created.', count( $pairs ), $from_object, $to_object );
+
+		wp_send_json_success( $response );
+	}
+
+	public function run_single( $from_object, $to_object, $from_id, $to_id, $object_model ) {
+		global $wpdb;
 
 		if ( ! $object_model->relationships()->has( $to_object ) ) {
 			$error_message = sprintf( 'Relationship from %s to %s does not exist.', $from_object, $to_object );
@@ -56,10 +69,5 @@ class Connect_Runner extends Runner {
 		$connect_sql = sprintf( 'INSERT INTO %s ( %s_id, %s_id ) VALUES( "%s", "%s" )', $table_name, $from_object, $to_object, $from_id, $to_id );
 
 		$wpdb->query( $connect_sql );
-
-		$response = sprintf( 'Connection from %s ID %s to %s ID %s created.', $from_object, $from_id, $to_object, $to_id );
-
-		wp_send_json_success( $response );
 	}
-
 }

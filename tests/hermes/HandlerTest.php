@@ -58,12 +58,13 @@ class HandlerTest extends TestCase {
 	public function testMutationHandler( $text, $expected ) {
 
 		try {
-			$data = $this->mutation_handler->handle_mutation( $text );
+			$data       = $this->mutation_handler->handle_mutation( $text );
 		} catch ( \Exception $e ) {
 			$this->assertEquals( $expected, 'failure' );
 
 			return;
 		}
+
 
 		$this->assertEquals( $expected, 'success' );
 	}
@@ -73,113 +74,114 @@ class HandlerTest extends TestCase {
 			// Valid
 			array(
 				'{
-  insert_contact(objects: [{email: "foo@bar.com", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
+				insert_contact(objects: [{firstName: "Foo", lastName: "Bar"}, {firstName: "Bing", lastName: "Bash", secondary_phone: "4445554848" }]) {
+				returning {
+				id,
+				firstName,
+				lastName,
+				secondary_phone,
+				}
+				}
+				}',
 				'success',
-			),
-
-			// Invalid email field
-			array(
-				'{
-  insert_contact(objects: [{email: "foo@bar", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
-				'failure',
 			),
 
 			// Invalid custom callback
 			array(
 				'{
-  insert_contact(objects: [{foobar: "bar", first_name: true, last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
+				insert_contact(objects: [{foobar: "bar", firstName: true, lastName: "Bar"}, {firstName: "Bing", lastName: "Bash", secondary_phone: "4445554848" }]) {
+				returning {
+				id,
+				firstName,
+				lastName,
+				secondary_phone,
+				}
+				}
+				}',
 				'failure',
 			),
 
 			// Valid update
 			array(
 				'{
-  update_contact(id: 1, email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
+				update_contact(id: 1, firstName: "Foo", lastName: "Bar", secondary_phone: "4445554848") {
+				returning {
+				id,
+				firstName,
+				lastName,
+				secondary_phone,
+				}
+				}
+				}',
 				'success',
 			),
 
 			// Update missing ID
 			array(
 				'{
-  update_contact( email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}',
+				update_contact( firstName: "Foo", lastName: "Bar", secondary_phone: "4445554848") {
+				returning {
+				id,
+				firstName,
+				lastName,
+				secondary_phone,
+				}
+				}
+				}',
 				'failure',
 			),
 
 			// Delete
 			array(
 				'{
-  delete_contact(id: 1) {
-  }
-}',
+				delete_contact(id: 1) {
+				}
+				}',
 				'success',
 			),
 
 			// Delete missing ID
 			array(
 				'{
-  delete_contact() {
-  }
-}',
+				delete_contact() {
+				}
+				}',
 				'failure',
 			),
 
 			// Delete missing valid object type
 			array(
 				'{
-  delete_invalid_object(id: 1) {
-  }
-}',
+				delete_invalid_object(id: 1) {
+				}
+				}',
 				'failure',
 			),
 
-			// Connect
+			// Connect with only one connection
 			array(
 				'{
-  connect_group_contact(from: 1, to: 2) {
-  }
-}',
+				connect_group_contact(from: 1, to: 2) {
+				}
+				}',
 				'success',
 			),
+
+			// Connect with only one connection as an array 
+			array(
+				'{
+				connect_group_contact([{from:1, to: 2}])
+				}',
+				'success',
+			),
+
+			// Connect with multiple connections as an array 
+			array(
+				'{
+				connect_group_contact([{from:1, to: 2}, {from:1, to:3}])
+				}',
+				'success',
+			)
 		);
 	}
 
@@ -188,15 +190,15 @@ class HandlerTest extends TestCase {
 		\gravitytools_tests_reset_db();
 
 		$text = '{
-  insert_contact(objects: [{email: "foo@bar.com", first_name: "Foo", last_name: "Bar"}, {first_name: "Bing", last_name: "Bash", secondary_phone: "4445554848" }]) {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}';
+		insert_contact(objects: [{firstName: "Foo", lastName: "Bar"}, {firstName: "Bing", lastName: "Bash", secondary_phone: "4445554848" }]) {
+		returning {
+		id,
+		firstName,
+		lastName,
+		secondary_phone,
+		}
+		}
+		}';
 
 		$this->mutation_handler->handle_mutation( $text );
 		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
@@ -209,7 +211,7 @@ class HandlerTest extends TestCase {
 
 		$record = $results[1];
 
-		$this->assertEquals( 'Bing', $record['first_name'] );
+		$this->assertEquals( 'Bing', $record['firstName'] );
 
 		$meta_check_query = sprintf( 'SELECT meta_value FROM %s WHERE object_id = "%s" AND meta_name = "%s"', $meta_table_name, $record['id'], 'secondary_phone' );
 		$meta_results     = $wpdb->get_results( $meta_check_query, ARRAY_A );
@@ -224,22 +226,22 @@ class HandlerTest extends TestCase {
 		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
 		$meta_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'meta' );
 
-		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $table_name );
+		$insert_query = sprintf( 'INSERT INTO %s (firstName, lastName) VALUES ("Test", "User" )', $table_name );
 		$wpdb->query( $insert_query );
 
 		$insert_meta_query = sprintf( 'INSERT INTO %s (meta_name, meta_value, object_type, object_id) VALUES ("secondary_phone", "4445554545", "contact", "1" )', $meta_table_name );
 		$wpdb->query( $insert_meta_query );
 
 		$text = '{
-  update_contact(id: 1, email: "foo@bar.com", first_name: "Foo", last_name: "Bar", secondary_phone: "4445554848") {
-    returning {
-      id,
-      first_name,
-      last_name,
-      secondary_phone,
-    }
-  }
-}';
+		update_contact(id: 1, firstName: "Foo", lastName: "Bar", secondary_phone: "4445554848") {
+		returning {
+		id,
+		firstName,
+		lastName,
+		secondary_phone,
+		}
+		}
+		}';
 
 		$this->mutation_handler->handle_mutation( $text );
 
@@ -253,15 +255,13 @@ class HandlerTest extends TestCase {
 
 		$record = $results[0];
 
-		$this->assertEquals( 'Foo', $record['first_name'] );
-		$this->assertEquals( 'Bar', $record['last_name'] );
-		$this->assertEquals( 'foo@bar.com', $record['email'] );
+		$this->assertEquals( 'Foo', $record['firstName'] );
+		$this->assertEquals( 'Bar', $record['lastName'] );
 
 		$meta_check_query = sprintf( 'SELECT meta_value FROM %s WHERE object_id = "%s" AND meta_name = "%s"', $meta_table_name, $record['id'], 'secondary_phone' );
 		$meta_results     = $wpdb->get_results( $meta_check_query, ARRAY_A );
 
 		$this->assertEquals( '4445554848', $meta_results[0]['meta_value'] );
-
 	}
 
 	public function testDeleteMutation() {
@@ -271,12 +271,12 @@ class HandlerTest extends TestCase {
 		$table_name      = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'contact' );
 		$meta_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'meta' );
 
-		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $table_name );
+		$insert_query = sprintf( 'INSERT INTO %s (firstName, lastName) VALUES ("Test", "User" )', $table_name );
 		$wpdb->query( $insert_query );
 
 		$text = '{
-  delete_contact(id: 1) {}
-}';
+		delete_contact(id: 1) {}
+		}';
 
 		$check_query = sprintf( 'SELECT * FROM %s', $table_name );
 		$results     = $wpdb->get_results( $check_query, ARRAY_A );
@@ -299,15 +299,15 @@ class HandlerTest extends TestCase {
 		$group_table_name   = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'group' );
 		$connect_table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, 'group_contact' );
 
-		$insert_query = sprintf( 'INSERT INTO %s (first_name, last_name, email, phone) VALUES ("Test", "User", "test@gravity.local", "5556665656" )', $contact_table_name );
+		$insert_query = sprintf( 'INSERT INTO %s (firstName, lastName) VALUES ("Test", "User")', $contact_table_name );
 		$wpdb->query( $insert_query );
 
 		$insert_query = sprintf( 'INSERT INTO %s (label) VALUES ("Test Group")', $group_table_name );
 		$wpdb->query( $insert_query );
 
 		$text = '{
-  connect_group_contact(from: 1, to: 1) {}
-}';
+		connect_group_contact(from: 1, to: 1) {}
+		}';
 
 		$check_query = sprintf( 'SELECT * FROM %s', $connect_table_name );
 		$results     = $wpdb->get_results( $check_query, ARRAY_A );
@@ -323,5 +323,4 @@ class HandlerTest extends TestCase {
 		$this->assertEquals( 1, $results[0]['group_id'] );
 		$this->assertEquals( 1, $results[0]['contact_id'] );
 	}
-
 }

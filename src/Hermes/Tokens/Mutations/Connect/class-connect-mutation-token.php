@@ -53,21 +53,12 @@ class Connect_Mutation_Token extends Mutation_Token {
 	}
 
 	/**
-	 * Public $from_id accessor.
+	 * Public $pairs accessor.
 	 *
-	 * @return string
+	 * $return array
 	 */
-	public function from_id() {
-		return $this->connection_ids->from();
-	}
-
-	/**
-	 * Public $to_id accessor.
-	 *
-	 * @return string
-	 */
-	public function to_id() {
-		return $this->connection_ids->to();
+	public function pairs() {
+		return $this->connection_ids->pairs();
 	}
 
 	/**
@@ -78,9 +69,8 @@ class Connect_Mutation_Token extends Mutation_Token {
 	public function children() {
 		return array(
 			'from_object' => $this->from_object(),
-			'from_id'     => $this->from_id(),
 			'to_object'   => $this->to_object(),
-			'to_id'       => $this->to_id(),
+			'pairs'       => $this->pairs(),
 		);
 	}
 
@@ -174,5 +164,5 @@ class Connect_Mutation_Token extends Mutation_Token {
 			'close_bracket'   => '}',
 		);
 	}
-
 }
+
