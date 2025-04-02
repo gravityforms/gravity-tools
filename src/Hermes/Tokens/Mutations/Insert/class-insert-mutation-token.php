@@ -52,7 +52,7 @@ class Insert_Mutation_Token extends Mutation_Token {
 	 *
 	 * @return void
 	 */
-	public function parse( $contents ) {
+	public function parse( $contents, $args = array() ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 		$this->tokenize( $results );
 
@@ -88,7 +88,7 @@ class Insert_Mutation_Token extends Mutation_Token {
 					$data['alias']       = $value;
 					break;
 				case 'arg_group':
-					$data['objects_to_insert'] = new Insertion_Objects_Token( $value );
+					$data['objects_to_insert'] = new Insertion_Objects_Token( $value, array( 'object_type' => $data['object_type'] ) );
 					break;
 				case 'alias':
 					$has_alias = $value;

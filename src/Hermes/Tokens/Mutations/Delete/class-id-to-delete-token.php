@@ -45,7 +45,7 @@ class ID_To_Delete_Token extends Token {
 	 *
 	 * @return void
 	 */
-	public function parse( $contents ) {
+	public function parse( $contents, $args = array() ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 
 		if ( count( $results ) < 4 ) {

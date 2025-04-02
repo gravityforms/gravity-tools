@@ -89,4 +89,61 @@ class QueryTokenTest extends TestCase {
 
 		$this->assertEquals( $expected_fields, $token->return_fields() );
 	}
+
+	public function testInsertedObjectsWithRelationships() {
+		$text = '{
+		insert_company( objects: [
+			{
+				companyName: "Acme, INC",
+				contact: [
+					{
+						firstName: "John",
+						lastName: "Smith",
+						email: [{
+							type: "work",
+							address: "jsmith@acme.local",
+						}]
+					},
+					{
+						firstName: "Jane",
+						lastName: "Doe",
+					}
+				]	
+			},
+			{
+				companyName: "Acme2, INC",
+				contact: [
+					{
+						firstName: "Phil",
+						lastName: "Johnson"
+					},
+					{
+						firstName: "Janet",
+						lastName: "Bigelow",
+					}
+				]
+			}
+		]){
+			returning {
+				id,
+				companyName,
+				contact: {
+					id,
+					firstName,
+					lastName,
+					email {
+						id,
+						address,
+					}	
+				}
+			}
+		}
+		}';
+
+		$token = new Insert_Mutation_Token( $text );
+
+		$objects = $token->children()->children();
+
+		$this->assertEquals( 7, count( $objects ) );
+	}
 }

@@ -29,6 +29,8 @@ class Insert_Runner extends Runner {
 		$insertion_objects = $mutation->children();
 		$inserted_ids      = array();
 
+		var_dump( $insertion_objects->children() ); die();
+
 		foreach ( $insertion_objects->children() as $object ) {
 			$fields             = $object->children();
 			$categorized_fields = $this->categorize_fields( $object_model, $fields );

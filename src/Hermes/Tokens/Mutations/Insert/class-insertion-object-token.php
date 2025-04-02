@@ -3,13 +3,14 @@
 namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token_From_Array;
 
 /**
  * Insertion Object Token
  *
  * A token holding the values for an object to be inserted into the Database.
  */
-class Insertion_Object_Token extends Token {
+class Insertion_Object_Token extends Token_From_Array {
 
 	protected $type = 'insertion_object';
 
@@ -19,6 +20,10 @@ class Insertion_Object_Token extends Token {
 	 * @var array
 	 */
 	protected $items;
+
+	protected $object_type;
+
+	protected $is_child;
 
 	/**
 	 * Return $items as children.
@@ -32,39 +37,13 @@ class Insertion_Object_Token extends Token {
 	/**
 	 * Parse the string contents to values.
 	 *
-	 * @param string $contents
-	 *
 	 * @return void
 	 */
-	public function parse( $contents ) {
-		preg_match_all( $this->get_parsing_regex(), $contents, $parts );
-
-		$matches = $parts[0];
-		$marks   = $parts['MARK'];
-
-		$fields  = array();
-		$key     = false;
-
-		while ( ! empty( $matches ) ) {
-			$value     = array_shift( $matches );
-			$mark_type = array_shift( $marks );
-
-			switch ( $mark_type ) {
-				case 'key':
-					$key = trim( $value, ': ' );
-					break;
-				case 'value':
-					if ( $key ) {
-						$fields[ $key ] = trim( $value, ': "' );
-						$key            = false;
-					}
-					break;
-				default:
-					break;
-			}
-		}
-
+	public function parse( &$matches, &$marks, $additional_args = array() ) {
+		$fields = $additional_args['fields'];
 		$this->items = $fields;
+		$this->object_type = $additional_args['object_type'];
+		$this->is_child = $additional_args['is_child'];
 	}
 
 	/**
@@ -76,6 +55,7 @@ class Insertion_Object_Token extends Token {
 	 */
 	public function regex_types() {
 		return array(
+			'relatedObject' => '',
 			'value' => ':[^,\}]+',
 			'key'   => '[a-zA-Z0-9_\-]+',
 		);

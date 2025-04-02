@@ -81,7 +81,7 @@ class Connect_Mutation_Token extends Mutation_Token {
 	 *
 	 * @return void
 	 */
-	public function parse( $contents ) {
+	public function parse( $contents, $args = array() ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 		$this->tokenize( $results );
 

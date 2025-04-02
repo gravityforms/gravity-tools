@@ -4,8 +4,10 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens;
 
 abstract class Token extends Base_Token {
 
-	public function __construct( $contents ) {
-		$this->parse( $contents );
+	protected $args = array();
+
+	public function __construct( $contents, $args = array() ) {
+		$this->parse( $contents, $args );
 	}
 
 	protected function regex_types() {
@@ -24,5 +26,5 @@ abstract class Token extends Base_Token {
 		return sprintf( '/(?|%s)/m', $clauses_concat );
 	}
 
-	abstract public function parse( $contents );
+	abstract public function parse( $contents, $args = array() );
 }
