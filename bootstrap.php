@@ -16,6 +16,26 @@ require __DIR__ . '/wp-loader.php';
 $core_loader = new WpLoader();
 $core_loader->init();
 
+
+class FakeEmailModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'email';
+
+	protected $access_cap = 'manage_options';
+
+	public function fields() {
+		return array(
+			'id'      => Field_Type_Validation_Enum::INT,
+			'address' => Field_Type_Validation_Enum::STRING,
+			'type'    => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	public function relationships() {
+		return new Relationship_Collection( array() );
+	}
+}
+
 class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 
 	protected $type = 'contact';
@@ -54,7 +74,11 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 	}
 
 	public function relationships() {
-		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection();
+		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
+			array(
+				new Relationship( 'contact', 'email', 'manage_options' ),
+			)
+		);
 	}
 }
 
@@ -122,6 +146,8 @@ function gravitytools_tests_reset_db() {
 		'deal_company',
 		'deal_contact',
 		'meta',
+		'email',
+		'contact_email',
 	);
 
 	foreach ( $tables as $table ) {

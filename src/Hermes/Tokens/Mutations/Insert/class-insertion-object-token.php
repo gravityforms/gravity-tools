@@ -34,6 +34,13 @@ class Insertion_Object_Token extends Token_From_Array {
 		return $this->items;
 	}
 
+	public function object_type() {
+		return $this->object_type;
+	}
+
+	public function is_child() {
+		return $this->is_child;
+	}
 	/**
 	 * Parse the string contents to values.
 	 *

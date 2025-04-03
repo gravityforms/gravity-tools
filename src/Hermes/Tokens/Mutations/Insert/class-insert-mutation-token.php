@@ -14,11 +14,11 @@ class Insert_Mutation_Token extends Mutation_Token {
 	protected $operation = 'insert';
 
 	/**
-	 * An array of fields to return after the mutation is performed.
+	 * An string of fields to return after the mutation is performed.
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $return_fields = array();
+	protected $return_fields = '';
 
 	/**
 	 * A token holding the various objects to insert during this mutation.
@@ -69,9 +69,7 @@ class Insert_Mutation_Token extends Mutation_Token {
 	public function tokenize( $parts ) {
 		$matches = $parts[0];
 		$marks   = $parts['MARK'];
-		$data    = array(
-			'return_fields' => array(),
-		);
+		$data    = array();
 
 		$next_is_return = false;
 
@@ -81,7 +79,10 @@ class Insert_Mutation_Token extends Mutation_Token {
 
 			switch ( $mark_type ) {
 				case 'returning_def':
-					$next_is_return = true;
+					$cleaned_return_def = preg_replace( "/\r|\n|\t/", '', $value );
+					$cleaned_return_def = str_replace( 'returning {', '', $cleaned_return_def );
+					$cleaned_return_def = substr( $cleaned_return_def, 0, -3 );
+					$data['return_fields'] = $cleaned_return_def;
 					break;
 				case 'operation_alias':
 					$data['object_type'] = str_replace( 'insert_', '', $value );
@@ -94,11 +95,6 @@ class Insert_Mutation_Token extends Mutation_Token {
 					$has_alias = $value;
 					break;
 				case 'identifier':
-					if ( ! $next_is_return ) {
-						break;
-					}
-
-					$data['return_fields'][] = $value;
 					break;
 				case 'close_bracket':
 					if ( $next_is_return ) {
@@ -138,7 +134,7 @@ class Insert_Mutation_Token extends Mutation_Token {
 	 */
 	protected function regex_types() {
 		return array(
-			'returning_def'   => 'returning',
+			'returning_def'   => 'returning {[^\%]+',
 			'operation_alias' => 'insert_[^\(]*',
 			'arg_group'       => '\([^\)]+\)',
 			'alias'           => '[_A-Za-z][_0-9A-Za-z]*:',

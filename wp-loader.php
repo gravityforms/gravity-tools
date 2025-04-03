@@ -41,6 +41,7 @@ class WpLoader {
 
 		FunctionMocker::replace( 'wp_send_json_success', function( $text, $code = null, $flags = array() ) {
 			global $hermes_test_response;
+			var_dump( $text );
 			$hermes_test_response = $text;
 			return;
 		} );

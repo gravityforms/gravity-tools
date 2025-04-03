@@ -12,6 +12,17 @@ use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert\Insert_Mutation_T
 class Insert_Runner extends Runner {
 
 	/**
+	 * @var Connect_Runner
+	 */
+	protected $connect_runner;
+
+	public function __construct( $db_namespace, $query_handler, $model_collection, $connect_runner ) {
+		parent::__construct( $db_namespace, $query_handler, $model_collection );
+
+		$this->connect_runner = $connect_runner;
+	}
+
+	/**
 	 * Using the data provided by the Mutation_Token, this determines the correct
 	 * DB table for the insertion and adds the records one-by-one.
 	 *
@@ -28,22 +39,47 @@ class Insert_Runner extends Runner {
 	public function run( $mutation, $object_model ) {
 		$insertion_objects = $mutation->children();
 		$inserted_ids      = array();
+		$child_ids         = array();
 
-		var_dump( $insertion_objects->children() ); die();
+		foreach ( $insertion_objects->children() as $idx => $object ) {
+			if ( ! $this->models->has( $object->object_type() ) ) {
+				throw new \InvalidArgumentException( sprintf( 'Object type %s does not exist.', $object->object_type() ) );
+			}
 
-		foreach ( $insertion_objects->children() as $object ) {
 			$fields             = $object->children();
+			$object_model       = $this->models->get( $object->object_type() );
 			$categorized_fields = $this->categorize_fields( $object_model, $fields );
 
 			// Make sure to set the correct timestamps for created and updated.
 			$categorized_fields['local']['dateCreated'] = gmdate( 'Y-m-d H:i:s', time() );
 			$categorized_fields['local']['dateUpdated'] = gmdate( 'Y-m-d H:i:s', time() );
-			
-			$inserted_id        = $this->handle_single_insert( $object_model, $categorized_fields );
-			$inserted_ids[]     = $inserted_id;
+
+			$inserted_id = $this->handle_single_insert( $object_model, $categorized_fields );
+
+			if ( $object->is_child() && ( empty( $child_ids ) || array_key_first( $child_ids ) === $object->object_type() ) ) {
+
+				if ( ! isset( $child_ids[ $object->object_type() ] ) ) {
+					$child_ids[ $object->object_type() ] = array();
+				}
+
+				$child_ids[ $object->object_type() ][] = $inserted_id;
+				continue;
+			}
+
+			if ( ! empty( $child_ids ) ) {
+				foreach ( $child_ids as $child_type => $children ) {
+					foreach ( $children as $child_id ) {
+						$this->connect_runner->run_single( $object->object_type(), $child_type, $inserted_id, $child_id, $object_model );
+					}
+				}
+
+				$child_ids = array();
+			}
+
+			$inserted_ids[] = $inserted_id;
 		}
 
-		$objects_gql = sprintf( '{ %s: %s(id_in: %s){ %s }', $object_model->type(), $object_model->type(), implode( '|', $inserted_ids ), implode( ', ', $mutation->return_fields() ) );
+		$objects_gql = sprintf( '{ %s: %s(id_in: %s){ %s }', $object_model->type(), $object_model->type(), implode( '|', $inserted_ids ), $mutation->return_fields() );
 
 		$data = $this->query_handler->handle_query( $objects_gql );
 

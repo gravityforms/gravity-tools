@@ -614,6 +614,10 @@ class Query_Handler {
 					continue;
 				}
 
+				if ( empty( $local_transformations['items'] ) ) {
+					continue;
+				}
+
 				foreach ( $local_transformations['items'] as $transformation_name => $transformation_values ) {
 					$object_model         = $this->models->get( $transformation_values['object_type'] );
 					$rows[ $idx ][ $key ] = $object_model->handle_transformation( $transformation_name, $transformation_values['value'], $value );

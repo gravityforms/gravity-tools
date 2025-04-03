@@ -6,6 +6,7 @@ use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 
 /**
  * Runner
@@ -43,16 +44,25 @@ abstract class Runner {
 	protected $query_handler;
 
 	/**
+	 * The collection of models currently available to the system.
+	 *
+	 * @var Model_Collection
+	 */
+	protected $models;
+
+	/**
 	 * See property descriptions for more information about these arguments and their usage.
 	 *
-	 * @param string $db_namespace
-	 * @param Query_Handler $query_handler
+	 * @param string           $db_namespace
+	 * @param Query_Handler    $query_handler
+	 * @param Model_Collection $model_collection
 	 *
 	 * @return void
 	 */
-	public function __construct( $db_namespace, $query_handler ) {
+	public function __construct( $db_namespace, $query_handler, $model_collection ) {
 		$this->db_namespace  = $db_namespace;
 		$this->query_handler = $query_handler;
+		$this->models        = $model_collection;
 	}
 
 	/**
@@ -176,5 +186,5 @@ abstract class Runner {
 
 		return $categorized;
 	}
-
 }
+
