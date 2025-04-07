@@ -42,8 +42,8 @@ class Insertion_Objects_Token extends Token {
 		$marks                                  = $parts['MARK'];
 		$current_object_type                    = $args['object_type'];
 		$organized_data[ $current_object_type ] = $this->recursively_organize_tokens( $matches, $marks, $current_object_type );
-		$organized_objects = array();
-		$this->recursively_convert_tokens_to_objects( $organized_objects, $organized_data[ $current_object_type ]['objects'], $current_object_type, false );
+		$organized_objects                      = array();
+		$this->recursively_convert_tokens_to_objects( $organized_objects, $organized_data[ $current_object_type ]['objects'], $current_object_type, false, false );
 
 		$this->objects = $organized_objects;
 	}
@@ -60,7 +60,8 @@ class Insertion_Objects_Token extends Token {
 			switch ( $mark_type ) {
 				case 'key':
 					if ( $marks[0] === 'openingArray' ) {
-						$object_type = $value;
+						$parent_object_type = isset( $object_type ) ? $object_type : false;
+						$object_type        = $value;
 						if ( ! isset( $data[ $value ] ) ) {
 							$data[ $value ] = array();
 							$is_child       = true;
@@ -78,7 +79,7 @@ class Insertion_Objects_Token extends Token {
 				case 'closingObject':
 					return $data;
 				case 'value':
-					$field_value = trim( $value, ": " );
+					$field_value = trim( $value, ': ' );
 					if ( $current_field_key ) {
 						$data[ $current_field_key ] = $field_value;
 						$current_field_key          = false;
@@ -92,27 +93,32 @@ class Insertion_Objects_Token extends Token {
 		return $data;
 	}
 
-	private function recursively_convert_tokens_to_objects( &$organized_objects, $data, $current_object_type, $is_child = false ) {
-		$fields = array();
-		$marks = array();
+	private function recursively_convert_tokens_to_objects( &$organized_objects, $data, $current_object_type, $parent_object_type = false, $is_child = false ) {
+		$fields  = array();
+		$marks   = array();
 		$matches = array();
 
-		foreach( $data as $object_idx => $object_data ) {
-			foreach( $object_data as $key => $value ) {
+		foreach ( $data as $object_idx => $object_data ) {
+			foreach ( $object_data as $key => $value ) {
 				if ( is_array( $value ) ) {
-					$this->recursively_convert_tokens_to_objects( $organized_objects, $value, $key, true );
+					$this->recursively_convert_tokens_to_objects( $organized_objects, $value, $key, $current_object_type, true );
 					continue;
 				}
 
-				$field_key = $key;
+				$field_key            = $key;
 				$fields[ $field_key ] = trim( $value, ': "' );
 			}
 
-			$organized_objects[] = new Insertion_Object_Token( $marks, $matches, array(
-				'object_type' => $current_object_type,
-				'fields' => $fields,
-				'is_child' => $is_child,
-			) );
+			$organized_objects[] = new Insertion_Object_Token(
+				$marks,
+				$matches,
+				array(
+					'object_type'        => $current_object_type,
+					'fields'             => $fields,
+					'is_child'           => $is_child,
+					'parent_object_type' => $parent_object_type,
+				)
+			);
 		}
 	}
 

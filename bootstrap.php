@@ -16,6 +16,40 @@ require __DIR__ . '/wp-loader.php';
 $core_loader = new WpLoader();
 $core_loader->init();
 
+class FakeWebsiteModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+	protected $type = 'website';
+	protected $access_cap = 'manage_options';
+
+	public function fields() {
+		return array(
+			'id' => Field_Type_Validation_Enum::INT,
+			'type' => Field_Type_Validation_Enum::STRING,
+			'url' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	public function relationships() {
+		return new Relationship_Collection( array() );
+	}
+}
+
+class FakePhoneModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+	protected $type = 'phone';
+	protected $access_cap = 'manage_options';
+
+	public function fields() {
+		return array(
+			'id' => Field_Type_Validation_Enum::INT,
+			'type' => Field_Type_Validation_Enum::STRING,
+			'number' => Field_Type_Validation_Enum::INT,
+			'countryCode' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	public function relationships() {
+		return new Relationship_Collection( array() );
+	}
+}
 
 class FakeEmailModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 
@@ -77,6 +111,8 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
 			array(
 				new Relationship( 'contact', 'email', 'manage_options' ),
+				new Relationship( 'contact', 'phone', 'manage_options' ),
+				new Relationship( 'contact', 'website', 'manage_options' ),
 			)
 		);
 	}
@@ -98,6 +134,9 @@ class FakeCompanyModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 	public function relationships() {
 		$relationships = array(
 			new Relationship( 'company', 'contact', 'manage_options' ),
+			new Relationship( 'company', 'email', 'manage_options' ),
+			new Relationship( 'company', 'phone', 'manage_options' ),
+			new Relationship( 'company', 'website', 'manage_options' ),
 		);
 
 		return new Relationship_Collection( $relationships );
@@ -148,6 +187,11 @@ function gravitytools_tests_reset_db() {
 		'meta',
 		'email',
 		'contact_email',
+		'phone',
+		'website',
+		'company_phone',
+		'company_website',
+		'company_email',
 	);
 
 	foreach ( $tables as $table ) {

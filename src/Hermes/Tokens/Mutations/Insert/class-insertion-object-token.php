@@ -25,6 +25,8 @@ class Insertion_Object_Token extends Token_From_Array {
 
 	protected $is_child;
 
+	protected $parent_object_type;
+
 	/**
 	 * Return $items as children.
 	 *
@@ -41,6 +43,10 @@ class Insertion_Object_Token extends Token_From_Array {
 	public function is_child() {
 		return $this->is_child;
 	}
+
+	public function parent_object_type() {
+		return $this->parent_object_type;
+	}
 	/**
 	 * Parse the string contents to values.
 	 *
@@ -51,6 +57,7 @@ class Insertion_Object_Token extends Token_From_Array {
 		$this->items = $fields;
 		$this->object_type = $additional_args['object_type'];
 		$this->is_child = $additional_args['is_child'];
+		$this->parent_object_type = $additional_args['parent_object_type'];
 	}
 
 	/**

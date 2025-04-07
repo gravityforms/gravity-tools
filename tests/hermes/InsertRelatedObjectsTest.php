@@ -19,7 +19,9 @@ class HandlerTest extends TestCase {
 	protected $contact_model;
 	protected $company_model;
 	protected $email_model;
+	protected $website_model;
 	protected $query_handler;
+	protected $phone_model;
 	protected $mutation_handler;
 	protected $db_namespace;
 
@@ -27,15 +29,19 @@ class HandlerTest extends TestCase {
 		$this->model_collection = new Model_Collection();
 		$this->contact_model    = new \FakeContactModel();
 		$this->company_model    = new \FakeCompanyModel();
+		$this->phone_model      = new \FakePhoneModel();
 		$this->email_model      = new \FakeEmailModel();
+		$this->website_model    = new \FakeWebsiteModel();
 
 		$this->model_collection->add( 'contact', $this->contact_model );
 		$this->model_collection->add( 'company', $this->company_model );
 		$this->model_collection->add( 'email', $this->email_model );
+		$this->model_collection->add( 'phone', $this->phone_model );
+		$this->model_collection->add( 'website', $this->website_model );
 		$this->db_namespace = 'gravitycrm';
 
 		$this->query_handler = new Query_Handler( $this->db_namespace, $this->model_collection );
-		
+
 		$connect_runner = new Connect_Runner( $this->db_namespace, $this->query_handler, $this->model_collection );
 
 		$runners = array(
@@ -49,54 +55,42 @@ class HandlerTest extends TestCase {
 	}
 
 	public function testItemsAddedWithRelationships() {
+
 		$text = '{
-		insert_company( objects: [
-			{
-				companyName: "Acme, INC",
-				contact: [
-					{
-						firstName: "John",
-						lastName: "Smith",
-						email: [{
-							type: "work",
-							address: "jsmith@acme.local",
-						}]
-					},
-					{
-						firstName: "Jane",
-						lastName: "Doe",
-					}
-				]	
-			},
-			{
-				companyName: "Acme2, INC",
-				contact: [
-					{
-						firstName: "Phil",
-						lastName: "Johnson"
-					},
-					{
-						firstName: "Janet",
-						lastName: "Bigelow",
-					}
-				]
-			}
-		]){
-			returning {
-				id,
-				companyName,
-				contact {
-					id,
-					firstName,
-					lastName,
-					email {
-						id,
-						address,
-					}	
-				}
-			}
-		}
-		}';
+  insert_company(
+    objects: [
+      {
+        companyName: "Test Company"
+        email: [
+          { type: "work", address: "testcompany@abc.com" }
+          { type: "work", address: "test@company.com" }
+        ]
+        phone: [{ type: "work", number: "12223334444", countryCode: "US" }]
+        website: [{ type: "work", url: "testcompany.com" }]
+      }
+    ]
+  ) {
+    returning {
+		id,
+		companyName,
+      email {
+		id,
+		address,
+		type,
+      }
+      phone {
+		id,
+		number,
+		type,
+      }
+      website {
+		id,
+		url,
+		type
+      }
+    }
+  }
+}';
 
 		try {
 			$data = $this->mutation_handler->handle_mutation( $text );

@@ -55,37 +55,28 @@ class Insert_Runner extends Runner {
 			$categorized_fields['local']['dateUpdated'] = gmdate( 'Y-m-d H:i:s', time() );
 
 			$inserted_id = $this->handle_single_insert( $object_model, $categorized_fields );
-			if ( $object->is_child() && ( empty( $child_ids ) || array_key_first( $child_ids ) === $object->object_type() ) ) {
+			if ( $object->is_child() ) {
 
-				if ( ! isset( $child_ids[ $object->object_type() ] ) ) {
-					$child_ids[ $object->object_type() ] = array();
+				if ( ! isset( $child_ids[ $object->parent_object_type() ] ) ) {
+					$child_ids[ $object->parent_object_type() ] = array();
 				}
-				$child_ids[ $object->object_type() ][] = $inserted_id;
+				
+				if ( ! isset( $child_ids[ $object->parent_object_type() ][ $object->object_type() ] ) ) {
+					$child_ids[ $object->parent_object_type() ][ $object->object_type() ] = array();
+				}
+
+				$child_ids[ $object->parent_object_type() ][ $object->object_type() ][] = $inserted_id;
 				continue;
 			}
 
-			if ( $object->is_child() && ! empty( $child_ids ) ) {
-				foreach ( $child_ids as $child_type => $children ) {
-					foreach ( $children as $child_id ) {
+			if ( ! empty( $child_ids[ $object->object_type() ] ) ) {
+				foreach ( $child_ids[ $object->object_type() ] as $child_type => $children ) {
+					foreach( $children as $child_id ) {
 						$this->connect_runner->run_single( $object->object_type(), $child_type, $inserted_id, $child_id, $object_model );
 					}
 				}
 
-				$child_ids = array(
-					$object->object_type() => array(),
-				);
-				$child_ids[ $object->object_type() ][] = $inserted_id;
-				continue;
-			}
-
-			if ( ! empty( $child_ids ) ) {
-				foreach ( $child_ids as $child_type => $children ) {
-					foreach ( $children as $child_id ) {
-						$this->connect_runner->run_single( $object->object_type(), $child_type, $inserted_id, $child_id, $object_model );
-					}
-				}
-
-				$child_ids = array();
+				$child_ids[ $object->object_type() ] = array();
 			}
 			$inserted_ids[] = $inserted_id;
 		}
