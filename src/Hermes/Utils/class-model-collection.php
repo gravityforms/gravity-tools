@@ -66,4 +66,13 @@ class Model_Collection {
 		return $this->models[ $type ];
 	}
 
+	/**
+	 * Get all registered models from collection.
+	 *
+	 * @return Model[]
+	 */
+	public function all() {
+		return $this->models;
+	}
 }
+

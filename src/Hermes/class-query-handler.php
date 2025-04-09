@@ -3,6 +3,7 @@
 namespace Gravity_Forms\Gravity_Tools\Hermes;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Schema_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Data_Object_From_Array_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Query_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
@@ -34,10 +35,15 @@ class Query_Handler {
 	protected $models;
 
 	/**
-	* Any fields that are global to all queries.
-	* 
-	* @var array
-	*/ 
+	 * @var Schema_Runner
+	 */
+	protected $schema_runner;
+
+	/**
+	 * Any fields that are global to all queries.
+	 *
+	 * @var array
+	 */
 	private $global_fields = array(
 		'aggregate',
 	);
@@ -48,9 +54,10 @@ class Query_Handler {
 	 * @param string           $db_namespace
 	 * @param Model_Collection $models
 	 */
-	public function __construct( $db_namespace, Model_Collection $models ) {
-		$this->db_namespace = $db_namespace;
-		$this->models       = $models;
+	public function __construct( $db_namespace, Model_Collection $models, Schema_Runner $schema_runner ) {
+		$this->db_namespace  = $db_namespace;
+		$this->models        = $models;
+		$this->schema_runner = $schema_runner;
 	}
 
 	/**
@@ -70,7 +77,13 @@ class Query_Handler {
 
 		// Use the Token to generate recursive SQL.
 		foreach ( $query_token->children() as $object ) {
-			$object_name          = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
+			$object_name = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
+
+			if ( $object->object_type() === '__schema' ) {
+				$data[ $object_name ] = $this->get_schema_values_for_query( $object );
+				continue;
+			}
+
 			$sql                  = $this->recursively_generate_sql( $object );
 			$transformations      = $this->recursively_get_transformations( $object );
 			$data[ $object_name ] = array(
@@ -83,6 +96,13 @@ class Query_Handler {
 
 		// Decode the results and set them up for return.
 		foreach ( $data as $data_group_name => $data_group_values ) {
+
+			// Schema values do not need to be queried; just return the rows as-is.
+			if ( isset( $data_group_values['schema'] ) ) {
+				$results[ $data_group_name ] = $data_group_values['schema'];
+				continue;
+			}
+
 			$query_results = $wpdb->get_results( $data_group_values['sql'], ARRAY_A );
 			$rows          = array();
 			foreach ( $query_results as $query_result ) {
@@ -174,7 +194,6 @@ class Query_Handler {
 			$field_pairs[] = sprintf( '"%s", %s.%s', $field_alias, $table_alias, $field_name );
 		}
 
-	
 		$meta_table_name = $this->compose_table_name( 'meta' );
 
 		// Loop through each meta field and compose the appropriate JOIN query for gathering its data.
@@ -193,7 +212,7 @@ class Query_Handler {
 				$table_alias
 			);
 		}
-		
+
 		// If an aggregate is being called, add it as a subquery with the existing where conditions applied.
 		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
 			$agg_alias = $categorized_fields['global']['aggregate'];
@@ -488,7 +507,7 @@ class Query_Handler {
 
 	private function get_order_from_arguments( $arguments, $table_alias ) {
 		$response = '';
-		
+
 		$order = array_values(
 			array_filter(
 				$arguments,
@@ -506,7 +525,7 @@ class Query_Handler {
 				}
 			)
 		);
-		
+
 		if ( empty( $order_by ) ) {
 			return null;
 		}
@@ -626,5 +645,13 @@ class Query_Handler {
 		}
 
 		return $rows;
+	}
+
+	public function get_schema_values_for_query( $object ) {
+		$schema = $this->schema_runner->run( $object );
+		return array(
+			'schema'          => $schema,
+			'transformations' => array(),
+		);
 	}
 }

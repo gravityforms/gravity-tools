@@ -65,5 +65,14 @@ class Relationship_Collection {
 
 		return ! empty( $relationship );
 	}
+	
+	/**
+	 * Get all the relationships currently registered to collection.
+	 *
+	 * @return array
+	 */
+	public function all() {
+		return $this->relationships;
+	}
 
 }
