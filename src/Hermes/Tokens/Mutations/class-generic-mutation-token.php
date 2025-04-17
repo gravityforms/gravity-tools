@@ -114,6 +114,8 @@ class Generic_Mutation_Token extends Mutation_Token {
 				continue;
 			}
 
+			$typed_token         = apply_filters( 'gravitytools_hermes_mutation_type_token', $typed_token, $cleaned, $contents );
+			$this->mutation_type = apply_filters( 'gravitytools_hermes_mutation_type', false, $typed_token );
 		}
 
 		if ( empty( $typed_token ) ) {
