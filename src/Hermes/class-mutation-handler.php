@@ -136,7 +136,7 @@ class Mutation_Handler {
 			$error_message = sprintf( 'Access not allowed for object type %s', $mutation->object_type() );
 			throw new \InvalidArgumentException( $error_message, 403 );
 		}
-var_dump( $mutation->operation() );
+
 		// Handle the actual mutation based on the identified mutation type by calling its appropriate Runner.
 		switch ( $mutation->operation() ) {
 			case 'insert':
