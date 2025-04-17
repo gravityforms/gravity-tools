@@ -7,6 +7,7 @@ use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Insert\Insert_Mutation_T
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update\Update_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Delete\Delete_Mutation_Token;
 use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect\Connect_Mutation_Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Connect\Disconnect_Mutation_Token;
 
 /**
  * Generic Mutation Token
@@ -86,21 +87,31 @@ class Generic_Mutation_Token extends Mutation_Token {
 			if ( strpos( $cleaned, 'insert_' ) !== false ) {
 				$typed_token         = new Insert_Mutation_Token( $contents );
 				$this->mutation_type = 'insert';
+				continue;
 			}
 
 			if ( strpos( $cleaned, 'update_' ) !== false ) {
 				$typed_token         = new Update_Mutation_Token( $contents );
 				$this->mutation_type = 'update';
+				continue;
 			}
 
 			if ( strpos( $cleaned, 'delete_' ) !== false ) {
 				$typed_token         = new Delete_Mutation_Token( $contents );
 				$this->mutation_type = 'delete';
+				continue;
+			}
+
+			if ( strpos( $cleaned, 'disconnect_' ) !== false ) {
+				$typed_token = new Disconnect_Mutation_Token( $contents );
+				$this->mutation_type = 'disconnect';
+				continue;
 			}
 
 			if ( strpos( $cleaned, 'connect_' ) !== false ) {
 				$typed_token         = new Connect_Mutation_Token( $contents );
 				$this->mutation_type = 'connect';
+				continue;
 			}
 
 		}

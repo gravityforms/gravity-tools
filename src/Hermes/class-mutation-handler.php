@@ -4,6 +4,7 @@ namespace Gravity_Forms\Gravity_Tools\Hermes;
 
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Connect_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Delete_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Disconnect_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Insert_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Update_Runner;
@@ -63,11 +64,25 @@ class Mutation_Handler {
 	protected $update_runner;
 
 	/**
-	 * The Runner for haldling Connect mutations.
+	 * The Runner for handling Connect mutations.
 	 *
 	 * @var Connect_Runner
 	 */
 	protected $connect_runner;
+
+	/**
+	 * The Runner for handling Disconnect mutations.
+	 *
+	 * @var Disconnect_Runner
+	 */
+	protected $disconnect_runner;
+
+	/**
+	 * All runners registered to handler.
+	 *
+	 * @var Runner[]
+	 */
+	protected $all_runners;
 
 	/**
 	 * Constructor
@@ -78,13 +93,15 @@ class Mutation_Handler {
 	 * @param Runner[]         $runners
 	 */
 	public function __construct( $db_namespace, $models, $query_handler, $runners ) {
-		$this->db_namespace   = $db_namespace;
-		$this->models         = $models;
-		$this->query_handler  = $query_handler;
-		$this->insert_runner  = $runners['insert'];
-		$this->delete_runner  = $runners['delete'];
-		$this->update_runner  = $runners['update'];
-		$this->connect_runner = $runners['connect'];
+		$this->db_namespace      = $db_namespace;
+		$this->models            = $models;
+		$this->query_handler     = $query_handler;
+		$this->insert_runner     = $runners['insert'];
+		$this->delete_runner     = $runners['delete'];
+		$this->update_runner     = $runners['update'];
+		$this->connect_runner    = $runners['connect'];
+		$this->disconnect_runner = $runners['disconnect'];
+		$this->all_runners       = $runners;
 	}
 
 	/**
@@ -97,7 +114,6 @@ class Mutation_Handler {
 	 */
 	public function handle_mutation( $mutation_string ) {
 		global $wpdb;
-
 
 		// Pass the string to the Generic Mutation token to determine the specific mutation type.
 		$generic_mutation = new Generic_Mutation_Token( $mutation_string );
@@ -120,7 +136,7 @@ class Mutation_Handler {
 			$error_message = sprintf( 'Access not allowed for object type %s', $mutation->object_type() );
 			throw new \InvalidArgumentException( $error_message, 403 );
 		}
-
+var_dump( $mutation->operation() );
 		// Handle the actual mutation based on the identified mutation type by calling its appropriate Runner.
 		switch ( $mutation->operation() ) {
 			case 'insert':
@@ -135,9 +151,15 @@ class Mutation_Handler {
 			case 'connect':
 				$this->connect_runner->run( $mutation, $object_model );
 				break;
+			case 'disconnect':
+				$this->disconnect_runner->run( $mutation, $object_model );
+				break;
 			default:
+				if ( array_key_exists( $mutation->operation(), $this->all_runners ) ) {
+					$this->all_runners[ $mutation->operation() ]->run( $mutation, $object_model );
+					break;
+				}
 				break;
 		}
 	}
-
 }
