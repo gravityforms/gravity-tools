@@ -38,9 +38,9 @@ class Arguments_Token extends Token {
 			$condition_data = $this->get_condition_data_from_key( $key );
 			$value          = $values[ $idx ];
 			$arguments[]    = array(
-				'key'        => $condition_data['key'],
+				'key'        => trim( $condition_data['key'], '" ' ),
 				'comparator' => $condition_data['comparator'],
-				'value'      => trim( $value ),
+				'value'      => trim( $value, '" ' ),
 			);
 		}
 
