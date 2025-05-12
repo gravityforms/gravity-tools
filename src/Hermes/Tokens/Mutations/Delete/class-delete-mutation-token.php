@@ -25,8 +25,8 @@ class Delete_Mutation_Token extends Mutation_Token {
 	 *
 	 * @return string
 	 */
-	public function id_to_delete() {
-		return $this->id_to_delete->id();
+	public function ids_to_delete() {
+		return $this->id_to_delete->ids();
 	}
 
 	/**

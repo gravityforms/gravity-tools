@@ -24,13 +24,24 @@ class Delete_Runner extends Runner {
 	public function run( $mutation, $object_model ) {
 		global $wpdb;
 
-		$id_to_delete = $mutation->id_to_delete();
+		$ids_to_delete = $mutation->ids_to_delete();
+		$ids_to_delete = array_map( function( $id ) {
+			return esc_sql( $id );
+		}, $ids_to_delete );
+
 		$table_name   = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $object_model->type() );
-		$delete_sql   = sprintf( 'DELETE FROM %s WHERE id = "%s"', $table_name, $id_to_delete );
+
+		if ( in_array( 'all', $ids_to_delete ) ) {
+			$delete_sql = sprintf( 'DELETE FROM %s', $table_name );
+			$ids_to_delete = array( 'all' );
+		} else {
+			$in_clause = sprintf( '(%s)', implode( ', ', $ids_to_delete ) );
+			$delete_sql   = sprintf( 'DELETE FROM %s WHERE id IN %s', $table_name, $in_clause );
+		}
 
 		$wpdb->query( $delete_sql );
 
-		wp_send_json_success( array( 'deleted_id' => $id_to_delete ) );
+		wp_send_json_success( array( 'deleted_ids' => $ids_to_delete ) );
 	}
 
 }

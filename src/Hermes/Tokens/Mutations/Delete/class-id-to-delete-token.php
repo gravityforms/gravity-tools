@@ -11,22 +11,22 @@ use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
  */
 class ID_To_Delete_Token extends Token {
 
-	protected $type = 'ID_To_Update';
+	protected $type = 'IDs_To_Delete';
 
 	/**
-	 * The ID to delete.
+	 * The IDs to delete.
 	 *
 	 * @var string
 	 */
-	protected $id;
+	protected $ids;
 
 	/**
 	 * Public accessor for $id.
 	 *
 	 * @return string
 	 */
-	public function id() {
-		return $this->id;
+	public function ids() {
+		return $this->ids;
 	}
 
 	/**
@@ -35,7 +35,7 @@ class ID_To_Delete_Token extends Token {
 	 * @return array
 	 */
 	public function children() {
-		return array( $this->id );
+		return $this->ids;
 	}
 
 	/**
@@ -48,26 +48,26 @@ class ID_To_Delete_Token extends Token {
 	public function parse( $contents, $args = array() ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 
-		if ( count( $results ) < 4 ) {
-			// Something has gone terrible awry, bail.
-			return;
+		$matches = $results[0];
+		$marks   = $results['MARK'];
+		$data    = array();
+
+		while ( ! empty( $matches ) ) {
+			$value     = array_shift( $matches );
+			$mark_type = array_shift( $marks );
+
+			switch ( $mark_type ) {
+				case 'ids':
+					$data['ids'] = json_decode( $value );
+					break;
+			}
 		}
 
-		$fields = array();
-
-		$keys   = $results[1];
-		$values = $results[2];
-
-		foreach ( $keys as $idx => $key ) {
-			$value          = $values[ $idx ];
-			$fields[ $key ] = trim( $value, '"\' ');
+		if ( empty( $data['ids'] ) ) {
+			throw new \InvalidArgumentException( 'Delete payload malformed. Check values and try again.', 490 );
 		}
 
-		if ( ! array_key_exists( 'id', $fields ) ) {
-			throw new \InvalidArgumentException( 'Delete operations must provide a valid ID for deletion.', 495 );
-		}
-
-		$this->id = $fields['id'];
+		$this->ids = $data['ids'];
 	}
 
 	/**
@@ -79,8 +79,7 @@ class ID_To_Delete_Token extends Token {
 	 */
 	public function regex_types() {
 		return array(
-			'argument_pair' => '([a-zA-z0-9_-]*):([^,\)]+)',
+			'ids' => '\[[^\]]+\]',
 		);
 	}
-
 }
