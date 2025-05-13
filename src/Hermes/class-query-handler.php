@@ -558,7 +558,13 @@ class Query_Handler {
 				$searchable_fields = array_map( function( $field_name ) use ( $table_alias ) {
 					return sprintf( '%s.%s', $table_alias, $field_name );
 				}, $searchable_fields );
-				$clause = sprintf( 'MATCH( %s ) AGAINST( "%s" IN NATURAL LANGUAGE MODE)', implode( ', ', $searchable_fields ), $argument['value'] );
+				$subclauses = array();
+
+				foreach( $searchable_fields as $field ) {
+					$subclauses[] =  sprintf( 'MATCH( %s ) AGAINST( "%s" IN NATURAL LANGUAGE MODE)', $field, $argument['value'] );
+				}
+
+				$clause = implode( ' OR ', $subclauses );
 				$where_clauses[] = $clause;
 				continue;
 			}
