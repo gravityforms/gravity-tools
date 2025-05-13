@@ -47,6 +47,14 @@ abstract class Model {
 	 */
 	protected $forced_table_name = false;
 
+
+	/**
+	 * If your model supports Full Text search fields, list them here.
+	 *
+	 * @var array
+	 */
+	protected $searchable_fields = array();
+
 	/**
 	 * Concrete Models must implement the public ::relationships() method
 	 * in order to define any relationships this object type may have.
@@ -73,6 +81,7 @@ abstract class Model {
 	public function forced_table_name() {
 		return $this->forced_table_name;
 	}
+
 	/**
 	 * Accessor for the type property
 	 *
@@ -80,6 +89,15 @@ abstract class Model {
 	 */
 	public function type() {
 		return $this->type;
+	}
+
+	/**
+	 * Accessor for $searchable_fields
+	 *
+	 * @return array
+	 */
+	public function searchable_fields() {
+		return $this->searchable_fields;
 	}
 
 	/**

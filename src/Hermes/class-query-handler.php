@@ -175,7 +175,7 @@ class Query_Handler {
 
 		// Arguments are present; parse them and add them to the appropriate SQL arrays.
 		if ( ! empty( $arguments ) ) {
-			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments );
+			$this->get_where_clauses_from_arguments( $where_clauses, $table_alias, $arguments, $object_model );
 			$limit_sql = $this->get_limit_from_arguments( $arguments );
 			$order_sql = $this->get_order_from_arguments( $arguments, $table_alias );
 		}
@@ -402,8 +402,6 @@ class Query_Handler {
 	 * @return void
 	 */
 	protected function build_where_clauses( $conditions ) {
-		global $wpdb;
-
 		$clauses = array();
 
 		foreach ( $conditions as $condition ) {
@@ -545,12 +543,20 @@ class Query_Handler {
 	 * @param array  $where_clauses
 	 * @param string $table_alias
 	 * @param array  $arguments
+	 * @param Model  $object_model
 	 *
 	 * @return void
 	 */
-	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments ) {
+	private function get_where_clauses_from_arguments( &$where_clauses, $table_alias, $arguments, $object_model ) {
 		foreach ( $arguments as $argument ) {
 			if ( $argument['key'] === 'order' || $argument['key'] === 'orderBy' || $argument['key'] === 'limit' || $argument['key'] === 'offset' ) {
+				continue;
+			}
+
+			if ( $argument['key'] === 'search' ) {
+				$searchable_fields = $object_model->searchable_fields();
+				$clause = sprintf( 'MATCH( %s ) AGAINST( "%s" IN NATURAL LANGUAGE MODE)', implode( ', ', $searchable_fields ), $argument['value'] );
+				$where_clauses[] = $clause;
 				continue;
 			}
 
