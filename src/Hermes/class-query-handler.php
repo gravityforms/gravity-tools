@@ -561,7 +561,7 @@ class Query_Handler {
 				$subclauses = array();
 
 				foreach( $searchable_fields as $field ) {
-					$subclauses[] =  sprintf( 'MATCH( %s ) AGAINST( "%s" IN NATURAL LANGUAGE MODE)', $field, $argument['value'] );
+					$subclauses[] =  sprintf( 'MATCH( %s ) AGAINST( "%s*" IN BOOLEAN MODE)', $field, $argument['value'] );
 				}
 
 				$clause = implode( ' OR ', $subclauses );
