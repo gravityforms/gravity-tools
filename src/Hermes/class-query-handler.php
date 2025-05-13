@@ -555,6 +555,9 @@ class Query_Handler {
 
 			if ( $argument['key'] === 'search' ) {
 				$searchable_fields = $object_model->searchable_fields();
+				$searchable_fields = array_map( function( $field_name ) use ( $table_alias ) {
+					return sprintf( '%s.%s', $table_alias, $field_name );
+				}, $searchable_fields );
 				$clause = sprintf( 'MATCH( %s ) AGAINST( "%s" IN NATURAL LANGUAGE MODE)', implode( ', ', $searchable_fields ), $argument['value'] );
 				$where_clauses[] = $clause;
 				continue;
