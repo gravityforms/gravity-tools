@@ -1,8 +1,8 @@
 <?php
 
-namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update;
+namespace Gravity_Forms\Gravity_CRM\Gravity_Tools\Hermes\Tokens\Mutations\Update;
 
-use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
+use Gravity_Forms\Gravity_CRM\Gravity_Tools\Hermes\Tokens\Token;
 
 /**
  * Fields to Update Token
@@ -75,12 +75,12 @@ class Fields_To_Update_Token extends Token {
 			switch ( $mark_type ) {
 				case 'string':
 					if ( ! $state['key_found'] && ! $state['is_text_block'] ) {
-						$state['key_found'] = trim( $value, ': ' );
+						$state['key_found'] = trim( $value, ': )' );
 						break;
 					}
 
 					if ( $state['key_found'] && ! $state['is_text_block'] ) {
-						$state['value_found'] = trim( $value );
+						$state['value_found'] = trim( $value, ': )' );
 						break;
 					}
 
@@ -140,6 +140,10 @@ class Fields_To_Update_Token extends Token {
 					break;
 			}
 		}
+
+    if ( $state['key_found'] && $state['value_found'] ) {
+      $data[ $state['key_found'] ] = $state['value_found'];
+    }
 
 		$data = array_filter( $data, function ( $item ) {
 			if ( $item === 0 || $item === '0' ) {
