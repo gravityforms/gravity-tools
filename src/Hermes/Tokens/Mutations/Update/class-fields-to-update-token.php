@@ -52,9 +52,9 @@ class Fields_To_Update_Token extends Token {
 
 	private function reset_state( &$state ) {
 		$state = array(
-			'is_text_block' => false,
-			'key_found'     => '',
-			'value_found'   => '',
+		  'is_text_block' => false,
+		  'key_found'     => '',
+		  'value_found'   => '',
 		);
 	}
 
@@ -62,9 +62,9 @@ class Fields_To_Update_Token extends Token {
 		$matches = $parts[0];
 		$marks   = $parts['MARK'];
 		$state   = array(
-			'is_text_block' => false,
-			'key_found'     => '',
-			'value_found'   => '',
+		  'is_text_block' => false,
+		  'key_found'     => '',
+		  'value_found'   => '',
 		);
 		$data    = array();
 
@@ -73,7 +73,6 @@ class Fields_To_Update_Token extends Token {
 			$mark_type = array_shift( $marks );
 
 			switch ( $mark_type ) {
-
 				case 'string':
 					if ( ! $state['key_found'] && ! $state['is_text_block'] ) {
 						$state['key_found'] = trim( $value, ': ' );
@@ -81,7 +80,7 @@ class Fields_To_Update_Token extends Token {
 					}
 
 					if ( $state['key_found'] && ! $state['is_text_block'] ) {
-						$state['value_found'] = $value;
+						$state['value_found'] = trim( $value );
 						break;
 					}
 
@@ -89,6 +88,7 @@ class Fields_To_Update_Token extends Token {
 						$state['value_found'] = $state['value_found'] . $value;
 					}
 					break;
+
 				case 'comma':
 					if ( $state['is_text_block'] ) {
 						$state['value_found'] = $state['value_found'] . $value;
@@ -100,6 +100,15 @@ class Fields_To_Update_Token extends Token {
 
 					$this->reset_state( $state );
 					break;
+
+				case 'colon':
+        case 'comma':
+					if ( $state['is_text_block'] ) {
+						$state['value_found'] = $state['value_found'] . $value;
+						break;
+					}
+					break;
+
 				case 'quote':
 					// Start of text block.
 					if ( ! $state['is_text_block'] ) {
@@ -112,6 +121,7 @@ class Fields_To_Update_Token extends Token {
 
 					$this->reset_state( $state );
 					break;
+
 				case 'num':
 					if ( $state['key_found'] && ! $state['is_text_block'] ) {
 						$state['value_found'] = $value;
@@ -122,6 +132,7 @@ class Fields_To_Update_Token extends Token {
 						$state['value_found'] = $state['value_found'] . $value;
 					}
 					break;
+
 				case 'esc_quote':
 					if ( $state['is_text_block'] ) {
 						$state['value_found'] = $state['value_found'] . '"';
@@ -130,7 +141,13 @@ class Fields_To_Update_Token extends Token {
 			}
 		}
 
-		$data = array_filter( $data );
+		$data = array_filter( $data, function ( $item ) {
+			if ( $item === 0 || $item === '0' ) {
+				return true;
+			}
+
+			return ! empty( $item );
+		} );
 
 		$this->set_properties( $data );
 	}
@@ -148,13 +165,16 @@ class Fields_To_Update_Token extends Token {
 	 */
 	public function regex_types() {
 		return array(
-			'opening_par'  => '\(',
-			'comma'        => ',',
-			'string'       => '[a-zA-Z_\s:\'\.$&+,:;=?@#|<>.^*()%!-]+',
-			'num'          => '[0-9]+',
-			'quote'        => '[\"\\\']',
-			'esc_quote'    => '\\\\"',
-			'closing_para' => '\\)',
+		  'opening_par'  => '\(',
+		  'comma'        => ',',
+		  'bool'         => 'true|false',
+		  'colon'        => ':',
+		  'comma'        => ',',
+		  'string'       => '[a-zA-Z_\s\'\.$&+;=?@#|<>.\^*()%!-]+',
+		  'num'          => '[0-9]+',
+		  'quote'        => '[\"\\\']',
+		  'esc_quote'    => '\\\\"',
+		  'closing_para' => '\\)',
 		);
 	}
 }
