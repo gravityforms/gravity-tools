@@ -79,7 +79,7 @@ class Fields_To_Update_Token extends Token {
 						break;
 					}
 
-					if ( $state['key_found'] && ! $state['is_text_block'] ) {
+					if ( $state['key_found'] && ! $state['is_text_block'] && ! $state['value_found'] ) {
 						$state['value_found'] = trim( $value, ': )' );
 						break;
 					}
