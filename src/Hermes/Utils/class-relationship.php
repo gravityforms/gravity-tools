@@ -98,6 +98,15 @@ class Relationship {
 		return $this->cap;
 	}
 
+  /**
+   * Public $is_reverse accessor
+   *
+   * @return string
+   */
+  public function is_reverse() {
+    return $this->is_reverse;
+  }
+
 	/**
 	 * Whether the current user can access this relationship. (Uses current_user_can() by default).
 	 *
