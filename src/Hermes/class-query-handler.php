@@ -537,9 +537,10 @@ class Query_Handler {
     $map = array();
 
     foreach ( $object_model->relationships()->all() as $relationship ) {
-      if ( ! $relationship->has_access() ) {
-        /* continue; */
+      if ( ! $relationship->has_access() || $relationship->is_reverse() ) {
+        continue;
       }
+
       $new_object_model = $this->models->get( $relationship->to() );
 
       $children = $this->recursively_get_model_relationships( $new_object_model );
@@ -600,7 +601,7 @@ class Query_Handler {
       }, $parent_relationships, array_keys( $parent_relationships ) );
 
       $sql        = sprintf( '%s %s WHERE %s', $select_clause, implode( ' ', $join_statements ), implode( ' OR ', $match_statements ) );
-      $results    = $wpdb->query( $sql );
+      $results    = $wpdb->get_results( $sql, ARRAY_A );
       $result_ids = wp_list_pluck( $results, 'id' );
 
       $ids[] = $result_ids;
