@@ -101,8 +101,7 @@ class Query_Handler {
         $results[ $data_group_name ] = $data_group_values['schema'];
         continue;
       }
-      var_dump( $data_group_values['sql'] );
-      die();
+
       $query_results = $wpdb->get_results( $data_group_values['sql'], ARRAY_A );
       $rows          = array();
 
