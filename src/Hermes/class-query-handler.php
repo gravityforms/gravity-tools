@@ -585,7 +585,7 @@ class Query_Handler {
 
       $id_table_alias  = count( $values['parent_relationships'] ) > 0 ? sprintf( 'pt%s', count( $values['parent_relationships'] ) ) : 'mt';
       $id_column_alias = count( $values['parent_relationships'] ) > 0 ? sprintf( '%s.%s_id', $id_table_alias, $values['parent_relationships'][0] ) : 'id';
-      $select_clause   = sprintf( 'SELECT %s FROM %s AS mt', $id_column_alias, $table_name );
+      $select_clause   = sprintf( 'SELECT %s AS id FROM %s AS mt', $id_column_alias, $table_name );
 
       $match_statements = array_map( function ( $field_name ) use ( $search_term ) {
         return sprintf( 'MATCH( mt.%s ) AGAINST( "%s*" IN BOOLEAN MODE )', $field_name, $search_term );
