@@ -17,7 +17,7 @@ class Connection_Values_Token extends Token {
 	* An array of sub-arrays, each consisting of a `to` and `from` index.
 	*
 	* @var array[]
-	*/ 
+	*/
 	protected $pairs = array();
 
 	public function pairs() {
@@ -43,36 +43,50 @@ class Connection_Values_Token extends Token {
 	public function parse( $contents, $args = array() ) {
 		preg_match_all( $this->get_parsing_regex(), $contents, $results );
 
-		if ( count( $results ) < 4 ) {
-			// Something has gone terrible awry, bail.
-			return;
-		}
+		$matches = $results[0];
+		$marks   = $results['MARK'];
+		$state    = array();
+    $data = array();
 
-		$pairs  = array();
-		$fields = array();
+		while ( ! empty( $matches ) ) {
+			$value     = array_shift( $matches );
+			$mark_type = array_shift( $marks );
 
-		$keys        = $results[1];
-		$values      = $results[2];
-		$pairs_index = 0;
+      switch( $mark_type ) {
+        case 'argument_pair':
+          $parts = explode( ':', $value );
+          if ( count( $parts ) < 2 ) {
+            break;
+          }
 
-		foreach ( $keys as $idx => $key ) {
-			$value          = $values[ $idx ];
-			$fields[ $key ] = trim( $value, '"\' ' );
+          $key = trim( $parts[0] );
+          $this_value = trim( $parts[1] );
 
-			if ( $key === 'to' ) {
-				$pairs[ $pairs_index ] = $fields;
-				$fields                = array();
-				$pairs_index          += 1;
-			}
-		}
+          if ( ! in_array( $key, array( 'to', 'from' ) ) ) {
+            break;
+          }
 
-		foreach ( $pairs as $fields ) {
-			if ( ! array_key_exists( 'from', $fields ) || ! array_key_exists( 'to', $fields ) ) {
-				throw new \InvalidArgumentException( 'Connect mutations must provide a from and to ID.', 485 );
-			}
-		}
+          $state[ $key ] = $this_value;
+          break;
+        case 'splitter':
+          // We don't have a to and from, bail.
+          if ( empty( $state['to'] ) || empty( $state['from'] ) ) {
+            $state = array();
+            break;
+          }
 
-		$this->pairs = $pairs;
+          $data[] = $state;
+          $state = array();
+          break;
+      }
+    }
+
+    if ( ! empty( $state['to'] ) && ! empty( $state['from'] ) ) {
+      $data[] = $state;
+      $state = array();
+    }
+
+		$this->pairs = $data;
 	}
 
 	/**
@@ -85,6 +99,7 @@ class Connection_Values_Token extends Token {
 	public function regex_types() {
 		return array(
 			'argument_pair' => '([a-zA-z0-9_-]*):([^,\}\)]+)',
+      'splitter' => '\},',
 		);
 	}
 }

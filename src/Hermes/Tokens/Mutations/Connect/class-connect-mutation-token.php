@@ -158,7 +158,7 @@ class Connect_Mutation_Token extends Mutation_Token {
 	protected function regex_types() {
 		return array(
 			'operation_alias' => 'connect_[^\(]*',
-			'arg_group'       => '\([^\)]+\)',
+			'arg_group'       => '\[[^\]]+\]',
 			'alias'           => '[_A-Za-z][_0-9A-Za-z]*:',
 			'open_bracket'    => '{',
 			'close_bracket'   => '}',
