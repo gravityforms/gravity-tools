@@ -61,12 +61,9 @@ class Connect_Runner extends Runner {
 
 		$existing = $wpdb->get_results( $check_sql );
 
-		if ( ! empty( $existing ) ) {
-			$response = sprintf( 'Connection from %s ID %s to %s ID %s already exists.', $from_object, $from_id, $to_object, $to_id );
-			wp_send_json_success( $response );
+		if (  empty( $existing ) ) {
+		  $connect_sql = sprintf( 'INSERT INTO %s ( %s_id, %s_id ) VALUES( "%s", "%s" )', $table_name, $from_object, $to_object, $from_id, $to_id );
 		}
-
-		$connect_sql = sprintf( 'INSERT INTO %s ( %s_id, %s_id ) VALUES( "%s", "%s" )', $table_name, $from_object, $to_object, $from_id, $to_id );
 
 		$wpdb->query( $connect_sql );
 	}
