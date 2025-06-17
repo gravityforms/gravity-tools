@@ -3,10 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use Gravity_Forms\Gravity_Tools\Utils\GeoData;
 
-function __( $string, $namespace ) {
-	return sprintf( '%s-%s', $string, $namespace );
-}
-
 class GeoDataTest extends TestCase {
 
 	public function testCountriesDataIsProperlyFormatted() {
@@ -19,7 +15,7 @@ class GeoDataTest extends TestCase {
 		$this->assertTrue( array_key_exists( 'CA', $countries_data ) );
 
 		// Countries data values should be translated
-		$this->assertEquals( $countries_data['AU'], 'Australia-gravitytools');
+		$this->assertEquals( $countries_data['AU'], 'Australia');
 	}
 
 	public function testCountriesDataCanBeTransformed() {
@@ -42,7 +38,7 @@ class GeoDataTest extends TestCase {
 
 		$countries_data = json_decode( $countries_data, true );
 
-		$this->assertEquals( $countries_data['AU'], 'Australia-gravitytools' );
+		$this->assertEquals( $countries_data['AU'], 'Australia' );
 	}
 
 	public function testPhoneDataReturns() {
