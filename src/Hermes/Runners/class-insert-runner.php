@@ -83,7 +83,7 @@ class Insert_Runner extends Runner {
 
 		$objects_gql = sprintf( '{ %s: %s(id_in: %s){ %s }', $object_model->type(), $object_model->type(), implode( '|', $inserted_ids ), $mutation->return_fields() );
 
-		$data = $this->query_handler->handle_query( $objects_gql );
+		$data = $this->query_handler->handle_query( $objects_gql, $return );
 
 		if ( $return ) {
 			return $data;
