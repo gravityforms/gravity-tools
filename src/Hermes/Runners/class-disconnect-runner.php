@@ -23,7 +23,7 @@ class Disconnect_Runner extends Runner {
 	 *
 	 * @return void
 	 */
-	public function run( $mutation, $object_model ) {
+	public function run( $mutation, $object_model, $return = false ) {
 		$from_object = $mutation->from_object();
 		$to_object   = $mutation->to_object();
 		$pairs       = $mutation->pairs();
@@ -36,6 +36,10 @@ class Disconnect_Runner extends Runner {
 		}
 
 		$response = sprintf( '%s connections from %s to %s removed.', count( $pairs ), $from_object, $to_object );
+
+		if ( $return ) {
+			return $response;
+		}
 
 		wp_send_json_success( $response );
 	}

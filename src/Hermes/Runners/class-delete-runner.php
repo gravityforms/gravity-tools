@@ -21,7 +21,7 @@ class Delete_Runner extends Runner {
 	 *
 	 * @return void
 	 */
-	public function run( $mutation, $object_model ) {
+	public function run( $mutation, $object_model, $return = false ) {
 		global $wpdb;
 
 		$ids_to_delete = $mutation->ids_to_delete();
@@ -40,6 +40,10 @@ class Delete_Runner extends Runner {
 		}
 
 		$wpdb->query( $delete_sql );
+
+		if( $return ) {
+			return $ids_to_delete;
+		}
 
 		wp_send_json_success( array( 'deleted_ids' => $ids_to_delete ) );
 	}

@@ -36,7 +36,7 @@ class Insert_Runner extends Runner {
 	 *
 	 * @return void
 	 */
-	public function run( $mutation, $object_model ) {
+	public function run( $mutation, $object_model, $return = false ) {
 		$insertion_objects = $mutation->children();
 		$inserted_ids      = array();
 		$child_ids         = array();
@@ -60,7 +60,7 @@ class Insert_Runner extends Runner {
 				if ( ! isset( $child_ids[ $object->parent_object_type() ] ) ) {
 					$child_ids[ $object->parent_object_type() ] = array();
 				}
-				
+
 				if ( ! isset( $child_ids[ $object->parent_object_type() ][ $object->object_type() ] ) ) {
 					$child_ids[ $object->parent_object_type() ][ $object->object_type() ] = array();
 				}
@@ -84,6 +84,10 @@ class Insert_Runner extends Runner {
 		$objects_gql = sprintf( '{ %s: %s(id_in: %s){ %s }', $object_model->type(), $object_model->type(), implode( '|', $inserted_ids ), $mutation->return_fields() );
 
 		$data = $this->query_handler->handle_query( $objects_gql );
+
+		if ( $return ) {
+			return $data;
+		}
 
 		wp_send_json_success( $data );
 	}

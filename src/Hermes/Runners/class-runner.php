@@ -78,10 +78,11 @@ abstract class Runner {
 	 *
 	 * @param Mutation_Token $mutation
 	 * @param Model          $object_model
+	 * @param bool           $return
 	 *
 	 * @return void
 	 */
-	abstract public function run( $mutation, $object_model );
+	abstract public function run( $mutation, $object_model, $return = false );
 
 	/**
 	 * Helper method to take an array of fields and return a comma-delimited
