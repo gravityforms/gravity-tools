@@ -109,10 +109,11 @@ class Mutation_Handler {
 	 * mutation.
 	 *
 	 * @param string $mutation_string
+	 * @param bool   $return
 	 *
 	 * @return void
 	 */
-	public function handle_mutation( $mutation_string ) {
+	public function handle_mutation( $mutation_string, $return = false ) {
 		global $wpdb;
 
 		// Pass the string to the Generic Mutation token to determine the specific mutation type.
@@ -140,23 +141,23 @@ class Mutation_Handler {
 		// Handle the actual mutation based on the identified mutation type by calling its appropriate Runner.
 		switch ( $mutation->operation() ) {
 			case 'insert':
-				$this->insert_runner->run( $mutation, $object_model );
+				$this->insert_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'update':
-				$this->update_runner->run( $mutation, $object_model );
+				$this->update_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'delete':
-				$this->delete_runner->run( $mutation, $object_model );
+				$this->delete_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'connect':
-				$this->connect_runner->run( $mutation, $object_model );
+				$this->connect_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'disconnect':
-				$this->disconnect_runner->run( $mutation, $object_model );
+				$this->disconnect_runner->run( $mutation, $object_model, $return );
 				break;
 			default:
 				if ( array_key_exists( $mutation->operation(), $this->all_runners ) ) {
-					$this->all_runners[ $mutation->operation() ]->run( $mutation, $object_model );
+					$this->all_runners[ $mutation->operation() ]->run( $mutation, $object_model, $return );
 					break;
 				}
 				break;

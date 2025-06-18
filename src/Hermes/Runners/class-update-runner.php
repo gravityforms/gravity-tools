@@ -25,7 +25,7 @@ class Update_Runner extends Runner {
 	 *
 	 * @return void
 	 */
-	public function run( $mutation, $object_model ) {
+	public function run( $mutation, $object_model, $return = false ) {
 		$fields_to_update = $mutation->children()->children();
 
 		if ( ! array_key_exists( 'id', $fields_to_update ) ) {
@@ -45,6 +45,10 @@ class Update_Runner extends Runner {
 		$objects_gql = sprintf( '{ %s: %s(id: %s){ %s }', $object_model->type(), $object_model->type(), $object_id, implode( ', ', $mutation->return_fields() ) );
 
 		$data = $this->query_handler->handle_query( $objects_gql );
+
+		if ( $return ) {
+			return $data;
+		}
 
 		wp_send_json_success( $data );
 	}
