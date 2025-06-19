@@ -66,7 +66,6 @@ class Insert_Runner extends Runner {
 				}
 
 				$child_ids[ $object->parent_object_type() ][ $object->object_type() ][] = $inserted_id;
-				continue;
 			}
 
 			if ( ! empty( $child_ids[ $object->object_type() ] ) ) {
