@@ -16,7 +16,7 @@ interface Destination {
 	 *
 	 * @return string[]
 	 */
-	public function keys( $args );
+	public function keys( $args = array() );
 
 	/**
 	 * Determine if this Destination has the given key.

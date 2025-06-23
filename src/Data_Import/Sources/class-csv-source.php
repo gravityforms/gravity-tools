@@ -14,23 +14,40 @@ class CSV_Source implements Source {
 	/**
 	 * Parse and store the passed CSV data.
 	 *
-	 * @param string $data - The raw CSV string data.
+	 * @param string $data - The raw CSV string data
 	 *
 	 * @return void
 	 */
 	public function set_data( $data ) {
 		$this->raw_data = $data;
-		$this->data     = str_getcsv( $data );
+		$rows           = array_map( 'str_getcsv', $data );
+		$header         = array_shift( $rows );
+		$csv            = array();
+
+		foreach ( $rows as $row ) {
+			$csv[] = array_combine( $header, $row );
+		}
+
+		$this->data = $csv;
 	}
 
 	/**
 	 * Get all of the available keys from the CSV headers.
 	 *
-	 * @param array $args - An array of additional args, info, or data needed.
+	 * @param array $args - An array of additional args, info, or data needed
 	 *
 	 * @return array
 	 */
-	public function keys( $args ) {
+	public function keys( $args = array() ) {
+		$data = $this->data;
+
+		if ( empty( $data ) ) {
+			return array();
+		}
+
+		$entry = array_shift( $data );
+
+		return array_keys( $entry );
 	}
 
 	/**
@@ -41,6 +58,7 @@ class CSV_Source implements Source {
 	 * @return bool
 	 */
 	public function has_key( $key ) {
+		return in_array( $key, $this->keys() );
 	}
 
 	/**
@@ -50,10 +68,10 @@ class CSV_Source implements Source {
 	 *
 	 * @return Record[]
 	 */
-	public function records( $args ) {
+	public function records( $args = array() ) {
 		$records = array();
-		
-		foreach( $this->data as $row ) {
+
+		foreach ( $this->data as $row ) {
 			$records[] = new Record( $row );
 		}
 
@@ -67,7 +85,7 @@ class CSV_Source implements Source {
 	 *
 	 * @return int
 	 */
-	public function count( $args ) {
+	public function count( $args = array() ) {
 		return count( $this->data );
 	}
 
@@ -80,6 +98,7 @@ class CSV_Source implements Source {
 	 *
 	 * @return Record[]
 	 */
-	public function slice( $count, $offset, $additional_args ) {
+	public function slice( $count, $offset, $additional_args = array() ) {
+		return array_slice( $this->data, $offset, $count, true );
 	}
 }

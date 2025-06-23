@@ -30,7 +30,7 @@ interface Source {
 	 *
 	 * @return array
 	 */
-	public function keys( $args );
+	public function keys( $args = array() );
 
 	/**
 	 * Determine if this source has a given key.
@@ -48,7 +48,7 @@ interface Source {
 	 *
 	 * @return Record[]
 	 */
-	public function records( $args );
+	public function records( $args = array() );
 
 	/**
 	 * Get the record count for this source.
@@ -57,7 +57,7 @@ interface Source {
 	 *
 	 * @return int
 	 */
-	public function count( $args );
+	public function count( $args = array() );
 
 	/**
 	 * Get a specific slice of records from this source.
@@ -68,5 +68,5 @@ interface Source {
 	 *
 	 * @return Record[]
 	 */
-	public function slice( $count, $offset, $additional_args );
+	public function slice( $count, $offset, $additional_args = array() );
 }
