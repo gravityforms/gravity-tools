@@ -12,7 +12,7 @@ class Bettarray implements ArrayAccess {
 		$this->array = $array;
 	}
 
-	public function data() {
+	public function all() {
 		return $this->array;
 	}
 
@@ -49,8 +49,54 @@ class Bettarray implements ArrayAccess {
 		return $this->delete_nested_value( $key );
 	}
 
+	public function slice( $offset, $count ) {
+		$data = $this->array;
+
+		$sliced = array_slice( $data, $offset, $count );
+
+		return new self( $sliced );
+	}
+
+	public function pluck( $search_key ) {
+		$results = array();
+
+		foreach( $this->array as $row ) {
+			if ( isset( $row[ $search_key ]) ) {
+				$results[] = $row[ $search_key ];
+			}
+		}
+
+		return new self( $results );
+	}
+
+	public function filter( callable $callback ) {
+		$results = array();
+
+		foreach( $this->array as $row ) {
+			$matched = call_user_func( $callback, $row );
+			if ( $matched ) {
+				$results[] = $row;
+			}
+		}
+
+		return new self( $results );
+	}
+
+	public function count() {
+		return count( $this->array );
+	}
+
+	public function dd() {
+		var_dump( $this->array );
+		die();
+	}
+
+	public function dump() {
+		var_dump( $this->array );
+	}
+
 	public function append( $key, $value ) {
-		$existing = $this->get_nested_value( $key );
+		$existing = $this->get_nested_value( $key, false );
 
 		if ( ! is_array( $existing ) ) {
 			$existing = array();
@@ -62,7 +108,7 @@ class Bettarray implements ArrayAccess {
 	}
 
 	public function amend( $key, $value ) {
-		$existing = $this->get_nested_value( $key );
+		$existing = $this->get_nested_value( $key, false );
 
 		if ( ! is_array( $existing ) ) {
 			$existing = array();
@@ -73,13 +119,17 @@ class Bettarray implements ArrayAccess {
 		$this->update_nested_value( $key, $existing );
 	}
 
-	private function get_nested_value( $key ) {
+	private function get_nested_value( $key, $as_bettarray = true ) {
 		$current = $this->array;
 		$key_arr = explode( '.', $key );
 
 		while ( count( $key_arr ) ) {
 			$new_key = array_shift( $key_arr );
 			$current = isset( $current[ $new_key ] ) ? $current[ $new_key ] : array();
+		}
+
+		if ( is_array( $current ) && $as_bettarray ) {
+			return new self( $current );
 		}
 
 		return $current;
