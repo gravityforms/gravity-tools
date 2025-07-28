@@ -68,7 +68,7 @@ class Query_Handler {
    *
    * @return array
    */
-  public function handle_query( $query_string ) {
+  public function handle_query( $query_string, $return = false ) {
     global $wpdb;
 
     // Parse to token array
@@ -115,6 +115,10 @@ class Query_Handler {
 
       $results[ $data_group_name ] = $rows;
     }
+
+		if ( $return ) {
+			return $results;
+		}
 
     wp_send_json_success( $results );
   }
