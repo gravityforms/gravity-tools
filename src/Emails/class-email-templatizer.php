@@ -1,0 +1,97 @@
+<?php
+
+namespace Gravity_Forms\Gravity_Tools\Emails;
+
+use Gravity_Forms\Gravity_Tools\Utils\Bettarray;
+
+/**
+ * Email_Templatizer
+ *
+ * For the given email markup, take find any placeholder tokens and replace them with values from
+ * the provided $data. Can be used for any markup.
+ */
+class Email_Templatizer {
+
+	protected $email_template = '';
+	protected $open_delin;
+	protected $close_delin;
+
+	/**
+	 * @param string $email_template The markup to parse
+	 * @param string $open_delin     The string to use for the opening delimiter for tokens. Defaults to '{{'.
+	 * @param string $close_delin    The string to use for the closing delimiter for tokens. Defaults to '}}'.
+	 *
+	 * @return void
+	 */
+	public function __construct( $email_template, $open_delin = '{{', $close_delin = '}}' ) {
+		$this->email_template = $email_template;
+		$this->open_delin     = $open_delin;
+		$this->close_delin    = $close_delin;
+	}
+
+	/**
+	 * Take the stored markup and render it with the given placeholder values.
+	 *
+	 * @param array|Bettarray $data       the data to use with the placeholders
+	 * @param int             $max_length the maximum length, in characters, for the markup
+	 * @param bool            $echo       whether to echo the markup (if false, markup will be returned)
+	 *
+	 * @return string|void
+	 */
+	public function render( $data, $max_length = false, $echo = false ) {
+		// Cast to Bettarray to allow dot navigation.
+		if ( ! is_a( $data, Bettarray::class ) ) {
+			$data = new Bettarray( $data );
+		}
+
+		$rendered = $this->handle_placeholders( $data );
+
+		if ( $max_length ) {
+			$rendered = $this->truncate_markup( $rendered, $max_length );
+		}
+
+		if ( $echo ) {
+			echo $rendered;
+
+			return;
+		}
+
+		return $rendered;
+	}
+
+	/**
+	 * Process the markup to replace placeholders with data.
+	 *
+	 * @param Bettarray $data the data containing the placeholder values
+	 *
+	 * @return string
+	 */
+	private function handle_placeholders( $data ) {
+		$pattern = sprintf( '/%s[^%s]*%s/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->close_delin ) );
+
+		return preg_replace_callback( $pattern, function ( $matches ) use ( $data ) {
+			$cleaned = str_replace( $this->open_delin, '', $matches[0] );
+			$cleaned = str_replace( $this->close_delin, '', $cleaned );
+			$search  = trim( $cleaned );
+
+			$replacement = $data->get( $search );
+			$sanitized   = strip_tags( $replacement );
+
+			return $sanitized;
+		}, $this->email_template );
+	}
+
+	/**
+	 * A basic method to truncate the markup to $max_length characters.
+	 *
+	 * @todo Update to handle tags more gracefully to ensure none get truncated.
+	 *
+	 * @param string $markup     the markup to modify
+	 * @param int    $max_length the number of characters to which the markup should be limited
+	 *
+	 * @return string
+	 */
+	private function truncate_markup( $markup, $max_length ) {
+		return substr( $markup, 0, $max_length );
+	}
+}
