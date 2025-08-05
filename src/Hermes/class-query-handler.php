@@ -640,7 +640,10 @@ class Query_Handler {
     }
 
     // get rid of dupes
-    return array_unique( $all_ids );
+		$all_ids = array_unique( $all_ids );
+
+		// remove empty values
+		return array_filter( $all_ids );
   }
 
   /**
