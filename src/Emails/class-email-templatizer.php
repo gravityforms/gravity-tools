@@ -44,7 +44,8 @@ class Email_Templatizer {
 			$data = new Bettarray( $data );
 		}
 
-		$rendered = $this->handle_placeholders( $data );
+		$rendered = $this->handle_conditionals( $data );
+		$rendered = $this->handle_placeholders( $data, $rendered );
 
 		if ( $max_length ) {
 			$rendered = $this->truncate_markup( $rendered, $max_length );
@@ -62,11 +63,16 @@ class Email_Templatizer {
 	/**
 	 * Process the markup to replace placeholders with data.
 	 *
-	 * @param Bettarray $data the data containing the placeholder values
+	 * @param Bettarray $data   the data containing the placeholder values
+	 * @param string    $markup if passed, the markup to act upon
 	 *
 	 * @return string
 	 */
-	private function handle_placeholders( $data ) {
+	private function handle_placeholders( $data, $markup = false ) {
+		if ( ! $markup ) {
+			$markup = $this->email_template;
+		}
+
 		$pattern = sprintf( '/%s[^%s]*%s/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->close_delin ) );
 
 		return preg_replace_callback( $pattern, function ( $matches ) use ( $data ) {
@@ -78,7 +84,37 @@ class Email_Templatizer {
 			$sanitized   = strip_tags( $replacement );
 
 			return $sanitized;
-		}, $this->email_template );
+		}, $markup );
+	}
+
+	private function handle_conditionals( $data, $markup = false ) {
+		if ( ! $markup ) {
+			$markup = $this->email_template;
+		}
+
+		$pattern = sprintf( '/(%s%%if[^%%]+%%%s)([^%s]+)(%s%%endif%%%s)/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->close_delin ), preg_quote( $this->open_delin ), preg_quote( $this->close_delin ) );
+
+		return preg_replace_callback( $pattern, function( $matches ) use ( $data ) {
+			// Something has gone terribly awry, just return the original text.
+			if ( count( $matches ) !== 4 ) {
+				return $matches[0];
+			}
+
+			$opening = $matches[1];
+			$contents = $matches[2];
+
+			$condition = str_replace( $this->open_delin . '%if', '', $opening );
+			$condition = str_replace( '%' . $this->close_delin, '', $condition );
+			$condition = trim( $condition );
+
+			$check_val = $data->get_raw( $condition );
+
+			if ( empty( $check_val ) ) {
+				return '';
+			}
+
+			return $contents;
+		}, $markup );
 	}
 
 	/**

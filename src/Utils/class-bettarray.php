@@ -41,6 +41,10 @@ class Bettarray implements ArrayAccess {
 		return $this->get_nested_value( $key );
 	}
 
+	public function get_raw( $key ) {
+		return $this->get_nested_value( $key, false );
+	}
+
 	public function set( $key, $value ) {
 		return $this->update_nested_value( $key, $value );
 	}
