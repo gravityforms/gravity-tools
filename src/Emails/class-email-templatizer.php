@@ -80,7 +80,12 @@ class Email_Templatizer {
 			$cleaned = str_replace( $this->close_delin, '', $cleaned );
 			$search  = trim( $cleaned );
 
-			$replacement = $data->get( $search );
+			$replacement = $data->get_raw( $search );
+
+			if ( ! is_string( $replacement ) && ! is_numeric( $replacement ) ) {
+				return $matches[0];
+			}
+
 			$sanitized   = strip_tags( $replacement );
 
 			return $sanitized;
@@ -92,19 +97,19 @@ class Email_Templatizer {
 			$markup = $this->email_template;
 		}
 
-		$pattern = sprintf( '/(%s%%if[^%%]+%%%s)([^%s]+)(%s%%endif%%%s)/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->close_delin ), preg_quote( $this->open_delin ), preg_quote( $this->close_delin ) );
+		$pattern = sprintf( '/(%s\|if[^\|]+\|%s)([^\|]+)(%s\|endif\|%s)/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->open_delin ), preg_quote( $this->close_delin ) );
 
-		return preg_replace_callback( $pattern, function( $matches ) use ( $data ) {
+		return preg_replace_callback( $pattern, function ( $matches ) use ( $data ) {
 			// Something has gone terribly awry, just return the original text.
 			if ( count( $matches ) !== 4 ) {
 				return $matches[0];
 			}
 
-			$opening = $matches[1];
+			$opening  = $matches[1];
 			$contents = $matches[2];
 
-			$condition = str_replace( $this->open_delin . '%if', '', $opening );
-			$condition = str_replace( '%' . $this->close_delin, '', $condition );
+			$condition = str_replace( $this->open_delin . '|if', '', $opening );
+			$condition = str_replace( '|' . $this->close_delin, '', $condition );
 			$condition = trim( $condition );
 
 			$check_val = $data->get_raw( $condition );
