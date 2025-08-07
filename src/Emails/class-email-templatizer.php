@@ -44,7 +44,8 @@ class Email_Templatizer {
 			$data = new Bettarray( $data );
 		}
 
-		$rendered = $this->handle_conditionals( $data );
+		$rendered = $this->handle_loops( $data );
+		$rendered = $this->handle_conditionals( $data, $rendered );
 		$rendered = $this->handle_placeholders( $data, $rendered );
 
 		if ( $max_length ) {
@@ -60,6 +61,56 @@ class Email_Templatizer {
 		return $rendered;
 	}
 
+	private function handle_loops( $data, $markup = false ) {
+		if ( ! $markup ) {
+			$markup = $this->email_template;
+		}
+
+		$pattern = sprintf( '/(%s\|for[^\|]+\|%s)([^\|]+)(%s\|endfor\|%s)/', preg_quote( $this->open_delin ), preg_quote( $this->close_delin ), preg_quote( $this->open_delin ), preg_quote( $this->close_delin ) );
+
+		return preg_replace_callback( $pattern, function ( $matches ) use ( $data ) {
+			// Something has gone terribly awry, just return the original text.
+			if ( count( $matches ) !== 4 ) {
+				return $matches[0];
+			}
+
+			$opening  = $matches[1];
+			$contents = $matches[2];
+
+			$loop = str_replace( $this->open_delin . '|for', '', $opening );
+			$loop = str_replace( '|' . $this->close_delin, '', $loop );
+			$loop = trim( $loop );
+			$loop_parts = explode( ' ', $loop );
+
+			// Loop has invalid syntax. Bail.
+			if ( count( $loop_parts ) !== 3 ) {
+				return $matches[0];
+			}
+
+			$item_name = $loop_parts[0];
+			$item_value_string = $loop_parts[2];
+
+			$item_values = $data->get_raw( $item_value_string );
+
+			if ( ! is_array( $item_values ) ) {
+				return $matches[0];
+			}
+
+			$loop_data = new Bettarray( $data->all() );
+			$loop_data->delete( $item_value_string );
+
+			$return = '';
+
+			foreach( $item_values as $item_value ) {
+				$loop_data->set( $item_name, $item_value );;
+				$template = new Email_Templatizer( $contents );
+				$return .= $template->render( $loop_data );
+			}
+
+			return $return;
+		}, $markup );
+
+	}
 	/**
 	 * Process the markup to replace placeholders with data.
 	 *

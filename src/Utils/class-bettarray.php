@@ -16,14 +16,17 @@ class Bettarray implements ArrayAccess {
 		return $this->array;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 		return isset( $this->array[ $offset ] );
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		return $this->get_nested_value( $offset );
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {
 		if ( is_null( $offset ) ) {
 			$this->array[] = $value;
@@ -33,6 +36,7 @@ class Bettarray implements ArrayAccess {
 		$this->update_nested_value( $offset, $value );
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {
 		$this->delete_nested_value( $offset );
 	}
