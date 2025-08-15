@@ -137,7 +137,7 @@ class Email_Templatizer {
 				return $matches[0];
 			}
 
-			$sanitized   = strip_tags( $replacement );
+			$sanitized = wp_kses_post( $replacement );
 
 			return $sanitized;
 		}, $markup );
