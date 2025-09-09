@@ -229,14 +229,7 @@ class Query_Handler {
     // A parent table exists, meaning this is a nested query and requires a JOIN statement relating it
     // to the parent table.
     if ( $parent_table ) {
-      $parent_model       = $this->models->get( $parent_object_type );
-      $relationship       = $parent_model->relationships()->get( $object_type );
-      $lookup_table_name  = $this->compose_join_table_name( $relationship->get_table_suffix() );
-      $lookup_table_alias = sprintf( 'join_%s', $table_alias );
-      $id_string          = sprintf( '%s_id', $object_type );
-      $parent_id_string   = sprintf( '%s_id', $parent_object_type );
-      $join_clauses[]     = sprintf( 'LEFT JOIN %s AS %s ON %s.id = %s.%s', $lookup_table_name, $lookup_table_alias, $table_alias, $lookup_table_alias, $id_string );
-      $where_clauses[]    = sprintf( '%s.%s = %s.id', $lookup_table_alias, $parent_id_string, $parent_table );
+			$this->populate_relationship_clauses( $join_clauses, $where_clauses, $parent_object_type, $object_type, $table_alias, $parent_table );
     }
 
     // Concatenate each SQL array to generate the final SQL.
@@ -263,6 +256,28 @@ class Query_Handler {
     // Return the resulting SQL
     return sprintf( 'JSON_OBJECT( %s ) %s %s %s %s %s %s %s', $field_sql, $separator_sql, $from_sql, $join_sql, $where_sql, $group_sql, $order_sql, $limit_sql );
   }
+
+	private function populate_relationship_clauses( &$join_clauses, &$where_clauses, $parent_object_type, $object_type, $table_alias, $parent_table ) {
+      $parent_model       = $this->models->get( $parent_object_type );
+      $relationship       = $parent_model->relationships()->get( $object_type );
+
+			if ( $relationship->relationship_type() === 'one_to_many' ) {
+				$this->populate_otm_relationship_clauses( $where_clauses, $relationship, $table_alias, $parent_table );
+				return;
+			}
+
+      $lookup_table_name  = $this->compose_join_table_name( $relationship->get_table_suffix() );
+      $lookup_table_alias = sprintf( 'join_%s', $table_alias );
+      $id_string          = sprintf( '%s_id', $object_type );
+      $parent_id_string   = sprintf( '%s_id', $parent_object_type );
+      $join_clauses[]     = sprintf( 'LEFT JOIN %s AS %s ON %s.id = %s.%s', $lookup_table_name, $lookup_table_alias, $table_alias, $lookup_table_alias, $id_string );
+      $where_clauses[]    = sprintf( '%s.%s = %s.id', $lookup_table_alias, $parent_id_string, $parent_table );
+	}
+
+	private function populate_otm_relationship_clauses( &$where_clauses, $relationship, $table_alias, $parent_table ) {
+		$id_string = $relationship->is_reverse() ? sprintf( '%sId', $relationship->to() ) : sprintf( '%sId', $relationship->from() );
+		$where_clauses[] = sprintf( '%s.id = %s.%s', $table_alias, $parent_table, $id_string );
+	}
 
   /**
    * Categorizes fields as either local (i.e., existing as columns within the table for the object) or meta

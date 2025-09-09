@@ -168,6 +168,48 @@ class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 	}
 }
 
+class FakeDealModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'deal';
+
+	public function fields() {
+		return array(
+			'label' => Field_Type_Validation_Enum::STRING,
+			'value' => Field_Type_Validation_Enum::INT,
+			'id' => Field_Type_Validation_Enum::INT,
+		);
+	}
+
+	protected $access_cap = 'manage_options';
+
+	public function relationships() {
+		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
+			array(
+				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'deal', 'stage', 'manage_options', true, 'one_to_many' ),
+			)
+		);
+	}
+}
+
+class FakeStageModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'stage';
+
+	public function fields() {
+		return array(
+			'label' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	protected $access_cap = 'manage_options';
+
+	public function relationships() {
+		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
+			array()
+		);
+	}
+}
+
 function gravitytools_tests_reset_db() {
 	echo "\r\n";
 	echo '=========================================' . "\r\n";
@@ -177,11 +219,9 @@ function gravitytools_tests_reset_db() {
 	$tables = array(
 		'contact',
 		'company',
-		'group',
 		'deal',
 		'pipeline',
 		'company_contact',
-		'group_contact',
 		'deal_company',
 		'deal_contact',
 		'meta',
@@ -192,6 +232,7 @@ function gravitytools_tests_reset_db() {
 		'company_phone',
 		'company_website',
 		'company_email',
+		'stage',
 	);
 
 	foreach ( $tables as $table ) {
