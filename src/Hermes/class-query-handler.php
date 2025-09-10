@@ -276,7 +276,7 @@ class Query_Handler {
 
 	private function populate_otm_relationship_clauses( &$where_clauses, $relationship, $table_alias, $parent_table ) {
 		$id_string = $relationship->is_reverse() ? sprintf( '%sId', $relationship->to() ) : sprintf( '%sId', $relationship->from() );
-		$where_clauses[] = sprintf( '%s.id = %s.%s', $table_alias, $parent_table, $id_string );
+		$where_clauses[] = sprintf( '%s.id = %s.%s', ! $relationship->is_reverse() ? $parent_table : $table_alias, ! $relationship->is_reverse() ? $table_alias : $parent_table, $id_string );
 	}
 
   /**
@@ -446,7 +446,7 @@ class Query_Handler {
 
     $object_model = $this->models->get( $object_type );
 
-    return sprintf( '%s_%s', $wpdb->prefix, $object_model->forced_table_name() );
+    return sprintf( '%s%s', $wpdb->prefix, $object_model->forced_table_name() );
   }
 
   /**
