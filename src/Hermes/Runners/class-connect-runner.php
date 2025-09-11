@@ -24,8 +24,6 @@ class Connect_Runner extends Runner {
 	 * @return void
 	 */
 	public function run( $mutation, $object_model, $return = false ) {
-		global $wpdb;
-
 		$from_object = $mutation->from_object();
 		$to_object   = $mutation->to_object();
 		$pairs       = $mutation->pairs();
@@ -67,10 +65,8 @@ class Connect_Runner extends Runner {
 		}
 
 		$table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $from_object, $to_object );
-
-		$check_sql = sprintf( 'SELECT * FROM %s WHERE %s_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
-
-		$existing = $wpdb->get_results( $check_sql );
+		$check_sql  = sprintf( 'SELECT * FROM %s WHERE %s_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
+		$existing   = $wpdb->get_results( $check_sql );
 
 		if (  empty( $existing ) ) {
 		  $connect_sql = sprintf( 'INSERT INTO %s ( %s_id, %s_id ) VALUES( "%s", "%s" )', $table_name, $from_object, $to_object, $from_id, $to_id );
@@ -81,17 +77,18 @@ class Connect_Runner extends Runner {
 
 	private function handle_otm_connection( $from_object, $to_object, $from_id, $to_id, $relationship ) {
 		global $wpdb;
-		$table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $relationship->is_reverse() ? $from_object : $to_object );
-		$id_string = sprintf( '%sId', $to_object );
 
-		$check_sql = sprintf( 'SELECT * FROM %s WHERE %s = "%s" AND id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id, $relationship->is_reverse() ? $from_id : $to_id );
-		$existing = $wpdb->get_results( $check_sql );
+		$table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $relationship->is_reverse() ? $from_object : $to_object );
+		$id_string  = sprintf( '%sId', $relationship->is_reverse() ? $to_object : $from_object );
+		$check_sql  = sprintf( 'SELECT * FROM %s WHERE %s = "%s" AND id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id, $relationship->is_reverse() ? $from_id : $to_id );
+		$existing   = $wpdb->get_results( $check_sql );
 
 		if ( ! empty( $existing ) ) {
 			return;
 		}
 
-		$connect_sql = sprintf( 'UPDATE %s SET %s = "%s" WHERE id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $from_id : $to_id, $relationship->is_reverse() ? $to_id : $from_id );
+		$connect_sql = sprintf( 'UPDATE %s SET %s = "%s" WHERE id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id, $relationship->is_reverse() ? $from_id : $to_id );
+
 		$wpdb->query( $connect_sql );
 	}
 }
