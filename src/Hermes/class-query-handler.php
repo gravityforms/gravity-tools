@@ -89,6 +89,7 @@ class Query_Handler {
       $data[ $object_name ] = array(
         'sql'             => sprintf( 'SELECT %s', $sql ),
         'transformations' => $transformations,
+		'object'		  => $object,
       );
     }
 
@@ -112,6 +113,17 @@ class Query_Handler {
       }
 
       $rows = $this->recursively_apply_transformations( $rows, $data_group_values['transformations'] );
+
+			/**
+			 * Allows third-parties to modify the rows returned from a query.
+			 *
+			 * @param array  $rows              the current result for the query
+			 * @param string $data_group_name   the name of the object being queried
+			 * @param array  $data_group_values all of the various values relevant to this request
+			 *
+			 * @return array
+			 */
+			$rows = apply_filters( 'gt_hermes_query_results', $rows, $data_group_name, $data_group_values );
 
       $results[ $data_group_name ] = $rows;
     }
@@ -547,7 +559,31 @@ class Query_Handler {
       $order = array( array( 'value' => 'DESC' ) );
     }
 
-    $response = sprintf( 'ORDER BY %s.%s %s', $table_alias, $order_by[0]['value'], $order[0]['value'] );
+		/**
+		 * Allows third-parties to modify the ORDER parameter before being applied.
+		 *
+		 * @param string The current order direction.
+		 * @param array  The arguments for this query.
+		 *
+		 * @return string (either DESC or ASC)
+		 */
+		$order = apply_filters( 'gt_hermes_order_dir', $order[0]['value'], $arguments );
+
+		/**
+		 * Allows third-parties to modify the ORDER BY parameter before being applied.
+		 *
+		 * @param string The current ORDER BY value.
+		 * @param array  The arguments for this query.
+		 *
+		 * @return string The new ORDER BY value.
+		 */
+		$order_by = apply_filters( 'gt_hermes_order_value', $order_by[0]['value'], $arguments );
+
+		if ( empty( $order_by ) ) {
+			return null;
+		}
+
+    $response = sprintf( 'ORDER BY %s.%s %s', $table_alias, $order_by, $order );
 
     return $response;
   }
