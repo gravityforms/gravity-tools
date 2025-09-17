@@ -81,7 +81,7 @@ class Insertion_Objects_Token extends Token {
 						if ( ! isset( $data[ $value ] ) ) {
 							$data[ $value ] = array();
 
-							if ( $marks[1] === 'openingObject' ) {
+							if ( $marks[1] === 'openingObject' && $object_type !== 'objects' ) {
 								$data[ $value ]['isChild'] = true;
 							}
 
@@ -125,8 +125,8 @@ class Insertion_Objects_Token extends Token {
 				continue;
 			}
 			foreach ( $object_data as $key => $value ) {
-				if ( is_array( $value ) && isset( $value['is_child'] ) ) {
-					unset( $value['is_child'] );
+				if ( is_array( $value ) && isset( $value['isChild'] ) ) {
+					unset( $value['isChild'] );
 					$this->recursively_convert_tokens_to_objects( $organized_objects, $value, $key, $current_object_type, true );
 					continue;
 				}
