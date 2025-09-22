@@ -50,6 +50,13 @@ class Query_Handler {
 	);
 
 	/**
+	 * Tracks any objects which use filtered data.
+	 *
+	 * @var array
+	 */
+	private $overridden_objects = array();
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $db_namespace
@@ -79,6 +86,14 @@ class Query_Handler {
 		foreach ( $query_token->children() as $object ) {
 			$object_name = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
 
+			$custom_data = apply_filters( 'gt_heremes_custom_object_data_' . $object->object_type(), null, $object );
+
+			if ( ! is_null( $custom_data ) ) {
+				$this->overridden_objects[] = $object_name;
+				$data[ $object_name ]       = $custom_data;
+				continue;
+			}
+
 			if ( $object->object_type() === '__schema' ) {
 				$data[ $object_name ] = $this->get_schema_values_for_query( $object );
 				continue;
@@ -100,6 +115,12 @@ class Query_Handler {
 			// Schema values do not need to be queried; just return the rows as-is.
 			if ( isset( $data_group_values['schema'] ) ) {
 				$results[ $data_group_name ] = $data_group_values['schema'];
+				continue;
+			}
+
+			// Data was overwritten by a filter, return what is there.
+			if ( in_array( $data_group_name, $this->overridden_objects ) ) {
+				$results[ $data_group_name ] = $data_group_values;
 				continue;
 			}
 
