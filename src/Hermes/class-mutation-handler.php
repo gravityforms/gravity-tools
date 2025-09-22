@@ -141,7 +141,7 @@ class Mutation_Handler {
 		// Handle the actual mutation based on the identified mutation type by calling its appropriate Runner.
 		switch ( $mutation->operation() ) {
 			case 'insert':
-				$this->insert_runner->run( $mutation, $object_model, $return );
+				return $this->insert_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'update':
 				$this->update_runner->run( $mutation, $object_model, $return );

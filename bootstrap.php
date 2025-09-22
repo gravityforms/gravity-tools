@@ -1,6 +1,7 @@
 <?php
 
 use Gravity_Forms\Gravity_Tools\Hermes\Enum\Field_Type_Validation_Enum;
+use Gravity_Forms\Gravity_Tools\Hermes\Models\Model;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection;
 use tad\FunctionMocker\FunctionMocker;
@@ -15,6 +16,31 @@ FunctionMocker::init();
 require __DIR__ . '/wp-loader.php';
 $core_loader = new WpLoader();
 $core_loader->init();
+
+class FakeUserModel extends Model {
+	protected $type = 'user';
+	protected $access_cap = 'manage_options';
+	protected $forced_table_name = 'users';
+
+	public function fields() {
+		return array(
+			'ID' => Field_Type_Validation_Enum::INT,
+			'user_login' => Field_Type_Validation_Enum::STRING,
+			'user_nicename' => Field_Type_Validation_Enum::STRING,
+			'user_email' => Field_Type_Validation_Enum::EMAIL,
+			'user_url' => Field_Type_Validation_Enum::STRING,
+			'user_registered' => Field_Type_Validation_Enum::DATE,
+			'user_status' => Field_Type_Validation_Enum::INT,
+			'display_name' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	public function relationships() {
+		return new Relationship_Collection( array(
+			new Relationship( 'user', 'deal', 'manage_options', false, 'one_to_many' ),
+		) );
+	}
+}
 
 class FakeWebsiteModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 	protected $type = 'website';
@@ -168,6 +194,49 @@ class FakeGroupModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 	}
 }
 
+class FakeDealModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'deal';
+
+	public function fields() {
+		return array(
+			'label' => Field_Type_Validation_Enum::STRING,
+			'value' => Field_Type_Validation_Enum::INT,
+			'id' => Field_Type_Validation_Enum::INT,
+		);
+	}
+
+	protected $access_cap = 'manage_options';
+
+	public function relationships() {
+		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
+			array(
+				new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship( 'deal', 'stage', 'manage_options', true, 'one_to_many' ),
+				new Relationship( 'deal', 'user', 'manage_options', true, 'one_to_many' ),
+			)
+		);
+	}
+}
+
+class FakeStageModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
+
+	protected $type = 'stage';
+
+	public function fields() {
+		return array(
+			'label' => Field_Type_Validation_Enum::STRING,
+		);
+	}
+
+	protected $access_cap = 'manage_options';
+
+	public function relationships() {
+		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
+			array()
+		);
+	}
+}
+
 function gravitytools_tests_reset_db() {
 	echo "\r\n";
 	echo '=========================================' . "\r\n";
@@ -177,11 +246,9 @@ function gravitytools_tests_reset_db() {
 	$tables = array(
 		'contact',
 		'company',
-		'group',
 		'deal',
 		'pipeline',
 		'company_contact',
-		'group_contact',
 		'deal_company',
 		'deal_contact',
 		'meta',
@@ -192,6 +259,7 @@ function gravitytools_tests_reset_db() {
 		'company_phone',
 		'company_website',
 		'company_email',
+		'stage',
 	);
 
 	foreach ( $tables as $table ) {
