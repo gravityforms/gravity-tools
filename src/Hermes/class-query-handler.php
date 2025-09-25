@@ -86,7 +86,7 @@ class Query_Handler {
 		foreach ( $query_token->children() as $object ) {
 			$object_name = ! empty( $object->alias() ) ? $object->alias() : $object->object_type();
 
-			$custom_data = apply_filters( 'gt_heremes_custom_object_data_' . $object->object_type(), null, $object );
+			$custom_data = apply_filters( 'gt_hermes_custom_object_data_' . $object->object_type(), null, $object );
 
 			if ( ! is_null( $custom_data ) ) {
 				$this->overridden_objects[] = $object_name;
