@@ -94,4 +94,9 @@ class MoolaTest extends TestCase {
 		$this->assertEquals( '10', $moola->display_value() );
 	}
 
+	public function testDisplayValueConversion() {
+		$moola = new Moola( '$1000.00', 'USD', false );
+		$this->assertEquals( 100000, $moola->raw_value() );
+	}
+
 }

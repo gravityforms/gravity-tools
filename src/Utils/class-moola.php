@@ -558,7 +558,10 @@ class Moola {
 		),
 	);
 
-	public function __construct( $amount, $currency_code ) {
+	public function __construct( $amount, $currency_code, $is_raw = true ) {
+		if ( ! $is_raw ) {
+			$amount = $this->convert_display_amount_to_raw( $amount, $currency_code );
+		}
 		$this->amount        = $amount;
 		$this->currency_code = $currency_code;
 
@@ -614,6 +617,29 @@ class Moola {
 		if ( $new_data['decimals'] < $current_data['decimals'] ) {
 			$this->amount = $this->amount / $modifier;
 		}
+	}
+
+	public function convert_display_amount_to_raw( $display_value, $currency_code ) {
+		$currency_data = $this->get_currency_data( $currency_code );
+		$sanitized = $this->sanitize_display_value( $display_value );
+
+		$modifier = 1;
+
+		for( $i = 0; $i < $currency_data['decimals']; $i++ ) {
+			$modifier *= 10;
+		}
+
+		return $sanitized * $modifier;
+	}
+
+	private function sanitize_display_value( $display_value ) {
+		$stripped = preg_replace( "/[^0-9.]/", "", $display_value );
+
+		if ( ! is_numeric( $stripped ) ) {
+			throw new InvalidArgumentException( 'Invalid display value provided for sanitization.' );
+		}
+
+		return floatval( $stripped );
 	}
 
 	private function get_currency_data( $currency_code ) {
