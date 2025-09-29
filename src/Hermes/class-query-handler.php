@@ -787,10 +787,11 @@ class Query_Handler {
 		foreach ( $data->fields() as $field ) {
 			if ( is_a( $field, Data_Object_From_Array_Token::class ) ) {
 				$this_alias                     = ! empty( $field->alias() ) ? $field->alias() : $field->object_type();
-				$transformations[ $this_alias ] = $this->recursively_get_transformations( $field, $transformations );
+				$transformations[ $this_alias ] = $this->recursively_get_transformations( $field, array() );
+				continue;
 			}
 
-			$arguments = $field->arguments();
+			$arguments = $field->arguments( false );
 
 			if ( empty( $arguments ) ) {
 				continue;
@@ -800,11 +801,7 @@ class Query_Handler {
 				'items' => array(),
 			);
 
-			if ( ! is_array( $arguments ) ) {
-				$arguments = $arguments->items();
-			}
-
-			foreach ( $arguments as $argument ) {
+			foreach ( $arguments->items() as $argument ) {
 				if ( strpos( $argument['key'], 'transform' ) !== false ) {
 					$transformations[ $field->alias() ]['items'][ $argument['key'] ] = array(
 						'key'         => $argument['key'],
