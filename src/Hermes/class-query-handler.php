@@ -800,7 +800,11 @@ class Query_Handler {
 				'items' => array(),
 			);
 
-			foreach ( $arguments->items() as $argument ) {
+			if ( ! is_array( $arguments ) ) {
+				$arguments = $arguments->items();
+			}
+
+			foreach ( $arguments as $argument ) {
 				if ( strpos( $argument['key'], 'transform' ) !== false ) {
 					$transformations[ $field->alias() ]['items'][ $argument['key'] ] = array(
 						'key'         => $argument['key'],
