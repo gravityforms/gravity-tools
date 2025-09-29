@@ -8,30 +8,44 @@ class Beltloop {
 		$indexed = array();
 
 		foreach ( $data as $datum ) {
-			$indexed[ $datum[ $sort_key ] ] = $datum;
+			$indexed[] = array(
+				'sort_val' => $datum[ $sort_key ],
+				'data' => $datum,
+			);
 		}
 
 		$sorted = array();
 
-		$current_index = null;
-
-		if ( ! array_key_exists( null, $indexed ) ) {
-			$current_index = array_key_first( $indexed );
-		}
+		$current_index = 0;
 
 		while ( count( $indexed ) ) {
-			if ( ! array_key_exists( $current_index, $indexed ) ) {
-				$current_index = array_key_first( $indexed );
-			}
-
-			$current  = $indexed[ $current_index ];
+			$item_by_idx = self::get_matching_item_by_sort_key( $current_index, $indexed );
+			$current  = $item_by_idx['data'];
 			$sorted[] = $current;
 
-			unset( $indexed[ $current_index ] );
+			unset( $indexed[ $item_by_idx['idx'] ] );
 			$current_index = $current[ $id_key ];
 		}
 
 		return $sorted;
+	}
+
+	private static function get_matching_item_by_sort_key( $index, $items ) {
+		$checked = array_filter( $items, function( $item ) use ( $index ) {
+			return (int) $item['sort_val'] === (int) $index;
+		} );
+
+		if ( empty( $checked ) ) {
+			return array(
+				'data' => $items[ array_key_first( $items ) ]['data'],
+				'idx' => array_key_first( $items ),
+			);
+		}
+
+		return array(
+			'data' => $checked[ array_key_first( $checked ) ]['data'],
+			'idx' => array_key_first( $checked ),
+		);
 	}
 
 	public static function partial_sort( $full_list, $partial_list, $id_key = 'id' ) {
