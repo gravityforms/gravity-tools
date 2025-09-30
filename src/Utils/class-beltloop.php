@@ -37,8 +37,8 @@ class Beltloop {
 
 		if ( empty( $checked ) ) {
 			return array(
-				'data' => $items[ array_key_first( $items ) ]['data'],
-				'idx' => array_key_first( $items ),
+				'data' => $items[ array_key_last( $items ) ]['data'],
+				'idx' => array_key_last( $items ),
 			);
 		}
 
