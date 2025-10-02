@@ -136,9 +136,9 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 	public function relationships() {
 		return new \Gravity_Forms\Gravity_Tools\Hermes\Utils\Relationship_Collection(
 			array(
-				new Relationship( 'contact', 'email', 'manage_options' ),
-				new Relationship( 'contact', 'phone', 'manage_options' ),
-				new Relationship( 'contact', 'website', 'manage_options' ),
+				new Relationship( 'contact', 'email', 'manage_options', false, 'one_to_many' ),
+				new Relationship( 'contact', 'phone', 'manage_options', false, 'one_to_many' ),
+				new Relationship( 'contact', 'website', 'manage_options', false, 'one_to_many' ),
 			)
 		);
 	}
@@ -157,12 +157,19 @@ class FakeCompanyModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	protected $access_cap = 'manage_options';
 
+	public function transformations() {
+		return array(
+			'transformMakeFoo' => function ( $arg, $value ) {
+				return sprintf( "IM%s", $arg );
+			},
+		);
+	}
 	public function relationships() {
 		$relationships = array(
 			new Relationship( 'company', 'contact', 'manage_options' ),
-			new Relationship( 'company', 'email', 'manage_options' ),
-			new Relationship( 'company', 'phone', 'manage_options' ),
-			new Relationship( 'company', 'website', 'manage_options' ),
+			new Relationship( 'company', 'email', 'manage_options', false, 'one_to_many' ),
+			new Relationship( 'company', 'phone', 'manage_options', false, 'one_to_many'  ),
+			new Relationship( 'company', 'website', 'manage_options', false, 'one_to_many'  ),
 		);
 
 		return new Relationship_Collection( $relationships );
@@ -251,14 +258,12 @@ function gravitytools_tests_reset_db() {
 		'company_contact',
 		'deal_company',
 		'deal_contact',
+		'address',
+		'social',
 		'meta',
 		'email',
-		'contact_email',
 		'phone',
 		'website',
-		'company_phone',
-		'company_website',
-		'company_email',
 		'stage',
 	);
 
