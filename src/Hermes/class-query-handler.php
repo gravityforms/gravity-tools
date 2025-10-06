@@ -676,15 +676,22 @@ class Query_Handler {
 			$table_name           = sprintf( '%s%s_%s', $wpdb_prefix, $db_namespace, $object_type );
 			$parent_relationships = array_reverse( $values['parent_relationships'] );
 
-			$id_table_alias  = count( $values['parent_relationships'] ) > 0 ? sprintf( 'pt%s', count( $values['parent_relationships'] ) ) : 'mt';
-			$id_column_alias = count( $values['parent_relationships'] ) > 0 ? sprintf( '%s.%s_id', $id_table_alias, $values['parent_relationships'][0] ) : 'id';
+			$id_table_alias  = $this->get_proper_related_table_id_for_search( $values['parent_relationships'], $object_type );
+			$id_column_alias = $this->get_proper_related_column_alias_for_search( $values['parent_relationships'], $id_table_alias, $object_type );
 			$select_clause   = sprintf( 'SELECT %s AS id FROM %s AS mt', $id_column_alias, $table_name );
 
 			$match_statements = array_map( function ( $field_name ) use ( $search_term ) {
 				return sprintf( 'MATCH( mt.%s ) AGAINST( "%s*" IN BOOLEAN MODE )', $field_name, $search_term );
 			}, $values['searchable_fields'] );
 
-			$join_statements = array_map( function ( $related_type, $idx ) use ( $object_type, $db_namespace, $wpdb_prefix, $parent_relationships ) {
+			$models = $this->models;
+
+			$join_statements = array_map( function ( $related_type, $idx ) use ( $object_type, $db_namespace, $wpdb_prefix, $parent_relationships, $models ) {
+				$object_model = $models->get( $object_type );
+				$relationship = $object_model->relationships()->get( $related_type );
+				if ( $relationship->relationship_type() === 'one_to_many' ) {
+					return null;
+				}
 				$joined_type         = $idx === 0 ? $object_type : $parent_relationships[ $idx - 1 ];
 				$joined_table_alias  = $idx === 0 ? 'mt' : sprintf( 'pt%s', $idx );
 				$joined_table_column = $idx === 0 ? 'id' : sprintf( '%s_id', $parent_relationships[ $idx - 1 ] );
@@ -692,6 +699,8 @@ class Query_Handler {
 
 				return sprintf( 'LEFT JOIN %s AS pt%s ON pt%s.%s_id = %s.%s', $join_table_name, $idx + 1, $idx + 1, $joined_type, $joined_table_alias, $joined_table_column );
 			}, $parent_relationships, array_keys( $parent_relationships ) );
+
+			$join_statements = array_filter( $join_statements );
 
 			$sql        = sprintf( '%s %s WHERE %s', $select_clause, implode( ' ', $join_statements ), implode( ' OR ', $match_statements ) );
 			$results    = $wpdb->get_results( $sql, ARRAY_A );
@@ -703,6 +712,40 @@ class Query_Handler {
 				$this->recursively_get_ids_from_relationship_map( $ids, $search_term, $values['children'] );
 			}
 		}
+	}
+
+	private function get_proper_related_table_id_for_search( $parent_relationships, $object_type ) {
+		if ( empty( $parent_relationships ) ) {
+			return 'id';
+		}
+
+		$related_type = $parent_relationships[0];
+		$object_model = $this->models->get( $object_type );
+
+		$relationship = $object_model->relationships()->get( $related_type );
+
+		if ( $relationship->relationship_type() === 'one_to_many' ) {
+			return 'mt';
+		}
+
+		return sprintf( 'pt%s', count( $parent_relationships ) );
+	}
+
+	private function get_proper_related_column_alias_for_search( $parent_relationships, $id_table_alias, $object_type ) {
+		if ( empty( $parent_relationships ) ) {
+			return 'id';
+		}
+
+		$related_type = $parent_relationships[0];
+		$object_model = $this->models->get( $object_type );
+
+		$relationship = $object_model->relationships()->get( $related_type );
+
+		if ( $relationship->relationship_type() === 'one_to_many' ) {
+			return sprintf( '%s.%sId', $id_table_alias, $related_type );
+		}
+
+		return sprintf( '%s.%s_id', $id_table_alias, $parent_relationships[0] );
 	}
 
 	/**
