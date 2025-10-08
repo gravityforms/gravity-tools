@@ -1,19 +1,29 @@
 <?php
 
-namespace hermes;
+namespace hermes\queries;
 
+use Exception;
+use FakeCompanyModel;
+use FakeContactModel;
+use FakeDealModel;
+use FakeEmailModel;
+use FakePhoneModel;
+use FakeStageModel;
+use FakeWebsiteModel;
 use Gravity_Forms\Gravity_Tools\Hermes\Mutation_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Query_Handler;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Connect_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Delete_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Disconnect_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Insert_Runner;
+use Gravity_Forms\Gravity_Tools\Hermes\Runners\Schema_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Runners\Update_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 use PHPUnit\Framework\TestCase;
 
 global $wpdb;
 
-class HandlerTest extends TestCase {
+class MutationResultsTest extends TestCase {
 
 	protected $model_collection;
 	protected $contact_model;
@@ -46,15 +56,18 @@ class HandlerTest extends TestCase {
 		$this->model_collection->add( 'stage', $this->stage_model );
 		$this->db_namespace = 'gravitycrm';
 
-		$this->query_handler = new Query_Handler( $this->db_namespace, $this->model_collection );
+		$schema_runner = new Schema_Runner( $this->model_collection );
+
+		$this->query_handler = new Query_Handler( $this->db_namespace, $this->model_collection, $schema_runner );
 
 		$connect_runner = new Connect_Runner( $this->db_namespace, $this->query_handler, $this->model_collection );
 
 		$runners = array(
-			'insert'  => new Insert_Runner( $this->db_namespace, $this->query_handler, $this->model_collection, $connect_runner ),
-			'delete'  => new Delete_Runner( $this->db_namespace, $this->query_handler, $this->model_collection ),
-			'connect' => $connect_runner,
-			'update'  => new Update_Runner( $this->db_namespace, $this->query_handler, $this->model_collection ),
+			'insert'     => new Insert_Runner( $this->db_namespace, $this->query_handler, $this->model_collection, $connect_runner ),
+			'delete'     => new Delete_Runner( $this->db_namespace, $this->query_handler, $this->model_collection ),
+			'connect'    => $connect_runner,
+			'disconnect' => new Disconnect_Runner( $this->db_namespace, $this->query_handler, $this->model_collection ),
+			'update'     => new Update_Runner( $this->db_namespace, $this->query_handler, $this->model_collection ),
 		);
 
 		$this->mutation_handler = new Mutation_Handler( $this->db_namespace, $this->model_collection, $this->query_handler, $runners );
@@ -66,7 +79,9 @@ class HandlerTest extends TestCase {
     objects: [
       {
         label: "Cool Deal"
-        stage: [{ type: "work", url: "testcompany.com" }]
+				stage: [{
+					label: "New",
+				}]
       }
     ]
   ) {
@@ -74,25 +89,25 @@ class HandlerTest extends TestCase {
 			id,
 			label,
 			stage {
-
+				id,
 		}
     }
 	}
 }';
 
 		try {
-			$data = $this->mutation_handler->handle_mutation( $text );
-		} catch ( \Exception $e ) {
+			$data = $this->mutation_handler->handle_mutation( $text, true );
+		} catch ( Exception $e ) {
 			$this->assertEquals( 'success', $e->getMessage() );
 
 			return;
 		}
 
-		$this->assertEquals( 'success', 'success' );
+		$this->assertEquals( 1, count( $data['deal'] ) );
+		$this->assertEquals( 1, count( $data['deal'][0]['stage'] ) );
 	}
 
 	public function testItemsAddedWithRelationships() {
-
 		$text = '{
   insert_company(
     objects: [
@@ -130,13 +145,16 @@ class HandlerTest extends TestCase {
 }';
 
 		try {
-			$data = $this->mutation_handler->handle_mutation( $text );
-		} catch ( \Exception $e ) {
+			$data = $this->mutation_handler->handle_mutation( $text, true );
+		} catch ( Exception $e ) {
 			$this->assertEquals( 'success', $e->getMessage() );
 
 			return;
 		}
 
-		$this->assertEquals( 'success', 'success' );
+		$this->assertEquals( 1, count( $data['company'] ) );
+		$this->assertEquals( 2, count( $data['company'][0]['email'] ) );
+		$this->assertEquals( 1, count( $data['company'][0]['phone'] ) );
+		$this->assertEquals( 1, count( $data['company'][0]['website'] ) );
 	}
 }

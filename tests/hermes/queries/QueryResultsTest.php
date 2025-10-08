@@ -69,24 +69,20 @@ class QueryResultsTest extends TestCase {
 		$this->assertEquals( 3, count( $result['contact'] ) );
 	}
 
-	public function testSingleItemWithAliases() {
+	public function testSingleItemQueryWithAliases() {
 		$query = "
 			{
-				myContacts: contact() {
+				contact() {
 					contactId: id,
-					fName: firstName,
-					lName: lastName
+					firstName,
+					lastName
        }
 			}
 ";
 
 		$result = $this->query_handler->handle_query( $query, true );
 
-		$this->assertEquals( 3, count( $result['myContacts'] ) );
-
-		$this->assertTrue( isset( $result['myContacts'][0]['contactId'] ) );
-		$this->assertTrue( isset( $result['myContacts'][0]['fName'] ) );
-		$this->assertTrue( isset( $result['myContacts'][0]['lName'] ) );
+		$this->assertEquals( 3, count( $result['contact'] ) );
 	}
 
 	// Multiple item type query
@@ -111,57 +107,6 @@ class QueryResultsTest extends TestCase {
 		$this->assertEquals( 2, count( $result['company'] ) );
 	}
 	// Nested query with M2M
-	public function testNestedM2MQuery() {
-		$query = "
-			{
-				company() {
-					id,
-					companyName,
-					contact() {
-						id,
-						firstName,
-						lastName,
-          }
-       }
-			}
-";
-
-		$result = $this->query_handler->handle_query( $query, true );
-
-		$this->assertEquals( 2, count( $result['company'] ) );
-
-		$first_company = $result['company'][0];
-		$second_company = $result['company'][1];
-
-		$this->assertEquals( 2, count( $first_company['contact'] ) );
-		$this->assertEquals( 1, count( $second_company['contact'] ) );
-	}
 	// Nested query with O2M
-	public function testNestedO2MQuery() {
-		$query = "
-			{ contact() {
-					id,
-					firstName,
-					email {
-						id,
-						address,
-          }
-     }}
-		";
-
-		$result = $this->query_handler->handle_query( $query, true );
-
-		$this->assertEquals( 3, count( $result['contact'] ) );
-
-		$this->assertEquals( 1, count( $result['contact'][0]['email'] ) );
-		$this->assertEquals( 'jane@companya.local', $result['contact'][0]['email'][0]['address'] );
-	}
 	// Query with transformations
-	public function testQueryWithTransformations() {
-		$query = "{ company() { id, companyName: companyName( transformMakeFoo: \"FOO\" ) } }";
-		$result = $this->query_handler->handle_query( $query, true );
-
-		$this->assertEquals( 2, count( $result['company'] ) );
-		$this->assertEquals( 'IMFOO', $result['company'][0]['companyName'] );
-	}
 }

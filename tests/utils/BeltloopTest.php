@@ -10,139 +10,138 @@ class BeltloopTest extends TestCase {
 	public function testOrdering() {
 		$data = array(
 			array(
-				'id'               => 'seven',
-				'prevId' => 'six',
+				'id'               => 7,
+				'prevId'           => 6,
 			),
 			array(
-				'id'               => 'one',
-				'prevId' => null,
+				'id'               => 1,
+				'prevId'           => 0,
 			),
 			array(
-				'id'               => 'three',
-				'prevId' => 'two',
+				'id'               => 3,
+				'prevId'           => 2,
 			),
 			array(
-				'id'               => 'five',
-				'prevId' => 'four',
+				'id'               => 5,
+				'prevId'           => 4,
 			),
 			array(
-				'id'               => 'six',
-				'prevId' => 'five',
+				'id'               => 6,
+				'prevId'           => 5,
 			),
 			array(
-				'id'               => 'two',
-				'prevId' => 'one',
+				'id'               => 2,
+				'prevId'           => 1,
 			),
 			array(
-				'id'               => 'four',
-				'prevId' => 'three',
+				'id'               => 4,
+				'prevId'           => 3,
 			),
 		);
 
 		$expected = array(
 			array(
-				'id' => 'one',
-				'prevId' => null,
+				'id'     => 1,
+				'prevId' => 0,
 			),
 			array(
-				'id' => 'two',
-				'prevId' => 'one',
+				'id'     => 2,
+				'prevId' => 1,
 			),
 			array(
-				'id' => 'three',
-				'prevId' => 'two',
+				'id'     => 3,
+				'prevId' => 2,
 			),
 			array(
-				'id' => 'four',
-				'prevId' => 'three',
+				'id'     => 4,
+				'prevId' => 3,
 			),
 			array(
-				'id' => 'five',
-				'prevId' => 'four',
+				'id'     => 5,
+				'prevId' => 4,
 			),
 			array(
-				'id' => 'six',
-				'prevId' => 'five',
+				'id'     => 6,
+				'prevId' => 5,
 			),
 			array(
-				'id' => 'seven',
-				'prevId' => 'six',
+				'id'     => 7,
+				'prevId' => 6,
 			),
 		);
 
-		$sorted = Beltloop::sort( $data );
-
+		$sorted = Beltloop::sort( $data, 'id', 'prevId' );
 		$this->assertEquals( $expected, $sorted );
 	}
 
 	public function testSortWithMissingItems() {
 		$data = array(
 			array(
-				'id'               => 'eight',
-				'prevId' => 'seven',
+				'id'               => 8,
+				'prevId'           => 7,
 			),
 			array(
-				'id' => 'nine',
-				'prevId' => 'eight',
+				'id'     => 9,
+				'prevId' => 8,
 			),
 			array(
-				'id'               => 'three',
-				'prevId' => 'two',
+				'id'               => 3,
+				'prevId'           => 2,
 			),
 			array(
-				'id'               => 'five',
-				'prevId' => 'four',
+				'id'               => 5,
+				'prevId'           => 4,
 			),
 			array(
-				'id'               => 'six',
-				'prevId' => 'five',
+				'id'               => 7,
+				'prevId'           => 6,
 			),
 			array(
-				'id'               => 'two',
-				'prevId' => 'one',
+				'id'               => 2,
+				'prevId'           => 1,
 			),
 			array(
-				'id'               => 'one',
-				'prevId' => null,
+				'id'               => 1,
+				'prevId'           => 0,
 			),
 			array(
-				'id'               => 'four',
-				'prevId' => 'three',
+				'id'               => 4,
+				'prevId'           => 3,
 			),
 		);
 
 		$expected = array(
 			array(
-				'id' => 'one',
-				'prevId' => null,
+				'id'     => 1,
+				'prevId' => 0,
 			),
 			array(
-				'id' => 'two',
-				'prevId' => 'one',
+				'id'     => 2,
+				'prevId' => 1,
 			),
 			array(
-				'id' => 'three',
-				'prevId' => 'two',
+				'id'     => 3,
+				'prevId' => 2,
 			),
 			array(
-				'id' => 'four',
-				'prevId' => 'three',
+				'id'     => 4,
+				'prevId' => 3,
 			),
 			array(
-				'id' => 'five',
-				'prevId' => 'four',
+				'id'     => 5,
+				'prevId' => 4,
 			),
 			array(
-				'id' => 'six',
-				'prevId' => 'five',
+				'id'     => 7,
+				'prevId' => 6,
 			),
 			array(
-				'id' => 'eight',
-				'prevId' => 'seven',
+				'id'     => 8,
+				'prevId' => 7,
 			),
 			array(
-				'id' => 'nine',
-				'prevId' => 'eight',
+				'id'     => 9,
+				'prevId' => 8,
 			),
 		);
 
@@ -153,70 +152,70 @@ class BeltloopTest extends TestCase {
 	public function testPartialSort() {
 		$full_list = array(
 			array(
-				'id' => 'one',
-				'prevId' => null,
+				'id'     => 1,
+				'prevId' => 0,
 			),
 			array(
-				'id' => 'two',
-				'prevId' => 'one',
+				'id'     => 2,
+				'prevId' => 1,
 			),
 			array(
-				'id' => 'three',
-				'prevId' => 'two',
+				'id'     => 3,
+				'prevId' => 2,
 			),
 			array(
-				'id' => 'four',
-				'prevId' => 'three',
+				'id'     => 4,
+				'prevId' => 3,
 			),
 			array(
-				'id' => 'five',
-				'prevId' => 'four',
+				'id'     => 5,
+				'prevId' => 4,
 			),
 			array(
-				'id' => 'six',
-				'prevId' => 'five',
+				'id'     => 6,
+				'prevId' => 5,
 			),
 			array(
-				'id' => 'seven',
-				'prevId' => 'six',
+				'id'     => 7,
+				'prevId' => 6,
 			),
 		);
 
 		$partial_list = array(
 			array(
-				'id' => 'seven',
-				'prevId' => 'six',
+				'id'     => 7,
+				'prevId' => 6,
 			),
 			array(
-				'id' => 'four',
-				'prevId' => 'three',
+				'id'     => 4,
+				'prevId' => 3,
 			),
 			array(
-				'id' => 'one',
-				'prevId' => null,
+				'id'     => 1,
+				'prevId' => 0,
 			),
 			array(
-				'id' => 'five',
-				'prevId' => 'four',
+				'id'     => 5,
+				'prevId' => 4,
 			),
 		);
 
 		$expected = array(
 			array(
-				'id' => 'one',
-				'prevId' => null,
+				'id'     => 1,
+				'prevId' => 0,
 			),
 			array(
-				'id' => 'four',
-				'prevId' => 'three',
+				'id'     => 4,
+				'prevId' => 3,
 			),
 			array(
-				'id' => 'five',
-				'prevId' => 'four',
+				'id'     => 5,
+				'prevId' => 4,
 			),
 			array(
-				'id' => 'seven',
-				'prevId' => 'six',
+				'id'     => 7,
+				'prevId' => 6,
 			),
 		);
 

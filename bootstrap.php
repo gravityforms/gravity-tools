@@ -231,6 +231,7 @@ class FakeStageModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model {
 
 	public function fields() {
 		return array(
+			'id' => Field_Type_Validation_Enum::INT,
 			'label' => Field_Type_Validation_Enum::STRING,
 		);
 	}

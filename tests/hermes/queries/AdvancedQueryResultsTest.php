@@ -1,6 +1,6 @@
 <?php
 
-namespace hermes;
+namespace hermes\queries;
 
 use FakeDealModel;
 use FakeStageModel;
@@ -10,7 +10,7 @@ use Gravity_Forms\Gravity_Tools\Hermes\Runners\Schema_Runner;
 use Gravity_Forms\Gravity_Tools\Hermes\Utils\Model_Collection;
 use PHPUnit\Framework\TestCase;
 
-class QueryTest extends TestCase {
+class AdvancedQueryResultsTest extends TestCase {
 
 	protected $model_collection;
 	protected $query_handler;
