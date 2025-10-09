@@ -572,7 +572,7 @@ class Moola {
 		return $this->amount;
 	}
 
-	public function display_value( $precision = 0, $show_currency = false ) {
+	public function display_value( $precision = 0, $show_currency = false, $commas = false ) {
 		$currency_data = $this->get_currency_data( $this->currency_code );
 		$decimals      = (int) $currency_data['decimals'];
 
@@ -588,7 +588,10 @@ class Moola {
 			return round( $float_val, $precision );
 		}
 
-		return sprintf( '%s%s', $currency_data['symbol'], round( $float_val, $precision ) );
+		$rounded       = round( $float_val, $precision );
+		$formatted_val = $commas ? number_format( $rounded ) : $rounded;
+
+		return sprintf( '%s%s', $currency_data['symbol'], $formatted_val );
 	}
 
 	public function change_currency( $new_currency_code ) {
