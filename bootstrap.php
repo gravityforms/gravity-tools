@@ -127,8 +127,8 @@ class FakeContactModel extends \Gravity_Forms\Gravity_Tools\Hermes\Models\Model 
 
 	public function transformations() {
 		return array(
-			'transformMakeThumb' => function ( $thumb_type, $thumb_id ) {
-				return sprintf( 'thumbnail_url:%s/%s', $thumb_type, $thumb_id );
+			'transformMakeThumb' => function ( $thumb_id, $thumb_type = 'hexagon', $thumb_size = 'medium' ) {
+				return sprintf( 'thumbnail_url:%s/%s/%s', $thumb_id, $thumb_type, $thumb_size );
 			},
 		);
 	}

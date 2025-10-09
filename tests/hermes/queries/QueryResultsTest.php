@@ -109,4 +109,24 @@ class QueryResultsTest extends TestCase {
 	// Nested query with M2M
 	// Nested query with O2M
 	// Query with transformations
+	public function testQueryWithTransformations() {
+		$query = "
+		{
+			contact() {
+				id,
+				firstName,
+				lastName,
+				fakeThumb: id( transformMakeThumb: 'square|large' ),
+				fakeThumbDefaults: id( transformMakeThumb: '' ),
+				fakeThumbSingle: id( transformMakeThumb: 'rectangle' ),
+			}
+		}
+";
+
+		$result = $this->query_handler->handle_query( $query, true );
+
+		$this->assertEquals( 'thumbnail_url:1/square/large', $result['contact'][0]['fakeThumb']);
+		$this->assertEquals( 'thumbnail_url:1/hexagon/medium', $result['contact'][0]['fakeThumbDefaults']);
+		$this->assertEquals( 'thumbnail_url:1/rectangle/medium', $result['contact'][0]['fakeThumbSingle']);
+	}
 }

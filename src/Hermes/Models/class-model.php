@@ -171,6 +171,14 @@ abstract class Model {
 
 		$transformation = $this->transformations()[ $transformation_name ];
 
-		return call_user_func( $transformation, $transformation_arg, $value );
+		if ( empty( $transformation_arg ) ) {
+			return call_user_func( $transformation, $value );
+		}
+
+		if ( is_array( $transformation_arg ) ) {
+			return call_user_func( $transformation, $value, ...$transformation_arg );
+		}
+
+		return call_user_func( $transformation, $value, $transformation_arg );
 	}
 }
