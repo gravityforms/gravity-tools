@@ -802,7 +802,7 @@ class Query_Handler {
 			}
 
 			if ( $argument['comparator'] === 'in' ) {
-				$in_vals = explode( '|', $argument['value'] );
+				$in_vals = is_array( $argument['value'] ) ? $argument['value'] : explode( '|', $argument['value'] );
 
 				foreach ( $in_vals as $key => $value ) {
 					$in_vals[ $key ] = sprintf( '"%s"', $value );
