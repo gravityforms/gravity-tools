@@ -121,7 +121,7 @@ class Insertion_Objects_Token extends Token {
 
 		foreach ( $data as $object_idx => $object_data ) {
 			// Avoid bad data.
-			if ( ! is_array( $object_data ) ) {
+			if ( ! is_array( $object_data ) || empty( $object_data ) ) {
 				continue;
 			}
 			foreach ( $object_data as $key => $value ) {
