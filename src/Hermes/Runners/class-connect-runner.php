@@ -52,7 +52,7 @@ class Connect_Runner extends Runner {
 			throw new \InvalidArgumentException( $error_message, 455 );
 		}
 
-		if ( ! $object_model->relationships()->get( $to_object )->has_access() ) {
+		if ( ! $object_model->relationships()->get( $to_object )->has_access( 'edit' ) ) {
 			$error_message = sprintf( 'Attempting to access forbidden object type %s.', $to_object );
 			throw new \InvalidArgumentException( $error_message, 403 );
 		}

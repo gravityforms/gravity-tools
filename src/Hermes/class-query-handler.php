@@ -176,7 +176,7 @@ class Query_Handler {
 		$object_model = $this->models->get( $object_type );
 
 		// Ensure that the querying user has the appropriate permissions to access object.
-		if ( ! $object_model->has_access() ) {
+		if ( ! $object_model->has_access( 'view' ) ) {
 			$error_message = sprintf( 'Access not allowed for object type %s', $object_type );
 			throw new InvalidArgumentException( $error_message, 403 );
 		}

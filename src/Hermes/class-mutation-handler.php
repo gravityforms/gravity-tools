@@ -132,8 +132,29 @@ class Mutation_Handler {
 
 		$object_model = $this->models->get( $mutation->object_type() );
 
+		switch( $mutation->operation() ) {
+			case 'insert':
+				$action_check = 'create';
+				break;
+			case 'update':
+				$action_check = 'edit';
+				break;
+			case 'delete':
+				$action_check = 'delete';
+				break;
+			case 'connect':
+				$action_check = 'edit';
+				break;
+			case 'disconnect':
+				$action_check = 'edit';
+				break;
+			default:
+				$action_check = 'view';
+				break;
+		}
+
 		// Ensure the querying user has the appropriate permissions to access data for this object.
-		if ( ! $object_model->has_access() ) {
+		if ( ! $object_model->has_access( $action_check ) ) {
 			$error_message = sprintf( 'Access not allowed for object type %s', $mutation->object_type() );
 			throw new \InvalidArgumentException( $error_message, 403 );
 		}
