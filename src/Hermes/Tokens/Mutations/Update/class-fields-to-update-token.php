@@ -1,8 +1,8 @@
 <?php
 
-namespace Gravity_Forms\Gravity_CRM\Gravity_Tools\Hermes\Tokens\Mutations\Update;
+namespace Gravity_Forms\Gravity_Tools\Hermes\Tokens\Mutations\Update;
 
-use Gravity_Forms\Gravity_CRM\Gravity_Tools\Hermes\Tokens\Token;
+use Gravity_Forms\Gravity_Tools\Hermes\Tokens\Token;
 
 /**
  * Fields to Update Token

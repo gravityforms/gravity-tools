@@ -638,6 +638,10 @@ class Moola {
 	private function sanitize_display_value( $display_value ) {
 		$stripped = preg_replace( "/[^0-9.]/", "", $display_value );
 
+		if ( $stripped === '' ) {
+			$stripped = 0;
+		}
+
 		if ( ! is_numeric( $stripped ) ) {
 			throw new InvalidArgumentException( 'Invalid display value provided for sanitization.' );
 		}
