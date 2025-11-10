@@ -311,6 +311,10 @@ class Query_Handler {
 		$parent_model       = $this->models->get( $parent_object_type );
 		$relationship       = $parent_model->relationships()->get( $object_type );
 
+		if ( ! $relationship->has_access() ) {
+			throw new \InvalidArgumentException( 'Attempting to access forbidden relationship ' . $relationship->to() );
+		}
+
 		if ( $relationship->relationship_type() === 'one_to_many' ) {
 			$this->populate_otm_relationship_clauses( $where_clauses, $relationship, $table_alias, $parent_table );
 			return;
