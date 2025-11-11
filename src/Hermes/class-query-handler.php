@@ -693,7 +693,7 @@ class Query_Handler {
 			$join_statements = array_map( function ( $related_type, $idx ) use ( $object_type, $db_namespace, $wpdb_prefix, $parent_relationships, $models ) {
 				$object_model = $models->get( $object_type );
 				$relationship = $object_model->relationships()->get( $related_type );
-				if ( $relationship->relationship_type() === 'one_to_many' ) {
+				if ( ! $relationship || $relationship->relationship_type() === 'one_to_many' ) {
 					return null;
 				}
 				$joined_type         = $idx === 0 ? $object_type : $parent_relationships[ $idx - 1 ];
@@ -723,9 +723,8 @@ class Query_Handler {
 			return 'id';
 		}
 
-		$related_type = $parent_relationships[0];
+		$related_type = $parent_relationships[ array_key_last( $parent_relationships ) ];
 		$object_model = $this->models->get( $object_type );
-
 		$relationship = $object_model->relationships()->get( $related_type );
 
 		if ( $relationship->relationship_type() === 'one_to_many' ) {
@@ -740,7 +739,7 @@ class Query_Handler {
 			return 'id';
 		}
 
-		$related_type = $parent_relationships[0];
+		$related_type = $parent_relationships[ array_key_last( $parent_relationships ) ];
 		$object_model = $this->models->get( $object_type );
 
 		$relationship = $object_model->relationships()->get( $related_type );
