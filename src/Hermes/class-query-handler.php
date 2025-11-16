@@ -799,7 +799,13 @@ class Query_Handler {
 
 			if ( $argument['key'] === 'search' ) {
 				// If a search is present, we need to do some work to get an aggregate based on all the searchable fields.
-				$ids             = $this->get_aggregate_ids_for_search( $argument['value'], $object_model );
+				$ids = $this->get_aggregate_ids_for_search( $argument['value'], $object_model );
+
+				// Set the IDs to a single array value of 0 to ensure empty results are returned. (a blank IN statement throws SQL errors).
+				if ( empty( $ids ) ) {
+					$ids = array( 0 );
+				}
+
 				$where_clauses[] = sprintf( '%s.%s IN (%s)', $table_alias, 'id', implode( ', ', $ids ) );
 				continue;
 			}
