@@ -274,7 +274,7 @@ class Query_Handler {
 			'order_sql'     => $order_sql,
 		);
 
-		$query_params = apply_filters( 'gt_hermes_query_params', $query_params, $object_type, $categorized_fields, $arguments, $table_alias );
+		$query_params = apply_filters( 'gt_hermes_query_params', $query_params, $object_type, $categorized_fields, $arguments, $table_alias, $parent_table );
 
 		$field_pairs   = $query_params['field_pairs'];
 		$where_clauses = $query_params['where_clauses'];
