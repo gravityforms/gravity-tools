@@ -674,6 +674,11 @@ class Query_Handler {
 
 	private function recursively_get_ids_from_relationship_map( &$ids, $search_term, $relationship_map ) {
 		foreach ( $relationship_map as $object_type => $values ) {
+			// Nothing to search for, bail.
+			if ( empty( $values['searchable_fields'] ) ) {
+				continue;
+			}
+
 			global $wpdb;
 			$wpdb_prefix          = $wpdb->prefix;
 			$db_namespace         = $this->db_namespace;
