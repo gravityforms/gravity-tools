@@ -165,20 +165,20 @@ class Mutation_Handler {
 				return $this->insert_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'update':
-				$this->update_runner->run( $mutation, $object_model, $return );
+				return $this->update_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'delete':
-				$this->delete_runner->run( $mutation, $object_model, $return );
+				return $this->delete_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'connect':
-				$this->connect_runner->run( $mutation, $object_model, $return );
+				return $this->connect_runner->run( $mutation, $object_model, $return );
 				break;
 			case 'disconnect':
-				$this->disconnect_runner->run( $mutation, $object_model, $return );
+				return $this->disconnect_runner->run( $mutation, $object_model, $return );
 				break;
 			default:
 				if ( array_key_exists( $mutation->operation(), $this->all_runners ) ) {
-					$this->all_runners[ $mutation->operation() ]->run( $mutation, $object_model, $return );
+					return $this->all_runners[ $mutation->operation() ]->run( $mutation, $object_model, $return );
 					break;
 				}
 				break;
