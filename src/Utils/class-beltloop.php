@@ -19,7 +19,7 @@ class Beltloop {
 		$current_index = 0;
 
 		while ( count( $indexed ) ) {
-			$item_by_idx = self::get_matching_item_by_sort_key( $current_index, $indexed );
+			$item_by_idx = self::get_matching_item_by_sort_key( $current_index, $indexed, $id_key );
 			$current  = $item_by_idx['data'];
 			$sorted[] = $current;
 
@@ -30,21 +30,47 @@ class Beltloop {
 		return $sorted;
 	}
 
-	private static function get_matching_item_by_sort_key( $index, $items ) {
+	private static function get_matching_item_by_sort_key( $index, $items, $id_key = 'id' ) {
 		$checked = array_filter( $items, function( $item ) use ( $index ) {
 			return (int) $item['sort_val'] === (int) $index;
 		} );
 
-		if ( empty( $checked ) ) {
+		if ( ! empty( $checked ) ) {
 			return array(
-				'data' => $items[ array_key_last( $items ) ]['data'],
-				'idx' => array_key_last( $items ),
+				'data' => $checked[ array_key_first( $checked ) ]['data'],
+				'idx'  => array_key_first( $checked ),
 			);
 		}
 
+		if ( (int) $index !== 0 ) {
+			$heads = array_filter( $items, function( $item ) {
+				$v = $item['sort_val'];
+				return $v === null || $v === '' || (int) $v === 0;
+			} );
+			if ( ! empty( $heads ) ) {
+				$first = $heads[ array_key_first( $heads ) ];
+				return array(
+					'data' => $first['data'],
+					'idx'  => array_key_first( $heads ),
+				);
+			}
+		}
+
+		$min_id   = null;
+		$min_idx  = null;
+		$min_data = null;
+		foreach ( $items as $idx => $item ) {
+			$id = isset( $item['data'][ $id_key ] ) ? (int) $item['data'][ $id_key ] : 0;
+			if ( $min_id === null || $id < $min_id ) {
+				$min_id   = $id;
+				$min_idx  = $idx;
+				$min_data = $item['data'];
+			}
+		}
+
 		return array(
-			'data' => $checked[ array_key_first( $checked ) ]['data'],
-			'idx' => array_key_first( $checked ),
+			'data' => $min_data,
+			'idx'  => $min_idx,
 		);
 	}
 
