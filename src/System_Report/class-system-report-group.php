@@ -43,4 +43,14 @@ class System_Report_Group {
 		}, $this->items );
 	}
 
+	public function as_string() {
+		$response = '';
+
+		foreach( $this->items as $item ) {
+			$response .= $item->as_string();
+		}
+
+		return $response;
+	}
+
 }

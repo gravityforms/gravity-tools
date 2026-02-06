@@ -2,6 +2,8 @@
 
 namespace Gravity_Forms\Gravity_Tools\System_Report;
 
+use Environment_Details_Report_Details;
+
 class System_Report_Repository {
 
 	/**
@@ -11,12 +13,28 @@ class System_Report_Repository {
 
 	private static $instance;
 
-	public static function instance() {
+	public function __construct( $init_empty = false ) {
+		if ( $init_empty ) {
+			return;
+		}
+		$this->setup_environment_details();
+	}
+
+	private function setup_environment_details() {
+		$environment_details = new Environment_Details_Report_Details();
+		$groups = $environment_details->get_environment_details();
+
+		foreach( $groups as $key => $group ) {
+			$this->add( $key, $group );
+		}
+	}
+
+	public static function instance( $init_empty = false ) {
 		if ( ! is_null( self::$instance ) ) {
 			return self::$instance;
 		}
 
-		return new self();
+		return new self( $init_empty );
 	}
 
 	public function all() {
@@ -52,6 +70,17 @@ class System_Report_Repository {
 
 		foreach( $this->groups as $name => $group ) {
 			$response[ $name ] = $group->as_array();
+		}
+
+		return $response;
+	}
+
+	public function as_string() {
+		$response = '';
+
+		foreach( $this->groups as $name => $group ) {
+			$response .= sprintf( "%s\n", $name );
+			$response .= $group->as_string();
 		}
 
 		return $response;

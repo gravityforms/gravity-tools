@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class SystemReportTest extends TestCase {
 
 	public function testAddGroup() {
-		$repo  = System_Report_Repository::instance();
+		$repo  = System_Report_Repository::instance( true );
 		$group = new System_Report_Group();
 
 		$repo->add( 'foobar', $group );
@@ -21,14 +21,14 @@ class SystemReportTest extends TestCase {
 	}
 
 	public function testHasGroup() {
-		$repo  = System_Report_Repository::instance();
+		$repo  = System_Report_Repository::instance( true );
 		$group = new System_Report_Group();
 		$repo->add( 'foobar', $group );
 		$this->assertTrue( $repo->has( 'foobar' ) );
 	}
 
 	public function testDeleteGroup() {
-		$repo  = System_Report_Repository::instance();
+		$repo  = System_Report_Repository::instance( true );
 		$group = new System_Report_Group();
 		$repo->add( 'foobar', $group );
 		$this->assertTrue( $repo->has( 'foobar' ) );
@@ -40,7 +40,7 @@ class SystemReportTest extends TestCase {
 
 	public function testAddItem() {
 		$group = new System_Report_Group();
-		$item = new System_Report_Item( 'foo', 'bar' );
+		$item  = new System_Report_Item( 'foo', 'bar' );
 
 		$group->add( 'foobar', $item );
 
@@ -51,7 +51,7 @@ class SystemReportTest extends TestCase {
 
 	public function testHasItem() {
 		$group = new System_Report_Group();
-		$item = new System_Report_Item( 'foo', 'bar' );
+		$item  = new System_Report_Item( 'foo', 'bar' );
 
 		$group->add( 'foobar', $item );
 
@@ -60,7 +60,7 @@ class SystemReportTest extends TestCase {
 
 	public function testDeleteItem() {
 		$group = new System_Report_Group();
-		$item = new System_Report_Item( 'foo', 'bar' );
+		$item  = new System_Report_Item( 'foo', 'bar' );
 
 		$group->add( 'foobar', $item );
 
@@ -86,9 +86,9 @@ class SystemReportTest extends TestCase {
 	}
 
 	public function testAsArray() {
-		$repo  = System_Report_Repository::instance();
+		$repo  = System_Report_Repository::instance( true );
 		$group = new System_Report_Group();
-		$item = new System_Report_Item( 'foo', 'bar' );
+		$item  = new System_Report_Item( 'foo', 'bar' );
 		$group->add( 'foobing', $item );
 
 		$item = new System_Report_Item( 'foo', 'bash', true );
@@ -99,16 +99,41 @@ class SystemReportTest extends TestCase {
 		$expected = array(
 			'foobar' => array(
 				'foobing' => array(
-					'key' => 'foo',
+					'key'   => 'foo',
 					'value' => 'bar',
 				),
 				'foobash' => array(
-					'key' => 'foo',
+					'key'   => 'foo',
 					'value' => '**********',
-				)
-			)
+				),
+			),
 		);
 
 		$this->assertEquals( $expected, $repo->as_array() );
+	}
+
+	public function testAsString() {
+		$repo  = System_Report_Repository::instance( true );
+		$group = new System_Report_Group();
+		$item  = new System_Report_Item( 'Active Theme', 'Twenty Twenty-One' );
+		$group->add( 'active_theme', $item );
+
+		$item = new System_Report_Item( 'Secret Key', 'Bash', true );
+		$group->add( 'secret_key', $item );
+
+		$repo->add( 'Environment Details', $group );
+
+		$expected = 'Environment Details
+Active Theme: Twenty Twenty-One
+Secret Key: **********
+';
+
+		$this->assertEquals( $expected, $repo->as_string() );
+	}
+
+	public function testDefaultData() {
+		$repo = System_Report_Repository::instance();
+
+		$this->assertTrue( $repo->has( 'Translations' ) );
 	}
 }

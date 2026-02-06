@@ -41,6 +41,10 @@ class System_Report_Item {
 		);
 	}
 
+	public function as_string() {
+		return sprintf( "%s: %s\n", $this->key(), $this->value() );
+	}
+
 	private function escape( $string ) {
 		return strip_tags( $string, array( 'a' ) );
 	}
