@@ -84,4 +84,31 @@ class SystemReportTest extends TestCase {
 		$this->assertEquals( 'foo', $item->key() );
 		$this->assertEquals( '**********', $item->value() );
 	}
+
+	public function testAsArray() {
+		$repo  = System_Report_Repository::instance();
+		$group = new System_Report_Group();
+		$item = new System_Report_Item( 'foo', 'bar' );
+		$group->add( 'foobing', $item );
+
+		$item = new System_Report_Item( 'foo', 'bash', true );
+		$group->add( 'foobash', $item );
+
+		$repo->add( 'foobar', $group );
+
+		$expected = array(
+			'foobar' => array(
+				'foobing' => array(
+					'key' => 'foo',
+					'value' => 'bar',
+				),
+				'foobash' => array(
+					'key' => 'foo',
+					'value' => '**********',
+				)
+			)
+		);
+
+		$this->assertEquals( $expected, $repo->as_array() );
+	}
 }
