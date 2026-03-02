@@ -219,11 +219,11 @@ class Query_Handler {
 				$sub_sql       = $this->recursively_generate_sql( $field_alias, null, $table_alias, $object_type );
 				$sub_sql_parts = explode( '|gsmtpfieldsseparator|', $sub_sql );
 				$sub_sql       = sprintf( '( SELECT JSON_ARRAYAGG( %s ) %s )', $sub_sql_parts[0], $sub_sql_parts[1] );
-				$field_pairs[] = sprintf( '"%s", %s', $this_alias, $sub_sql );
+				$field_pairs[] = sprintf( "'%s', %s", $this_alias, $sub_sql );
 				continue;
 			}
 			$field_name = str_replace( $field_alias . '.', '', $field_name );
-			$field_pairs[] = sprintf( '"%s", %s.%s', $field_alias, $table_alias, $field_name );
+			$field_pairs[] = sprintf( "'%s', %s.%s", $field_alias, $table_alias, $field_name );
 		}
 
 		$meta_table_name = $this->compose_table_name( 'meta' );
@@ -231,7 +231,7 @@ class Query_Handler {
 		// Loop through each meta field and compose the appropriate JOIN query for gathering its data.
 		foreach ( $categorized_fields['meta'] as $field_name => $field_data ) {
 			$value_clause   = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
-			$field_pairs[]  = sprintf( '"%s", %s', $field_data['alias'], $value_clause, $field_name );
+			$field_pairs[]  = sprintf( "'%s', %s", $field_data['alias'], $value_clause, $field_name );
 			$join_clauses[] = sprintf(
 				'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
 				$meta_table_name,
@@ -248,7 +248,7 @@ class Query_Handler {
 		// If an aggregate is being called, add it as a subquery with the existing where conditions applied.
 		if ( in_array( 'aggregate', $categorized_fields['global'] ) ) {
 			$agg_alias = $categorized_fields['global']['aggregate'];
-			$agg_sql   = sprintf( '"%s", (SELECT COUNT(*) FROM %s', $agg_alias, $table_name );
+			$agg_sql   = sprintf( "'%s', (SELECT COUNT(*) FROM %s", $agg_alias, $table_name );
 
 			if ( ! empty( $where_clauses ) ) {
 				$agg_sql .= sprintf( ' WHERE %s', str_replace( $table_alias, $table_name, implode( ' AND ', $where_clauses ) ) );
@@ -410,11 +410,11 @@ class Query_Handler {
 		foreach ( $field_names as $field_name => $alias ) {
 			if ( is_a( $alias, Data_Object_From_Array_Token::class ) ) {
 				$value   = '(' . $this->recursively_generate_sql( $alias, $field_name, $table_alias, $object_type ) . ')';
-				$pairs[] = sprintf( '"%s", %s', $field_name, $value );
+				$pairs[] = sprintf( "'%s', %s", $field_name, $value );
 				continue;
 			}
 
-			$pairs[] = sprintf( '"%s", %s.%s', $alias, $table_alias, $field_name );
+			$pairs[] = sprintf( "'%s', %s.%s", $alias, $table_alias, $field_name );
 		}
 
 		return $pairs;
@@ -819,7 +819,7 @@ class Query_Handler {
 				$in_vals = is_array( $argument['value'] ) ? $argument['value'] : explode( '|', $argument['value'] );
 
 				foreach ( $in_vals as $key => $value ) {
-					$in_vals[ $key ] = sprintf( '"%s"', $value );
+					$in_vals[ $key ] = sprintf( "'%s'", $value );
 				}
 				$in_string       = implode( ', ', $in_vals );
 				$clause          = sprintf( '%s.%s IN (%s)', $table_alias, $argument['key'], $in_string );

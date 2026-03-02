@@ -107,7 +107,7 @@ abstract class Runner {
 	protected function get_field_values_list_from_fields( $fields ) {
 		$values = array_values( $fields );
 		foreach ( $values as $key => $value ) {
-			$values[ $key ] = sprintf( '"%s"', $value );
+			$values[ $key ] = sprintf( "'%s'", $value );
 		}
 
 		return implode( ', ', $values );
@@ -129,7 +129,7 @@ abstract class Runner {
 			if ( $key === 'id' ) {
 				continue;
 			}
-			$pairs[] = sprintf( '%s = "%s"', $key, $value );
+			$pairs[] = sprintf( "%s = '%s'", $key, $value );
 		}
 
 		return implode( ', ', $pairs );

@@ -117,7 +117,7 @@ class Insert_Runner extends Runner {
 			foreach ( $categorized_fields['meta'] as $key => $value ) {
 				$meta_table_name      = sprintf( '%s%s_meta', $wpdb->prefix, $this->db_namespace );
 				$insert_fields_string = 'object_type, object_id, meta_name, meta_value';
-				$insert_values_string = sprintf( '"%s", "%s", "%s", "%s"', $object_model->type(), $object_id, $key, $value );
+				$insert_values_string = sprintf( "'%s', '%s', '%s', '%s'", $object_model->type(), $object_id, $key, $value );
 				$meta_sql             = sprintf( 'INSERT INTO %s (%s) VALUES (%s)', $meta_table_name, $insert_fields_string, $insert_values_string );
 
 				$wpdb->query( $meta_sql );

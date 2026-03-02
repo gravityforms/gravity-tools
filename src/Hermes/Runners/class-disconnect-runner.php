@@ -66,7 +66,7 @@ class Disconnect_Runner extends Runner {
 
 		$table_name = sprintf( '%s%s_%s_%s', $wpdb->prefix, $this->db_namespace, $from_object, $to_object );
 
-		$disconnect_sql = sprintf( 'DELETE FROM %s WHERE %s_id = "%s" AND %s_id = "%s"', $table_name, $from_object, $from_id, $to_object, $to_id );
+		$disconnect_sql = sprintf( "DELETE FROM %s WHERE %s_id = '%s' AND %s_id = '%s'", $table_name, $from_object, $from_id, $to_object, $to_id );
 
 		$wpdb->query( $disconnect_sql );
 	}
@@ -76,7 +76,7 @@ class Disconnect_Runner extends Runner {
 		$table_name = sprintf( '%s%s_%s', $wpdb->prefix, $this->db_namespace, $relationship->is_reverse() ? $from_object : $to_object );
 		$id_string = sprintf( '%sId', $to_object );
 
-		$disconnect_sql = sprintf( 'UPDATE %s SET %s = "0" WHERE id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id );
+		$disconnect_sql = sprintf( "UPDATE %s SET %s = '0' WHERE id = '%s'", $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id );
 		$wpdb->query( $disconnect_sql );
 	}
 }
