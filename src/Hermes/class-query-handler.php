@@ -233,7 +233,7 @@ class Query_Handler {
 			$value_clause   = $parent_table ? sprintf( '%s.meta_value', $field_data['lookup_table_alias'] ) : sprintf( 'MIN(%s.meta_value)', $field_data['lookup_table_alias'] );
 			$field_pairs[]  = sprintf( "'%s', %s", $field_data['alias'], $value_clause, $field_name );
 			$join_clauses[] = sprintf(
-				'LEFT JOIN %s AS %s ON %s.object_type = "%s" AND %s.meta_name = "%s" AND %s.object_id = %s.id',
+				"LEFT JOIN %s AS %s ON %s.object_type = '%s' AND %s.meta_name = '%s' AND %s.object_id = %s.id",
 				$meta_table_name,
 				$field_data['lookup_table_alias'],
 				$field_data['lookup_table_alias'],
@@ -827,7 +827,7 @@ class Query_Handler {
 				continue;
 			}
 
-			$clause          = sprintf( '%s.%s %s "%s"', $table_alias, $argument['key'], $argument['comparator'], $argument['value'] );
+			$clause          = sprintf( "%s.%s %s '%s'", $table_alias, $argument['key'], $argument['comparator'], $argument['value'] );
 			$where_clauses[] = $clause;
 		}
 	}
