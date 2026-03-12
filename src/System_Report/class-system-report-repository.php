@@ -81,7 +81,7 @@ class System_Report_Repository {
 		foreach( $this->groups as $name => $group ) {
 			$response .= sprintf( "%s\n", $name );
 			$response .= $group->as_string();
-			$response .= "\n\n";
+			$response .= "\n";
 		}
 
 		return $response;
