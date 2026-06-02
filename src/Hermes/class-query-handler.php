@@ -336,14 +336,25 @@ class Query_Handler {
 	private function populate_custom_relationship_clauses( &$where_clauses, $relationship, $table_alias, $parent_table ) {
 		$custom_args = $relationship->custom_args();
 
-		foreach( $custom_args as $parent_val => $child_val ) {
-			if ( $child_val['type'] === 'static' ) {
-				$child_arg = $child_val['key'];
-			} else {
-				$child_arg = sprintf( '%s.%s', $table_alias, $child_val['key'] );
+		foreach ( $custom_args as $arg ) {
+			switch ( $arg['to']['table'] ) {
+				case 'parent':
+					$right = sprintf( '%s.%s', $parent_table, $arg['to']['column'] );
+					break;
+
+				case 'child':
+					$right = sprintf( '%s.%s', $table_alias, $arg['to']['column'] );
+					break;
+
+				case 'static':
+				default:
+					$right = $arg['to']['column'];
 			}
 
-			$where_clauses = sprintf( '%s.%s = %s', $parent_table, $parent_val, $child_arg );
+			$left_table = $arg['from']['table'] === 'parent' ? $parent_table : $table_alias;
+			$left       = sprintf( '%s.%s', $left_table, $arg['from']['column'] );
+
+			$where_clauses[] = sprintf( '%s = %s', $left, $right );
 		}
 	}
 
