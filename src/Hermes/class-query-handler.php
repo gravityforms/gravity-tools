@@ -315,6 +315,11 @@ class Query_Handler {
 			throw new \InvalidArgumentException( 'Attempting to access forbidden relationship ' . $relationship->to() );
 		}
 
+		if ( $relationship->has_custom_args() ) {
+			$this->populate_custom_relationship_clauses( $where_clauses, $relationship, $table_alias, $parent_table );
+			return;
+		}
+
 		if ( $relationship->relationship_type() === 'one_to_many' ) {
 			$this->populate_otm_relationship_clauses( $where_clauses, $relationship, $table_alias, $parent_table );
 			return;
@@ -326,6 +331,20 @@ class Query_Handler {
 		$parent_id_string   = sprintf( '%s_id', $parent_object_type );
 		$join_clauses[]     = sprintf( 'LEFT JOIN %s AS %s ON %s.id = %s.%s', $lookup_table_name, $lookup_table_alias, $table_alias, $lookup_table_alias, $id_string );
 		$where_clauses[]    = sprintf( '%s.%s = %s.id', $lookup_table_alias, $parent_id_string, $parent_table );
+	}
+
+	private function populate_custom_relationship_clauses( &$where_clauses, $relationship, $table_alias, $parent_table ) {
+		$custom_args = $relationship->custom_args();
+
+		foreach( $custom_args as $parent_val => $child_val ) {
+			if ( $child_val['type'] === 'static' ) {
+				$child_arg = $child_val['key'];
+			} else {
+				$child_arg = sprintf( '%s.%s', $table_alias, $child_val['key'] );
+			}
+
+			$where_clauses = sprintf( '%s.%s = %s', $parent_table, $parent_val, $child_arg );
+		}
 	}
 
 	private function populate_otm_relationship_clauses( &$where_clauses, $relationship, $table_alias, $parent_table ) {

@@ -34,46 +34,47 @@ namespace Gravity_Forms\Gravity_Tools\Hermes\Utils;
 class Relationship {
 
 	/**
-	 * @var string The object type to connect from.
-	 */
+		 * @var string the object type to connect from
+		 */
 	protected $from;
 
 	/**
-	 * @var string The object type to connect to.
+	 * @var string the object type to connect to
 	 */
 	protected $to;
 
 	/**
-	 * @var string The minimum WordPress role or capability required for accessing this relationship
-	 *             from within Queries and Mutations.
+	 * @var string the minimum WordPress role or capability required for accessing this relationship
+	 *             from within Queries and Mutations
 	 */
 	protected $cap;
 
 	/**
-	 * @var boolean Indicates if this relationship is the reversal of another relationship and should
-	 *              use the original's lookup  table for queries.
+	 * @var bool indicates if this relationship is the reversal of another relationship and should
+	 *           use the original's lookup  table for queries
 	 */
 	protected $is_reverse;
 
 	/**
-	 * @var string Indicates the type of relationship - default is many_to_many, but can be one_to_many instead.
+	 * @var array custom args to use in the WHERE conditions when making these relationship queries
+	 */
+	protected $custom_args;
+
+	/**
+	 * @var string indicates the type of relationship - default is many_to_many, but can be one_to_many instead
 	 */
 	protected $relationship_type;
 
 	/**
 	 * Constructor
-	 *
-	 * @param $from
-	 * @param $to
-	 * @param $cap
-	 * @param $is_reverse
 	 */
-	public function __construct( $from, $to, $cap, $is_reverse = false, $relationship_type = 'many_to_many' ) {
+	public function __construct( $from, $to, $cap, $is_reverse = false, $relationship_type = 'many_to_many', $custom_args = array() ) {
 		$this->from              = $from;
 		$this->to                = $to;
 		$this->cap               = $cap;
 		$this->is_reverse        = $is_reverse;
 		$this->relationship_type = $relationship_type;
+		$this->custom_args       = $custom_args;
 	}
 
 	/**
@@ -94,7 +95,6 @@ class Relationship {
 		return $this->to;
 	}
 
-
 	/**
 	 * Public $cap accessor.
 	 *
@@ -104,14 +104,14 @@ class Relationship {
 		return $this->cap;
 	}
 
-  /**
-   * Public $is_reverse accessor
-   *
-   * @return string
-   */
-  public function is_reverse() {
-    return $this->is_reverse;
-  }
+	/**
+	 * Public $is_reverse accessor
+	 *
+	 * @return string
+	 */
+	public function is_reverse() {
+		return $this->is_reverse;
+	}
 
 	/**
 	 * Whether the current user can access this relationship. (Uses current_user_can() by default).
@@ -140,6 +140,14 @@ class Relationship {
 		return $this->relationship_type === 'one_to_many';
 	}
 
+	public function has_custom_args() {
+		return ! empty( $this->custom_args );
+	}
+
+	public function custom_args() {
+		return $this->custom_args;
+	}
+
 	/**
 	 * Determines the correct table suffix when querying lookup tables.
 	 *
@@ -158,5 +166,4 @@ class Relationship {
 
 		return sprintf( '%s_%s', $this->from, $this->to );
 	}
-
 }
