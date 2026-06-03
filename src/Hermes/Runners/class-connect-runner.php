@@ -73,6 +73,8 @@ class Connect_Runner extends Runner {
 		}
 
 		$wpdb->query( $connect_sql );
+
+		do_action( 'gt_hermes_activity', 'connect', array( $from_object, $to_object, $from_id, $to_id ) );
 	}
 
 	private function handle_otm_connection( $from_object, $to_object, $from_id, $to_id, $relationship ) {
@@ -90,5 +92,7 @@ class Connect_Runner extends Runner {
 		$connect_sql = sprintf( 'UPDATE %s SET %s = "%s" WHERE id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id, $relationship->is_reverse() ? $from_id : $to_id );
 
 		$wpdb->query( $connect_sql );
+
+		do_action( 'gt_hermes_activity', 'connect', array( $from_object, $to_object, $from_id, $to_id ) );
 	}
 }

@@ -124,6 +124,8 @@ class Insert_Runner extends Runner {
 			}
 		}
 
+		do_action( 'gt_hermes_activity', 'create', array( $object_model, $categorized_fields ) );
+
 		return $object_id;
 	}
 }

@@ -85,6 +85,8 @@ class Update_Runner extends Runner {
 			}
 		}
 
+		do_action( 'gt_hermes_activity', 'update', array( $object_id, $object_model, $categorized_fields ) );
+
 		return $object_id;
 	}
 
