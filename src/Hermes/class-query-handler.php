@@ -348,7 +348,7 @@ class Query_Handler {
 
 				case 'static':
 				default:
-					$right = $arg['to']['column'];
+					$right = '"' . $arg['to']['column'] . '"';
 			}
 
 			$left_table = $arg['from']['table'] === 'parent' ? $parent_table : $table_alias;
