@@ -43,7 +43,7 @@ class Delete_Runner extends Runner {
 
 		$wpdb->query( $delete_sql );
 
-		do_action( 'gt_hermes_activity', 'delete', get_current_user_id(), array( $object_model, $ids_to_delete ) );
+		do_action( 'gt_hermes_activity', 'delete', get_current_user_id(), array( $ids_to_delete, $object_model ) );
 
 		if( $return ) {
 			return $ids_to_delete;

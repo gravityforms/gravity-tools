@@ -74,7 +74,7 @@ class Connect_Runner extends Runner {
 
 		$wpdb->query( $connect_sql );
 
-		do_action( 'gt_hermes_activity', 'connect', get_current_user_id(), array( $from_object, $to_object, $from_id, $to_id ) );
+		do_action( 'gt_hermes_activity', 'connect', get_current_user_id(), array( $from_id, $to_id, $from_object, $to_object ) );
 	}
 
 	private function handle_otm_connection( $from_object, $to_object, $from_id, $to_id, $relationship ) {
@@ -93,6 +93,6 @@ class Connect_Runner extends Runner {
 
 		$wpdb->query( $connect_sql );
 
-		do_action( 'gt_hermes_activity', 'connect', get_current_user_id(), array( $from_object, $to_object, $from_id, $to_id ) );
+		do_action( 'gt_hermes_activity', 'connect', get_current_user_id(), array( $from_id, $to_id, $from_object, $to_object ) );
 	}
 }

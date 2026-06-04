@@ -70,7 +70,7 @@ class Disconnect_Runner extends Runner {
 
 		$wpdb->query( $disconnect_sql );
 
-		do_action( 'gt_hermes_activity', 'disconnect', get_current_user_id(), array( $from_object, $to_object, $from_id, $to_id ) );
+		do_action( 'gt_hermes_activity', 'disconnect', get_current_user_id(), array( $from_id, $to_id, $from_object, $to_object ) );
 	}
 
 	public function run_otm_single( $from_object, $to_object, $from_id, $to_id, $relationship ) {
@@ -81,6 +81,6 @@ class Disconnect_Runner extends Runner {
 		$disconnect_sql = sprintf( 'UPDATE %s SET %s = "0" WHERE id = "%s"', $table_name, $id_string, $relationship->is_reverse() ? $to_id : $from_id );
 		$wpdb->query( $disconnect_sql );
 
-		do_action( 'gt_hermes_activity', 'disconnect', get_current_user_id(), array( $from_object, $to_object, $from_id, $to_id ) );
+		do_action( 'gt_hermes_activity', 'disconnect', get_current_user_id(), array( $from_id, $to_id, $from_object, $to_object ) );
 	}
 }
